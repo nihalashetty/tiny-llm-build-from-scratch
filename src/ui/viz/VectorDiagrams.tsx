@@ -168,6 +168,98 @@ export function DimensionScale() {
   );
 }
 
+/**
+ * Skip-gram in one picture: a window slides over a sentence, and each training
+ * step pulls the centre word toward its real neighbours and pushes it away from
+ * a few random ("negative") words.
+ */
+export function SkipGramDiagram() {
+  const words = ['the', 'queen', 'sits', 'on', 'the', 'throne'];
+  const centerIdx = 1;
+  const isContext = (i: number) => i !== centerIdx && Math.abs(i - centerIdx) <= 2;
+
+  return (
+    <span className="canvas-frame" style={{ display: 'block' }}>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6 }}>
+        {words.map((w, i) => {
+          const center = i === centerIdx;
+          const ctx = isContext(i);
+          return (
+            <span
+              key={i}
+              style={{
+                fontFamily: MONO,
+                fontSize: 13,
+                padding: '4px 9px',
+                borderRadius: 7,
+                border: `1.5px solid ${center ? CORAL : ctx ? GREEN : LINE}`,
+                background: center ? '#fde7de' : ctx ? '#e4f3ec' : '#f6eee1',
+                color: center ? CORAL_DEEP : ctx ? '#12795b' : MUTED,
+                fontWeight: center || ctx ? 700 : 400,
+              }}
+            >
+              {w}
+            </span>
+          );
+        })}
+      </div>
+      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 11, color: MUTED, marginBottom: 4 }}>
+        slide a window: a <span style={{ color: CORAL_DEEP, fontWeight: 700 }}>centre word</span> and the{' '}
+        <span style={{ color: '#12795b', fontWeight: 700 }}>neighbours</span> it should predict
+      </div>
+      <svg viewBox="0 0 360 128" width="100%" role="img" aria-label="Pull neighbours together, push random words apart">
+        <defs>
+          <marker id="sg-g" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L5,3 L0,6 Z" fill={GREEN} />
+          </marker>
+          <marker id="sg-c" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L5,3 L0,6 Z" fill={CORAL_DEEP} />
+          </marker>
+        </defs>
+
+        {/* dots */}
+        <circle cx={64} cy={74} r={6} fill={GREEN} />
+        <circle cx={180} cy={74} r={7.5} fill={CORAL} />
+        <circle cx={296} cy={74} r={6} fill="#c2b39a" />
+
+        {/* pull (green): arrows converging between neighbour and centre */}
+        <line x1={92} y1={56} x2={120} y2={56} stroke={GREEN} strokeWidth={2} markerEnd="url(#sg-g)" />
+        <line x1={152} y1={56} x2={124} y2={56} stroke={GREEN} strokeWidth={2} markerEnd="url(#sg-g)" />
+        <text x={122} y={44} textAnchor="middle" fontFamily={MONO} fontSize={10.5} fontWeight={700} fill={GREEN}>
+          pull together
+        </text>
+
+        {/* push (coral): arrows diverging between centre and random */}
+        <line x1={236} y1={56} x2={208} y2={56} stroke={CORAL_DEEP} strokeWidth={2} markerEnd="url(#sg-c)" />
+        <line x1={240} y1={56} x2={268} y2={56} stroke={CORAL_DEEP} strokeWidth={2} markerEnd="url(#sg-c)" />
+        <text x={238} y={44} textAnchor="middle" fontFamily={MONO} fontSize={10.5} fontWeight={700} fill={CORAL_DEEP}>
+          push apart
+        </text>
+
+        {/* labels */}
+        <text x={64} y={96} textAnchor="middle" fontFamily={MONO} fontSize={11} fill={INK}>
+          throne
+        </text>
+        <text x={64} y={110} textAnchor="middle" fontFamily={MONO} fontSize={9.5} fill={MUTED}>
+          neighbour
+        </text>
+        <text x={180} y={98} textAnchor="middle" fontFamily={MONO} fontSize={11.5} fontWeight={700} fill={CORAL_DEEP}>
+          queen
+        </text>
+        <text x={180} y={112} textAnchor="middle" fontFamily={MONO} fontSize={9.5} fill={MUTED}>
+          centre
+        </text>
+        <text x={296} y={96} textAnchor="middle" fontFamily={MONO} fontSize={11} fill={INK}>
+          fox
+        </text>
+        <text x={296} y={110} textAnchor="middle" fontFamily={MONO} fontSize={9.5} fill={MUTED}>
+          random
+        </text>
+      </svg>
+    </span>
+  );
+}
+
 /** Cosine similarity = the angle between two arrows: 1 aligned, 0 perpendicular, −1 opposite. */
 export function CosineDiagram() {
   const cells = [

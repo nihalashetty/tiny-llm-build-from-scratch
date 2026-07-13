@@ -7,7 +7,13 @@ import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { LossCurve } from '../viz/LossCurve';
 import { EmbeddingScatter } from '../viz/EmbeddingScatter';
-import { VectorArrowDiagram, DimensionLadder, DimensionScale, CosineDiagram } from '../viz/VectorDiagrams';
+import {
+  VectorArrowDiagram,
+  DimensionLadder,
+  DimensionScale,
+  CosineDiagram,
+  SkipGramDiagram,
+} from '../viz/VectorDiagrams';
 import { useRafTrainer } from '../useRafTrainer';
 import { Word2Vec } from '../../llm/word2vec';
 import { sentences } from '../../llm/corpus/little-kingdom';
@@ -248,7 +254,67 @@ export function Chapter4Embeddings() {
       <Beat as="p">
         Those <code>0.85</code>-style scores in the <strong>nearest neighbours</strong>{' '}
         box below are exactly this — the cosine between one word's arrow and every
-        other word's. Now you have everything you need to read the demo.
+        other word's.
+      </Beat>
+
+      <Beat as="h2">So how do the vectors actually get set?</Beat>
+      <Beat as="p">
+        This is the part that matters most, and it's easy to miss: nobody{' '}
+        <em>assigns</em> these numbers. We start from pure nonsense — every word is
+        handed a <strong>random</strong> vector, a random point in space — and then a
+        training loop turns Firth's slogan (“a word is known by the company it keeps”)
+        into millions of tiny nudges:
+      </Beat>
+
+      <Beat>
+        <ol className="point-list">
+          <li>
+            <span className="point-num">1</span>
+            <div>
+              <strong>Slide a window over the corpus.</strong> For each word (the{' '}
+              <em>centre</em>), the few words on either side are its{' '}
+              <em>neighbours</em> — the company it keeps in that spot.
+            </div>
+          </li>
+          <li>
+            <span className="point-num">2</span>
+            <div>
+              <strong>Pull neighbours together.</strong> Nudge the centre word's
+              vector a little toward each real neighbour's, so words that keep showing
+              up together end up pointing the same way.
+            </div>
+          </li>
+          <li>
+            <span className="point-num">3</span>
+            <div>
+              <strong>Push random words apart.</strong> Also pick a handful of words
+              that <em>didn't</em> appear nearby and nudge them away. This is{' '}
+              <strong>negative sampling</strong> — without it every vector would
+              collapse into one useless blob.
+            </div>
+          </li>
+          <li>
+            <span className="point-num">4</span>
+            <div>
+              <strong>Repeat, thousands of times.</strong> Do it for every
+              centre/neighbour pair, epoch after epoch. The loss falls, and words that
+              keep similar company drift into the same corner of space.
+            </div>
+          </li>
+        </ol>
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 5 · One training step: pull the centre word toward a real neighbour, shove it away from a random word. Do that across the whole corpus and meaning organizes itself.">
+          <SkipGramDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat as="p">
+        And <strong>plotting</strong>? The vectors live in 16 dimensions, which we
+        can't draw, so the map below flattens them to 2 with that PCA trick. The dots
+        drift while you train because the vectors themselves are still moving — you're
+        literally watching steps 1–4 happen.
       </Beat>
 
       <Beat as="h2">Watch words find their place</Beat>
@@ -262,7 +328,7 @@ export function Chapter4Embeddings() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 5 · Word vectors projected to 2D. Similar words cluster; after training, king − man + woman really does land on queen.">
+        <Figure caption="Fig 6 · Word vectors projected to 2D. Similar words cluster; after training, king − man + woman really does land on queen.">
           <EmbeddingLab />
         </Figure>
       </Beat>

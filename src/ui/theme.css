@@ -1229,6 +1229,29 @@ a:hover {
   margin: 14px 0 4px;
   max-width: 62ch;
 }
+.corpus-text {
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: var(--paper-2, #f6f0e6);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.corpus-line {
+  white-space: pre-wrap;
+}
+.hl-th {
+  background: var(--coral-tint);
+  color: var(--coral-deep);
+  border-radius: 4px;
+  padding: 0 2px;
+  font-weight: 700;
+}
 .token-count {
   display: flex;
   gap: 18px;

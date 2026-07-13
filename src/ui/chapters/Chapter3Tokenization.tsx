@@ -5,6 +5,7 @@ import { Figure } from '../components/Figure';
 import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { BpeMerges, TokenizeBox } from '../viz/BpeMerges';
+import { CorpusView } from '../viz/CorpusView';
 import bpeSource from '../../llm/bpe.ts?raw';
 
 export function Chapter3Tokenization() {
@@ -40,6 +41,22 @@ export function Chapter3Tokenization() {
         <CitationCard ids={['shannon-1951', 'bpe-1994', 'bpe-nmt-2015']} />
       </Beat>
 
+      <Beat as="h2">First, meet our corpus</Beat>
+      <Beat as="p">
+        BPE finds patterns by <em>counting</em>, so before we count anything you
+        should see exactly what we're counting <em>in</em>. Here's the whole thing —
+        a tiny hand-written world called <strong>Little Kingdom</strong>, kept small
+        and repetitive on purpose so a model can learn it right here in your browser.
+        Read a few lines and one word jumps out: <code>the</code> is everywhere.
+        That repetition is the raw material BPE feeds on.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 1 · Our entire training corpus — the actual text every demo in this chapter reads from. Each “th” is highlighted; there are 95, which is why t+h is the first pair BPE glues.">
+          <CorpusView />
+        </Figure>
+      </Beat>
+
       <Beat as="h2">Watch a vocabulary build itself</Beat>
       <Beat as="p">
         BPE is delightfully simple. Start with nothing but individual characters.
@@ -59,7 +76,7 @@ export function Chapter3Tokenization() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 1 · The vocabulary strip starts as the 24 characters in the text; each step glues the most frequent adjacent pair into a new token (highlighted) and the showcase words collapse from characters toward whole words.">
+        <Figure caption="Fig 2 · The vocabulary strip starts as the 24 characters in the text; each step glues the most frequent adjacent pair into a new token (highlighted) and the showcase words collapse from characters toward whole words.">
           <BpeMerges />
         </Figure>
       </Beat>
@@ -83,7 +100,7 @@ export function Chapter3Tokenization() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 2 · A word you trained on = 1 token. A stranger = several. Roughly 3–4 letters per token for English.">
+        <Figure caption="Fig 3 · A word you trained on = 1 token. A stranger = several. Roughly 3–4 letters per token for English.">
           <TokenizeBox />
         </Figure>
       </Beat>
@@ -97,6 +114,59 @@ export function Chapter3Tokenization() {
 
       <Beat>
         <CodeViewer code={bpeSource} filename="src/llm/bpe.ts" lang="typescript" />
+      </Beat>
+
+      <Beat as="h2">Now zoom out: how GPT does it</Beat>
+      <Beat as="p">
+        Here's the reassuring part: what you just built <em>is</em> the real
+        algorithm. The models powering ChatGPT and friends change almost nothing
+        about the <em>method</em> — only the <em>scale</em>.
+      </Beat>
+
+      <Beat>
+        <ul className="point-list">
+          <li>
+            <span className="point-num">1</span>
+            <div>
+              <strong>Same trick, but on raw bytes.</strong> GPT-style tokenizers run
+              “byte-level” BPE: they start not from the 24 letters we happened to
+              have, but from the 256 possible bytes. The identical merging then works
+              on any language, emoji, or code — there's literally no such thing as a
+              character it can't read.
+            </div>
+          </li>
+          <li>
+            <span className="point-num">2</span>
+            <div>
+              <strong>A vocabulary in the tens of thousands.</strong> You watched an
+              ~80-token vocabulary build itself. GPT-2 and GPT-3 stopped at{' '}
+              <strong>50,257</strong> tokens; GPT-4's tokenizer uses about{' '}
+              <strong>100,000</strong>; the newest ones roughly{' '}
+              <strong>200,000</strong>. Same process — just far more merges before
+              they call it done.
+            </div>
+          </li>
+          <li>
+            <span className="point-num">3</span>
+            <div>
+              <strong>A corpus you can't hold in your head.</strong> Our Little
+              Kingdom is ~60 sentences. Frontier models learn from a firehose of text
+              scraped from the open web (Common Crawl), plus books, Wikipedia and code
+              — on the order of <strong>hundreds of billions to trillions of tokens</strong>.
+              GPT-3 alone trained on roughly 300 billion; recent models, many trillions.
+            </div>
+          </li>
+        </ul>
+      </Beat>
+
+      <Beat>
+        <Callout emoji="🔭">
+          <strong>Same idea, bigger dials.</strong> “Glue the most frequent pair, over
+          and over” is exactly what runs, unchanged, inside every model you've heard
+          of. When you hear a model has a “100k vocab” or was “trained on trillions of
+          tokens,” you now know precisely what those numbers mean — and you built the
+          smaller version yourself.
+        </Callout>
       </Beat>
 
       <Beat as="p">

@@ -10,9 +10,9 @@
  */
 
 import { makeRng, uniform, type Rng } from './rng';
-import { XOR_DATA } from './perceptron';
+import { INPUTS, XOR_DATA, type Sample } from './perceptron';
 
-export { XOR_DATA };
+export { INPUTS, XOR_DATA };
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
@@ -54,10 +54,10 @@ export class XorNet {
     return this.forward(x).out;
   }
 
-  /** One epoch of online backprop over the four XOR examples. Returns MSE. */
-  trainEpoch(lr = 1): number {
+  /** One epoch of online backprop over the given examples (XOR by default). */
+  trainEpoch(lr = 1, data: Sample[] = XOR_DATA): number {
     let loss = 0;
-    for (const { x, y } of XOR_DATA) {
+    for (const { x, y } of data) {
       const { h, out } = this.forward(x);
       const err = out - y;
       loss += err * err;
@@ -83,7 +83,7 @@ export class XorNet {
       }
     }
     this.epoch++;
-    return loss / XOR_DATA.length;
+    return loss / data.length;
   }
 }
 

@@ -12,13 +12,21 @@ import { makeRng, uniform, type Rng } from './rng';
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
-/** The four XOR examples: output is 1 only when the inputs differ. */
-export const XOR_DATA: { x: [number, number]; y: number }[] = [
-  { x: [0, 0], y: 0 },
-  { x: [0, 1], y: 1 },
-  { x: [1, 0], y: 1 },
-  { x: [1, 1], y: 0 },
+/** The only four possible pairs of two binary inputs. */
+export const INPUTS: [number, number][] = [
+  [0, 0],
+  [0, 1],
+  [1, 0],
+  [1, 1],
 ];
+
+export interface Sample {
+  x: [number, number];
+  y: number;
+}
+
+/** XOR: output is 1 only when the two inputs differ. */
+export const XOR_DATA: Sample[] = INPUTS.map((x, i) => ({ x, y: [0, 1, 1, 0][i] }));
 
 export class Perceptron {
   w: [number, number];
@@ -35,10 +43,10 @@ export class Perceptron {
     return sigmoid(this.w[0] * x[0] + this.w[1] * x[1] + this.b);
   }
 
-  /** One pass over the data. Returns mean-squared error (it will stall ~0.25). */
-  trainEpoch(lr = 0.5): number {
+  /** One pass over the data. Returns mean-squared error (XOR stalls ~0.25). */
+  trainEpoch(lr = 0.5, data: Sample[] = XOR_DATA): number {
     let loss = 0;
-    for (const { x, y } of XOR_DATA) {
+    for (const { x, y } of data) {
       const out = this.predict(x);
       const err = out - y;
       loss += err * err;
@@ -48,6 +56,6 @@ export class Perceptron {
       this.w[1] -= lr * grad * x[1];
       this.b -= lr * grad;
     }
-    return loss / XOR_DATA.length;
+    return loss / data.length;
   }
 }

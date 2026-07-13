@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { ChapterFrame } from '../components/ChapterFrame';
 import { Beat } from '../components/Beat';
 import { Callout } from '../components/Callout';
@@ -10,7 +11,7 @@ import { NetworkDiagram } from '../viz/NetworkDiagram';
 import { NeuronDiagram } from '../viz/NeuronDiagram';
 import { useRafTrainer, type TrainerState } from '../useRafTrainer';
 import { Perceptron } from '../../llm/perceptron';
-import { XorNet, XOR_DATA } from '../../llm/xor-net';
+import { XorNet, INPUTS } from '../../llm/xor-net';
 import xorSource from '../../llm/xor-net.ts?raw';
 
 function Controls({ t }: { t: TrainerState<unknown> }) {
@@ -36,57 +37,117 @@ function BoundaryLegend() {
       network's output there —{' '}
       <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
       <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
-      big dots are the XOR examples it's trying to get right.
+      big dots are the examples it's trying to get right.
     </div>
   );
 }
 
-function TruthTable({ predict }: { predict: (x: [number, number]) => number }) {
+const PRESETS: Record<string, number[]> = {
+  XOR: [0, 1, 1, 0],
+  AND: [0, 0, 0, 1],
+  OR: [0, 1, 1, 1],
+};
+
+/**
+ * The editable "task": the four inputs are fixed (they're the only pairs of two
+ * bits), but you choose the output you want for each — defining any logic gate.
+ * Click a preset or flip a cell, then Train and watch the network chase it.
+ */
+function LogicTable({
+  targets,
+  onSet,
+  predict,
+}: {
+  targets: number[];
+  onSet: (next: number[]) => void;
+  predict: (x: [number, number]) => number;
+}) {
+  const toggle = (i: number) => {
+    const next = [...targets];
+    next[i] = next[i] ? 0 : 1;
+    onSet(next);
+  };
+  const activePreset = Object.keys(PRESETS).find((k) => PRESETS[k].join('') === targets.join(''));
   return (
-    <table className="truth">
-      <thead>
-        <tr>
-          <th>a</th>
-          <th>b</th>
-          <th>want</th>
-          <th>guess</th>
-          <th>ok?</th>
-        </tr>
-      </thead>
-      <tbody>
-        {XOR_DATA.map(({ x, y }, i) => {
-          const p = predict(x);
-          const ok = Math.round(p) === y;
-          return (
-            <tr key={i}>
-              <td>{x[0]}</td>
-              <td>{x[1]}</td>
-              <td>{y}</td>
-              <td>{p.toFixed(2)}</td>
-              <td className={ok ? 'ok' : 'no'}>{ok ? '✓' : '×'}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div>
+      <div className="task-label">The task — choose the output you want for each input</div>
+      <div className="lab-controls" style={{ marginBottom: 8 }}>
+        {Object.keys(PRESETS).map((name) => (
+          <button
+            key={name}
+            className={`btn ${activePreset === name ? 'btn-run' : 'btn-light'}`}
+            onClick={() => onSet(PRESETS[name])}
+          >
+            {name}
+          </button>
+        ))}
+        <span className="dim">or click a “want” cell to flip it</span>
+      </div>
+      <table className="truth">
+        <thead>
+          <tr>
+            <th>a</th>
+            <th>b</th>
+            <th>want</th>
+            <th>guess</th>
+            <th>ok?</th>
+          </tr>
+        </thead>
+        <tbody>
+          {INPUTS.map((x, i) => {
+            const p = predict(x);
+            const ok = Math.round(p) === targets[i];
+            return (
+              <tr key={i}>
+                <td>{x[0]}</td>
+                <td>{x[1]}</td>
+                <td className="editable">
+                  <button
+                    className={`want-toggle${targets[i] ? ' one' : ''}`}
+                    onClick={() => toggle(i)}
+                    aria-label={`toggle expected output for input ${x[0]},${x[1]}`}
+                  >
+                    {targets[i]}
+                  </button>
+                </td>
+                <td>{p.toFixed(2)}</td>
+                <td className={ok ? 'ok' : 'no'}>{ok ? '✓' : '×'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
+/** Shared: hold an editable target vector and feed it to the trainer. */
+function useLogicTargets(initial: number[]) {
+  const [targets, setTargets] = useState(initial);
+  const ref = useRef(targets);
+  ref.current = targets;
+  const data = () => INPUTS.map((x, i) => ({ x, y: ref.current[i] }));
+  return { targets, setTargets, data };
+}
+
 function PerceptronLab() {
-  const t = useRafTrainer(() => new Perceptron(42), (m) => m.trainEpoch(0.5), 2000, 20);
+  const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
+  const t = useRafTrainer(() => new Perceptron(42), (m) => m.trainEpoch(0.5, data()), 2000, 20);
   const m = t.model;
+  const setGoal = (next: number[]) => {
+    setTargets(next);
+    t.reset();
+  };
+  const learned = t.loss !== null && t.loss < 0.02;
   return (
     <div className="lab">
       <Controls t={t} />
       <div className="lab-stats">
-        <span>
-          epoch <b>{t.epoch}</b>
-        </span>
-        <span>
-          error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b>
-        </span>
-        <span className="dim">(watch it stall near 0.25…)</span>
+        <span>epoch <b>{t.epoch}</b></span>
+        <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
+        {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
       </div>
+      <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
       <NetworkDiagram
         layers={[2, 1]}
         weights={[[[m.w[0]], [m.w[1]]]]}
@@ -99,30 +160,34 @@ function PerceptronLab() {
           <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
           <BoundaryLegend />
         </div>
-        <div>
-          <LossCurve history={t.lossHistory} max={0.3} />
-          <TruthTable predict={(x) => m.predict(x)} />
-        </div>
+        <LossCurve history={t.lossHistory} max={0.3} />
+      </div>
+      <div className="dim" style={{ fontSize: 13 }}>
+        Try the <b>AND</b> or <b>OR</b> preset — a single perceptron learns those
+        easily (error → 0). Only <b>XOR</b> leaves it stuck near 0.25.
       </div>
     </div>
   );
 }
 
 function XorLab() {
-  const t = useRafTrainer(() => new XorNet(4, 7), (m) => m.trainEpoch(1), 3000, 12);
+  const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
+  const t = useRafTrainer(() => new XorNet(4, 7), (m) => m.trainEpoch(1, data()), 3000, 12);
   const m = t.model;
+  const setGoal = (next: number[]) => {
+    setTargets(next);
+    t.reset();
+  };
+  const learned = t.loss !== null && t.loss < 0.02;
   return (
     <div className="lab">
       <Controls t={t} />
       <div className="lab-stats">
-        <span>
-          epoch <b>{t.epoch}</b>
-        </span>
-        <span>
-          error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b>
-        </span>
-        {t.done && <span className="ok" style={{ color: 'var(--green)', fontWeight: 700 }}>solved ✓</span>}
+        <span>epoch <b>{t.epoch}</b></span>
+        <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
+        {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
       </div>
+      <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
       <NetworkDiagram
         layers={[2, 4, 1]}
         weights={[m.w1, m.w2.map((w) => [w])]}
@@ -135,10 +200,12 @@ function XorLab() {
           <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
           <BoundaryLegend />
         </div>
-        <div>
-          <LossCurve history={t.lossHistory} max={0.3} />
-          <TruthTable predict={(x) => m.predict(x)} />
-        </div>
+        <LossCurve history={t.lossHistory} max={0.3} />
+      </div>
+      <div className="dim" style={{ fontSize: 13 }}>
+        Change the goal above (or flip a “want” cell) and press <b>Train</b> — the
+        hidden layer lets this same network learn <em>any</em> of these gates,
+        XOR included.
       </div>
     </div>
   );

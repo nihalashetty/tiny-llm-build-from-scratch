@@ -35,9 +35,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # When the ML chapters land, uncomment to (re)generate public/data:
-      # - run: pnpm prebuild:data
-
       - run: pnpm build
 
       - name: Upload Pages artifact

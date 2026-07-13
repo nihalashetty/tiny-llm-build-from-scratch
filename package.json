@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "prebuild:data": "tsx scripts/prebuild.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "animejs": "^3.2.2",

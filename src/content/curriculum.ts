@@ -54,7 +54,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Neural networks',
     minutes: 11,
     blurb: 'Stop writing rules. Show examples instead — and watch a network teach itself XOR.',
-    built: false,
+    built: true,
   },
   {
     id: 'tokenization',
@@ -63,7 +63,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Tokenization',
     minutes: 8,
     blurb: 'Before a model can read, text must be chopped into tokens. Watch them form.',
-    built: false,
+    built: true,
   },
   {
     id: 'embeddings',
@@ -72,7 +72,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Embeddings',
     minutes: 10,
     blurb: 'Turn words into arrows in space, where king − man + woman lands on queen.',
-    built: false,
+    built: true,
   },
   {
     id: 'transformers',
@@ -81,7 +81,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Transformers',
     minutes: 12,
     blurb: 'The 2017 idea that changed everything: let every word glance at every other.',
-    built: false,
+    built: true,
   },
   {
     id: 'sampling',
@@ -90,7 +90,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Sampling & the loop',
     minutes: 8,
     blurb: 'Softmax, temperature, top-p, and the loop that turns one guess into paragraphs.',
-    built: false,
+    built: true,
   },
   {
     id: 'assistant',
@@ -99,7 +99,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Fine-tuning & RLHF',
     minutes: 7,
     blurb: 'A model trained on the whole internet is a mimic. Here is how it learns to help.',
-    built: false,
+    built: true,
   },
   {
     id: 'epilogue',
@@ -108,7 +108,7 @@ const raw: Omit<Chapter, 'index'>[] = [
     navTitle: 'Epilogue',
     minutes: 5,
     blurb: 'Every piece you built, assembled into one machine — plus where it all goes next.',
-    built: false,
+    built: true,
   },
 ];
 

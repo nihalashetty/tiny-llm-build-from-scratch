@@ -32,9 +32,9 @@ narrative reading experience.
 8. **From base model to assistant.** Fine-tuning, RLHF, and tool calling.
 9. **Epilogue.** The full picture assembled — and where it all goes next.
 
-> **Status:** the engine (layout, animations, progress, in-browser code runner)
-> and the first chapters are live; the remaining chapters are being rolled out
-> one polished piece at a time.
+> **Status:** all nine chapters are live. Every training demo (XOR net,
+> Word2Vec, the tiny transformer) trains **live in your browser** so you can
+> watch it learn.
 
 ---
 
@@ -62,15 +62,16 @@ pnpm typecheck  # type-check with tsc
 - **Vite + React + TypeScript**, static — deploys anywhere (GitHub Pages config
   included in `.github/workflows/deploy.yml`).
 - **`src/llm/`** — the *lab*: pure, framework-free, heavily-commented TypeScript
-  implementing each algorithm (ELIZA, and soon the XOR net, BPE, Word2Vec, and a
-  from-scratch transformer). No React, no DOM. These are the exact files shown in
-  the in-page code viewer, so **what you read is what runs**.
+  implementing each algorithm — ELIZA, the XOR net (with hand-written backprop),
+  the BPE tokenizer, Word2Vec, a from-scratch single-head transformer, and the
+  samplers. No React, no DOM. These are the exact files shown in the in-page code
+  viewer, so **what you read is what runs**.
 - **`src/ui/`** — the *lesson*: React chapters, the design system, scroll-driven
-  "story beats", and the visualizations.
+  "story beats", and the visualizations (`src/ui/viz/`).
 - **`src/content/`** — the curriculum spine and the citation registry.
-- Heavy training (later chapters) runs in **Web Workers** and streams progress
-  to the UI; results are precomputed once into `public/data/` so the site loads
-  instantly.
+- Training runs **live in the browser**, a few steps per animation frame (see
+  `src/ui/useRafTrainer.ts`), so the UI stays smooth while you watch the loss
+  fall — no backend, no build-time precompute.
 
 ### Design
 

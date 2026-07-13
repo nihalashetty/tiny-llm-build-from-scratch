@@ -1028,3 +1028,401 @@ a:hover {
     max-height: 260px;
   }
 }
+
+/* =========================================================================
+   Lab kit — shared controls & readouts for the interactive training demos
+   ========================================================================= */
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lab-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.lab-stats {
+  display: flex;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.lab-stats b {
+  color: var(--ink);
+  font-weight: 700;
+}
+.lab-two {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.btn-light {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+.btn-light:hover {
+  border-color: var(--coral);
+  color: var(--coral-deep);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.canvas-frame {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px;
+  display: inline-block;
+  line-height: 0;
+}
+
+/* truth table / small data tables */
+.truth {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 100%;
+}
+.truth th,
+.truth td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line-3);
+  text-align: center;
+}
+.truth th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.truth .ok {
+  color: var(--green);
+  font-weight: 700;
+}
+.truth .no {
+  color: var(--coral-deep);
+  font-weight: 700;
+}
+
+/* range sliders used by the sampling chapter */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+.slider-row label {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  min-width: 130px;
+}
+.slider-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--coral);
+}
+.slider-row .val {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--coral-deep);
+  min-width: 46px;
+  text-align: right;
+}
+
+@media (max-width: 620px) {
+  .lab-two {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+/* =========================================================================
+   Tokens (Chapter 3) & word chips
+   ========================================================================= */
+.tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+.tok {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: #f6eee1;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 4px 8px;
+  color: var(--ink);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.tok.fresh {
+  background: var(--coral-tint);
+  border-color: var(--coral-tint-line);
+  color: var(--coral-deep);
+  font-weight: 700;
+  transform: translateY(-1px);
+}
+.tok-space {
+  color: var(--faint);
+}
+.word-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+.word-row .word-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 84px;
+  text-align: right;
+}
+.merge-eq {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 4px 0 6px;
+}
+.merge-eq .arrow {
+  color: var(--faint);
+}
+.merge-eq .count {
+  font-size: 12px;
+  color: var(--muted);
+}
+.token-count {
+  display: flex;
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.token-count b {
+  color: var(--coral-deep);
+}
+.tokenize-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  background: #fff;
+  margin-bottom: 12px;
+}
+.tokenize-input:focus {
+  border-color: var(--coral);
+}
+
+/* =========================================================================
+   Embeddings explorer (Chapter 4)
+   ========================================================================= */
+.explorer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.field label {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+select.mini {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+.neighbors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.neighbor {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: #f6eee1;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 4px 10px;
+  color: var(--ink-soft);
+}
+.neighbor b {
+  color: var(--coral-deep);
+}
+.analogy-result {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.analogy-result .big {
+  font-size: 19px;
+  color: var(--coral-deep);
+  font-weight: 700;
+}
+
+/* =========================================================================
+   Transformer (Chapter 5) & sampling (Chapter 6)
+   ========================================================================= */
+.gen-output {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  line-height: 1.7;
+  color: var(--ink);
+  min-height: 54px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.gen-output .prompt {
+  color: var(--coral-deep);
+  font-weight: 700;
+}
+.gen-output .cursor {
+  color: var(--coral);
+  animation: blink 1s step-start infinite;
+}
+
+/* probability bars */
+.probbars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.probbar-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.probbar-track {
+  background: var(--line-3);
+  border-radius: 6px;
+  height: 16px;
+  overflow: hidden;
+}
+.probbar-fill {
+  height: 100%;
+  background: var(--coral);
+  border-radius: 6px;
+  transition: width 0.25s ease;
+}
+.probbar-row .plabel {
+  text-align: right;
+  color: var(--ink-soft);
+}
+.probbar-row.dim-out .probbar-fill {
+  background: #d8c9b2;
+}
+.probbar-row .pval {
+  color: var(--muted);
+}
+
+/* =========================================================================
+   Assistant (Chapter 7) & epilogue (Chapter 8)
+   ========================================================================= */
+.seg {
+  display: inline-flex;
+  gap: 6px;
+  background: #f1e7d7;
+  padding: 4px;
+  border-radius: 12px;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  color: var(--muted);
+}
+.seg button.on {
+  background: #fff;
+  color: var(--coral-deep);
+  box-shadow: 0 1px 4px rgba(60, 45, 30, 0.12);
+}
+.rank-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.rank-card:hover {
+  border-color: var(--coral);
+}
+.rank-card.picked {
+  border-color: var(--green);
+  background: #eef7f2;
+}
+.rank-card .tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 3px;
+}
+.summit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 22px 0 30px;
+}
+.summit-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+}
+.summit-card .emoji {
+  font-size: 22px;
+}
+.summit-card .name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  margin: 7px 0 3px;
+}
+.summit-card .role {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}

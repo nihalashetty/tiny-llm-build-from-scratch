@@ -17,6 +17,8 @@ export interface TrainerState<M> {
   start: () => void;
   pause: () => void;
   reset: () => void;
+  /** advance a fixed number of epochs once (for a "Step" button) */
+  step: (n?: number) => void;
 }
 
 export function useRafTrainer<M>(
@@ -89,6 +91,24 @@ export function useRafTrainer<M>(
     setTick((t) => t + 1);
   }, [makeModel]);
 
+  const stepOnce = useCallback(
+    (n = 1) => {
+      if (runningRef.current) return; // ignore while auto-training
+      const m = modelRef.current;
+      let last = 0;
+      for (let i = 0; i < n && epochRef.current < maxEpochs; i++) {
+        last = step(m);
+        epochRef.current++;
+      }
+      setEpoch(epochRef.current);
+      setLoss(last);
+      setLossHistory((h) => [...h, last]);
+      setTick((t) => t + 1);
+      if (epochRef.current >= maxEpochs) setDone(true);
+    },
+    [step, maxEpochs],
+  );
+
   useEffect(
     () => () => {
       if (rafId.current) cancelAnimationFrame(rafId.current);
@@ -96,5 +116,17 @@ export function useRafTrainer<M>(
     [],
   );
 
-  return { model, epoch, loss, lossHistory, running, done, tick, start, pause, reset };
+  return {
+    model,
+    epoch,
+    loss,
+    lossHistory,
+    running,
+    done,
+    tick,
+    start,
+    pause,
+    reset,
+    step: stepOnce,
+  };
 }

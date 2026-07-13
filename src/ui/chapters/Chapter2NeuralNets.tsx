@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ChapterFrame } from '../components/ChapterFrame';
 import { Beat } from '../components/Beat';
 import { Callout } from '../components/Callout';
@@ -9,16 +9,25 @@ import { LossCurve } from '../viz/LossCurve';
 import { DecisionBoundary } from '../viz/DecisionBoundary';
 import { NetworkDiagram } from '../viz/NetworkDiagram';
 import { NeuronDiagram } from '../viz/NeuronDiagram';
+import { WeightsReadout } from '../viz/WeightsReadout';
 import { useRafTrainer, type TrainerState } from '../useRafTrainer';
 import { Perceptron } from '../../llm/perceptron';
 import { XorNet, INPUTS } from '../../llm/xor-net';
 import xorSource from '../../llm/xor-net.ts?raw';
 
-function Controls({ t }: { t: TrainerState<unknown> }) {
+function Controls({ t, stepN = 1 }: { t: TrainerState<unknown>; stepN?: number }) {
   return (
     <div className="lab-controls">
       <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
         {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
+      </button>
+      <button
+        className="btn btn-light"
+        onClick={() => t.step(stepN)}
+        disabled={t.running || t.done}
+        title="Advance a little so you can read the weights change"
+      >
+        Step +{stepN}
       </button>
       <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
         Pause
@@ -30,14 +39,15 @@ function Controls({ t }: { t: TrainerState<unknown> }) {
   );
 }
 
-function BoundaryLegend() {
+function BoundaryLegend({ line = false }: { line?: boolean }) {
   return (
     <div className="dim" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
       Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
       network's output there —{' '}
       <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
       <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
-      big dots are the examples it's trying to get right.
+      big dots are the examples it's trying to get right
+      {line ? ', and the dark line is the single straight cut this perceptron is allowed to make.' : '.'}
     </div>
   );
 }
@@ -130,107 +140,72 @@ function useLogicTargets(initial: number[]) {
   return { targets, setTargets, data };
 }
 
-/**
- * A self-running picture of the XOR network. It quietly trains on its own and
- * loops (relearning from scratch), so you can watch the weights — the wires —
- * shift colour and thickness. This is just "what learning looks like"; the
- * hands-on demos come later.
- */
-function LiveXorNetwork() {
-  const [, force] = useReducer((x: number) => x + 1, 0);
-  const boxRef = useRef<HTMLDivElement>(null);
-  const netRef = useRef<XorNet | null>(null);
-  if (!netRef.current) netRef.current = new XorNet(4, 20);
-  const info = useRef({ epoch: 0, loss: 1 });
-
-  useEffect(() => {
-    const el = boxRef.current;
-    if (!el) return;
-    let timer: number | null = null;
-    const tick = () => {
-      const net = netRef.current!;
-      let loss = 1;
-      for (let i = 0; i < 12; i++) loss = net.trainEpoch(1);
-      info.current = { epoch: net.epoch, loss };
-      // once it's basically solved, start over so the wires keep re-learning
-      if (net.epoch > 1200 || loss < 0.006) {
-        netRef.current = new XorNet(4, Math.floor(Math.random() * 1e6));
-        info.current = { epoch: 0, loss: 1 };
-      }
-      force();
-    };
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting && timer === null) timer = window.setInterval(tick, 110);
-        else if (!e.isIntersecting && timer !== null) {
-          clearInterval(timer);
-          timer = null;
-        }
-      },
-      { threshold: 0.2 },
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      if (timer !== null) clearInterval(timer);
-    };
-  }, []);
-
-  const net = netRef.current;
-  return (
-    <div ref={boxRef}>
-      <NetworkDiagram
-        layers={[2, 4, 1]}
-        weights={[net.w1, net.w2.map((w) => [w])]}
-        inputLabels={['a', 'b']}
-        outputLabel="out"
-        height={210}
-      />
-      <div
-        className="dim"
-        style={{ fontSize: 12.5, marginTop: 6, textAlign: 'center', fontFamily: 'var(--font-mono)' }}
-      >
-        auto-training on XOR · epoch {info.current.epoch} · error {info.current.loss.toFixed(3)}{' '}
-        · relearns on a loop
-      </div>
-    </div>
-  );
-}
+const fmtArr = (arr: number[]) => '[' + arr.map((v) => v.toFixed(1)).join(', ') + ']';
 
 function PerceptronLab() {
   const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
-  const t = useRafTrainer(() => new Perceptron(42), (m) => m.trainEpoch(0.5, data()), 2000, 20);
+  // slow on purpose (few epochs per frame) so the line + weights move readably
+  const t = useRafTrainer(() => new Perceptron(42), (m) => m.trainEpoch(0.5, data()), 2000, 3);
   const m = t.model;
   const setGoal = (next: number[]) => {
     setTargets(next);
     t.reset();
   };
   const learned = t.loss !== null && t.loss < 0.02;
+  const settled = learned || t.done;
   return (
     <div className="lab">
-      <Controls t={t} />
+      <Controls t={t} stepN={1} />
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
         <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
         {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
+        {t.done && !learned && <span style={{ color: 'var(--coral-deep)', fontWeight: 700 }}>stuck ✗</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
       <div className="lab-hint">
-        Try the <b>AND</b> or <b>OR</b> preset — a single perceptron learns those
-        easily (error → 0). Only <b>XOR</b> leaves it stuck near 0.25.
+        Press <b>Step +1</b> to watch the two weights change one nudge at a time, or{' '}
+        <b>Train</b> to run it. Try <b>AND</b>/<b>OR</b> (the line finds them) then{' '}
+        <b>XOR</b> — no single line can split it.
       </div>
+
+      <div className="diagram-row">
+        <NetworkDiagram
+          layers={[2, 1]}
+          weights={[[[m.w[0]], [m.w[1]]]]}
+          inputLabels={['a', 'b']}
+          outputLabel="out"
+          height={130}
+        />
+        <WeightsReadout
+          title="weights (live)"
+          final={settled}
+          rows={[
+            { label: 'w₁', value: m.w[0].toFixed(3) },
+            { label: 'w₂', value: m.w[1].toFixed(3) },
+            { label: 'bias', value: m.b.toFixed(3) },
+          ]}
+        />
+      </div>
+
       <div className="lab-two" style={{ gridTemplateColumns: 'minmax(0, 216px) 1fr', alignItems: 'center' }}>
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} />
+        <DecisionBoundary
+          predict={(x) => m.predict(x)}
+          tick={t.tick}
+          size={200}
+          targets={targets}
+          line={[m.w[0], m.w[1], m.b]}
+        />
         <LossCurve history={t.lossHistory} max={0.3} width={400} height={230} />
       </div>
-      <BoundaryLegend />
+      <BoundaryLegend line />
     </div>
   );
 }
 
 function XorLab() {
   const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
-  const t = useRafTrainer(() => new XorNet(4, 7), (m) => m.trainEpoch(1, data()), 3000, 12);
+  const t = useRafTrainer(() => new XorNet(4, 7), (m) => m.trainEpoch(1, data()), 3000, 4);
   const m = t.model;
   const setGoal = (next: number[]) => {
     setTargets(next);
@@ -239,7 +214,7 @@ function XorLab() {
   const learned = t.loss !== null && t.loss < 0.02;
   return (
     <div className="lab">
-      <Controls t={t} />
+      <Controls t={t} stepN={10} />
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
         <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
@@ -247,12 +222,34 @@ function XorLab() {
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
       <div className="lab-hint">
-        Change the goal above (or flip a “want” cell) and press <b>Train</b> — the
-        hidden layer lets this same network learn <em>any</em> of these gates,
-        XOR included.
+        Same controls — <b>Step +10</b> or <b>Train</b>. Watch the four hidden
+        weights (the wires) shuffle as the boundary bends. This same network learns{' '}
+        <em>any</em> gate, XOR included.
       </div>
+
+      <div className="diagram-row">
+        <NetworkDiagram
+          layers={[2, 4, 1]}
+          weights={[m.w1, m.w2.map((w) => [w])]}
+          inputLabels={['a', 'b']}
+          outputLabel="out"
+          height={190}
+        />
+        <WeightsReadout
+          title="weights (live)"
+          final={learned}
+          rows={[
+            { label: 'a→hid', value: fmtArr(m.w1[0]) },
+            { label: 'b→hid', value: fmtArr(m.w1[1]) },
+            { label: 'b1', value: fmtArr(m.b1) },
+            { label: 'hid→out', value: fmtArr(m.w2) },
+            { label: 'b2', value: m.b2.toFixed(2) },
+          ]}
+        />
+      </div>
+
       <div className="lab-two" style={{ gridTemplateColumns: 'minmax(0, 216px) 1fr', alignItems: 'center' }}>
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} />
+        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
         <LossCurve history={t.lossHistory} max={0.3} width={400} height={230} />
       </div>
       <BoundaryLegend />
@@ -360,23 +357,13 @@ export function Chapter2NeuralNets() {
         <strong>gradient descent</strong>, and it trains every model in this course.
       </Beat>
 
-      <Beat as="p">
-        Don't take it on faith — watch it. Below is a real network training itself on
-        XOR. The wires are its weights (coral = positive, blue = negative, thicker =
-        stronger). See them shuffle as the error falls, then reset and relearn:
-      </Beat>
-
-      <Beat>
-        <Figure caption="Fig 2 · A network training itself on XOR, on a loop. Every flicker of the wires is step 4 above — weights being nudged.">
-          <LiveXorNetwork />
-        </Figure>
-      </Beat>
-
       <Beat>
         <Callout emoji="🔑">
           <strong>That's the entire secret:</strong> start random, measure the error,
           nudge the weights to shrink it, repeat. Everything fancier in this course is
-          the same loop — just with more weights and far more data.
+          the same loop — just with more weights and far more data. And you don't have
+          to take it on faith — in the demos below you can press <b>Step</b> and watch
+          the actual weight numbers change, one nudge at a time.
         </Callout>
       </Beat>
 
@@ -393,7 +380,7 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 3 · One perceptron. The square shows its output for every input; the four dots are the examples. Try AND or OR (it wins), then XOR (it can't).">
+        <Figure caption="Fig 2 · One perceptron. The diagram shows its two weights + bias (live, on the right); the square shows its single decision line; the graph shows the error. Try AND/OR (the line finds them), then XOR (it can't).">
           <PerceptronLab />
         </Figure>
       </Beat>
@@ -421,7 +408,7 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 4 · With a hidden layer the error dives and the square bends into the checkerboard XOR needs. Same loop, more neurons.">
+        <Figure caption="Fig 3 · With a hidden layer the error dives and the square bends into the checkerboard XOR needs. Watch the weights readout settle into its final values. Same loop, more neurons.">
           <XorLab />
         </Figure>
       </Beat>

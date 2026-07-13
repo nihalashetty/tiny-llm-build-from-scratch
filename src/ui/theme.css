@@ -1481,3 +1481,55 @@ select.mini {
     justify-items: center;
   }
 }
+
+/* live weights readout (Chapter 2) */
+.weights-readout {
+  background: var(--code-bg);
+  border: 1px solid #1c1815;
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--code-ink);
+  min-width: 0;
+  overflow-x: auto;
+  align-self: stretch;
+}
+.wr-title {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8e8577;
+  margin-bottom: 8px;
+}
+.wr-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 2px 0;
+  white-space: nowrap;
+}
+.wr-label {
+  color: #ffc98a;
+}
+.wr-value {
+  color: #a7c79a;
+}
+.weights-readout.final {
+  border-color: var(--green);
+}
+.weights-readout.final .wr-title {
+  color: var(--green);
+}
+.diagram-row {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 16px;
+  align-items: center;
+  margin: 2px 0;
+}
+@media (max-width: 620px) {
+  .diagram-row {
+    grid-template-columns: 1fr;
+  }
+}

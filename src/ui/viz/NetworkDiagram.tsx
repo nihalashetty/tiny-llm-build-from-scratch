@@ -72,8 +72,8 @@ export function NetworkDiagram({
                   cx={colX(l)}
                   cy={nodeY(count, i)}
                   r={15}
-                  fill={isOutput ? '#fde7de' : '#fff'}
-                  stroke={isInput ? '#3e6ff0' : isOutput ? '#f0663e' : '#b8a98f'}
+                  fill={isInput ? '#d7e5ff' : isOutput ? '#c9ecdb' : '#ffe6b0'}
+                  stroke={isInput ? '#3e6ff0' : isOutput ? '#1f9e7a' : '#e0a53c'}
                   strokeWidth="1.5"
                 />
                 {label && (

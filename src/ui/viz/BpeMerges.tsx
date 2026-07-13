@@ -109,7 +109,7 @@ export function BpeMerges() {
           <span className="tok">{current.pair[1]}</span>
           <span className="arrow">→</span>
           <span className="tok fresh">{current.merged}</span>
-          <span className="count">(seen {current.count}×)</span>
+          <span className="count">most common pair — seen {current.count}× across the whole corpus</span>
         </div>
       ) : (
         <div className="merge-eq dim">Every word starts as individual characters. Press Auto-merge.</div>
@@ -128,6 +128,10 @@ export function BpeMerges() {
         </span>
       </div>
 
+      <div className="sample-note">
+        A few example words to watch (not the whole corpus — the counts above are
+        tallied over every word in the text):
+      </div>
       <div>
         {SAMPLE_WORDS.map((w) => (
           <TokenRow key={w} label={w} toks={sampleFor(w)} fresh={current?.merged} />

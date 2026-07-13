@@ -1222,6 +1222,13 @@ a:hover {
   font-size: 12px;
   padding: 3px 7px;
 }
+.sample-note {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin: 14px 0 4px;
+  max-width: 62ch;
+}
 .token-count {
   display: flex;
   gap: 18px;

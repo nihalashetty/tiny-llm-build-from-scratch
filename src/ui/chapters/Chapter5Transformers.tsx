@@ -7,6 +7,13 @@ import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { LossCurve } from '../viz/LossCurve';
 import { AttentionHeatmap } from '../viz/AttentionHeatmap';
+import {
+  PipelineDiagram,
+  QKVDiagram,
+  AttentionArcs,
+  FeedForwardDiagram,
+  StackedBlocks,
+} from '../viz/TransformerDiagrams';
 import { useRafTrainer } from '../useRafTrainer';
 import { TinyTransformer } from '../../llm/transformer';
 import { corpusText } from '../../llm/corpus/little-kingdom';
@@ -147,78 +154,259 @@ export function Chapter5Transformers() {
         <CitationCard ids={['attention-2014', 'gnmt-2016', 'attention-is-all-2017']} />
       </Beat>
 
-      <Beat as="h2">The big idea: let every word look at every other word</Beat>
       <Beat as="p">
-        A <strong>transformer</strong> reads the whole sequence at once. At each
-        position it asks: <em>which other words here matter to me right now?</em>{' '}
-        — and pulls in information from them. That “looking around” is called{' '}
-        <strong>self-attention</strong>, and it's the entire engine.
+        This is the deepest machine in the whole course, so we'll go slowly and
+        build it one honest piece at a time — using a single sentence,{' '}
+        <strong>“The cat sat on the mat,”</strong> the whole way through. Don't
+        worry if it feels like a lot; every piece is something you've basically
+        already met.
       </Beat>
 
-      <Beat as="h3">Self-attention: query, key, value</Beat>
+      <Beat as="h2">First, the whole machine at a glance</Beat>
       <Beat as="p">
-        Every word produces three little vectors. A <strong>query</strong> (“what
-        am I looking for?”), a <strong>key</strong> (“what do I offer?”), and a{' '}
-        <strong>value</strong> (“what will I hand over if you pick me?”). A word
-        compares its query to everyone's keys; strong matches get more weight; and
-        it blends their values in proportion. To keep it honest for predicting the
-        <em> next</em> word, we add a <strong>causal mask</strong>: a word may
-        only look <em>backward</em>, never at the future.
+        Before the parts, here's the shape of the whole thing. Text comes in as
+        tokens; we stamp each with its position; the tokens flow through a{' '}
+        <strong>stack of identical blocks</strong> (this is where all the thinking
+        happens); a final <strong>readout</strong> turns the last position into a
+        score for every possible next token; we pick one and feed the whole thing
+        back in to get the next. That's it — everything below is just{' '}
+        <em>what's inside one block.</em>
       </Beat>
 
       <Beat>
-        <Callout emoji="👀">
-          <strong>Query · Key = attention.</strong> If my query lines up with your
-          key, I pay attention to your value. Do that for every pair of words at
-          once and you get a table of “who's looking at whom” — which we can draw.
+        <Figure caption="Fig 1 · The whole transformer, end to end. Everything interesting lives in the repeated block — attention, then feed-forward — which we're about to open up.">
+          <PipelineDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat>
+        <Callout emoji="🎯">
+          <strong>The only goal, ever:</strong> given the words so far, predict the
+          next one. Every gear inside exists to make that one guess better. Keep
+          that in mind and the whole design starts to make sense.
         </Callout>
       </Beat>
 
+      <Beat as="h2">Step 1 — every word becomes three things: Query, Key, Value</Beat>
       <Beat as="p">
-        Train the tiny model below, then type a phrase. Each row of the heatmap is
-        one character deciding where to look; brighter = more attention. Notice it
-        can only look left of the diagonal — the causal mask in action.
+        Picture the six words of our sentence standing in a room, each needing to
+        figure out what it means <em>here</em>, in this company. To do that, every
+        word produces three small vectors from its embedding — think of them as
+        three roles it plays at once:
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 1 · Real attention weights from a model trained live in your browser. Rows look back at columns; the future is masked out.">
+        <ul className="point-list">
+          <li>
+            <span className="point-num" style={{ background: '#d9534f' }}>Q</span>
+            <div>
+              <strong>Query — “what am I looking for?”</strong> The word{' '}
+              <code>sat</code> is a verb; its query is essentially the question{' '}
+              <em>“who did the sitting?”</em>
+            </div>
+          </li>
+          <li>
+            <span className="point-num" style={{ background: '#3e6ff0' }}>K</span>
+            <div>
+              <strong>Key — “what do I offer?”</strong> A little advertisement of
+              what this word is. <code>cat</code>'s key basically says{' '}
+              <em>“I'm a noun, an animal, a subject.”</em>
+            </div>
+          </li>
+          <li>
+            <span className="point-num" style={{ background: '#1f9e7a' }}>V</span>
+            <div>
+              <strong>Value — “what will I hand over if you pick me?”</strong> The
+              actual content a word contributes once someone decides to listen to it.
+            </div>
+          </li>
+        </ul>
+      </Beat>
+
+      <Beat as="p">
+        Where do these come from? Each is just the word's vector multiplied by a
+        learned weight matrix — <code>Wq</code>, <code>Wk</code>, <code>Wv</code>.
+        That's the exact same “multiply by weights” move from the neural-network
+        chapter, three times over. Nothing new; just three different lenses on the
+        same word.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 2 · Every word spins off a Query (what it wants), a Key (what it advertises), and a Value (what it contributes). Just the word's vector times three learned matrices.">
+          <QKVDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat as="h2">Step 2 — attention: each word looks around and pulls in what matters</Beat>
+      <Beat as="p">
+        Here's the heart of it. Take <code>sat</code>, holding its query{' '}
+        <em>“who did the sitting?”</em> It compares that query against{' '}
+        <em>every</em> other word's key, one by one. “Comparing” is just a{' '}
+        <strong>dot product</strong> — a single number that's large when two vectors
+        point the same way (remember cosine from the last chapter? same idea). The
+        query for <code>sat</code> lines up strongly with the key for{' '}
+        <code>cat</code> (“I'm the subject!”) and weakly with everything else.
+      </Beat>
+
+      <Beat as="p">
+        Those raw scores get squashed through <strong>softmax</strong> into
+        percentages that add up to 100% — the <em>attention weights.</em> Then{' '}
+        <code>sat</code> builds its new vector by <strong>blending the Values</strong>{' '}
+        of the words it scored, in exactly those proportions. If it put 60% of its
+        attention on <code>cat</code>, it pulls in 60% of <code>cat</code>'s value.
+        After this step, the vector for <code>sat</code> literally carries a big dose
+        of “cat” — the word now <em>knows who sat.</em>
+      </Beat>
+
+      <Beat as="p">
+        Try it. Click any word below to make it the “current” one and watch which
+        earlier words it reaches back to, and how their values get blended into its
+        new vector.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 3 · Attention, one word at a time. The current word compares its query to every earlier key, then blends their values by the resulting weights. Click a word to move the spotlight.">
+          <AttentionArcs />
+        </Figure>
+      </Beat>
+
+      <Beat as="p">
+        And this happens for <em>every</em> word at once, in parallel — a whole
+        table of “who is looking at whom,” computed in one shot. That parallelism is
+        exactly why transformers train so much faster than the old read-one-word-at-
+        a-time models, and it's the literal meaning of the paper's title:{' '}
+        <em>attention is all you need.</em>
+      </Beat>
+
+      <Beat as="h3">The one rule: no peeking at the future</Beat>
+      <Beat as="p">
+        Because the whole job is to predict the <em>next</em> word, we can't let a
+        word look at words that come after it — that would be reading the answer off
+        the back of the book. So we add a <strong>causal mask</strong>: each word may
+        attend only to itself and the words before it. In the diagram above, that's
+        why the words to the right go grey. In the live heatmap below, it's why every
+        row is blank past the diagonal.
+      </Beat>
+
+      <Beat as="p">
+        Enough schematics — here's a real transformer, training in your browser.
+        Train it a moment, then type a phrase and read the heatmap: each row is one
+        character deciding where to look, brighter meaning more attention.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 4 · Real attention weights from a model trained live. Rows look back at columns; everything past the diagonal is masked — the future is off-limits.">
           <AttentionWidget />
         </Figure>
       </Beat>
 
-      <Beat as="h3">Feed-forward, stacking, and position</Beat>
+      <Beat>
+        <Callout emoji="👓">
+          <strong>One more thing, so you're not surprised later: multiple heads.</strong>{' '}
+          Real models don't run attention once — they run several{' '}
+          <em>heads</em> in parallel, each with its own Q/K/V lenses. One head might
+          track grammatical subjects, another might track nearby words, another
+          long-range links. Their results are stitched together. Our runnable model
+          uses a single head to stay legible; the idea is just “do this a few times
+          at once, looking for different things.”
+        </Callout>
+      </Beat>
+
+      <Beat as="h2">Step 3 — feed-forward: each word thinks for itself</Beat>
       <Beat as="p">
-        Two more pieces complete a real transformer block. After attention mixes
-        information between words, a small <strong>feed-forward network</strong>{' '}
-        lets each position “think” on its own for a moment. Then you{' '}
-        <strong>stack</strong> these blocks — attention, think, attention, think —
-        a dozen or more times, each layer refining the last. And because attention
-        alone is orderless, each token also gets a <strong>positional</strong>{' '}
-        signal so the model knows what came first. (Our runnable model uses one
-        attention head and a readout to stay small and legible; the idea scales up
-        unchanged.)
+        Attention was the <em>social</em> step: words gathered information from each
+        other. The next step is the <em>private</em> one. Each word — now carrying
+        everything it just pulled in — passes through a small{' '}
+        <strong>feed-forward network</strong> all on its own: expand the vector into
+        a much bigger space, apply a nonlinearity (<strong>ReLU</strong> — keep the
+        positive parts, zero out the rest), then compress back to the original size.
+      </Beat>
+
+      <Beat as="p">
+        If attention is walking around the party collecting gossip, the feed-forward
+        is going home afterward and quietly thinking it over. It's applied to every
+        position separately with the same weights, and it's where a huge share of the
+        model's raw “knowledge” — patterns, facts, associations — actually lives.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 5 · The feed-forward network: expand each word's vector into a wider space, apply ReLU, compress back. Same little network, run on every position independently.">
+          <FeedForwardDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat>
+        <Callout emoji="🛣️">
+          <strong>Two quiet helpers hold it together.</strong> Each sub-step doesn't
+          <em> replace</em> a word's vector — it <em>adds</em> a correction to it.
+          That's a <strong>residual connection</strong>, a highway that lets the
+          original signal (and, during training, the gradient) flow straight through
+          many layers without getting lost. And between steps we{' '}
+          <strong>normalize</strong> the numbers (layer norm) so nothing balloons or
+          vanishes. Add + normalize, over and over — that's what makes very deep
+          stacks trainable at all.
+        </Callout>
+      </Beat>
+
+      <Beat as="h2">Step 4 — stack the blocks: syntax → meaning → reasoning</Beat>
+      <Beat as="p">
+        Put it together and <strong>one block</strong> is: attention (look around),
+        then feed-forward (think), with residual-add and normalize around each. Now
+        the trick that makes it powerful — <strong>do it again. And again.</strong>{' '}
+        Feed the output of one block straight into the next, a dozen or a hundred
+        times.
+      </Beat>
+
+      <Beat as="p">
+        Something remarkable emerges from the repetition. The <em>early</em> blocks
+        tend to sort out surface structure — word order, parts of speech, which words
+        clump together. <em>Middle</em> blocks resolve meaning — which <code>the</code>
+        {' '}refers to which noun, what sense a word is being used in, who the named
+        entities are. <em>Later</em> blocks handle the genuinely abstract — intent,
+        sentiment, what ought to come next. Nobody assigns these jobs; the layers
+        divide the labour on their own.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 6 · Stacking blocks builds understanding in layers: grammar first, then meaning, then reasoning. Each row is a rough sense of what deeper blocks tend to figure out.">
+          <StackedBlocks />
+        </Figure>
+      </Beat>
+
+      <Beat as="h3">Where does word order come from?</Beat>
+      <Beat as="p">
+        One loose end. Attention, by itself, treats the words as an unordered{' '}
+        <em>bag</em> — swap two words and the math barely notices. But “dog bites man”
+        and “man bites dog” are not the same sentence! The fix is small and clever:
+        before the first block, we <strong>add a positional stamp</strong> to each
+        token's vector — a distinct pattern for position 1, 2, 3, and so on. Now the
+        same word in a different slot arrives as a slightly different vector, and
+        attention can tell them apart. That's the “+ position” box back in Fig 1.
       </Beat>
 
       <Beat as="h2">Watch it actually generate</Beat>
       <Beat as="p">
-        Here's the same architecture, training on the Little Kingdom text. Hit{' '}
+        Here's the whole architecture — Q/K/V attention, feed-forward, residuals,
+        positions, all of it — training on the Little Kingdom text. Hit{' '}
         <strong>Train</strong> and watch the loss fall; then <strong>Generate</strong>.
-        A single tiny head won't write poetry, but you'll see it grab the
-        kingdom's words and rhythms out of thin air — learned only by predicting
-        the next character, over and over.
+        A single tiny head won't write poetry, but you'll watch it pull the kingdom's
+        words and rhythms out of thin air — learned only by predicting the next
+        character, over and over, using every mechanism you just met.
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 2 · Loss falling as a from-scratch transformer learns; generation improves the longer you train.">
+        <Figure caption="Fig 7 · Loss falling as a from-scratch transformer learns; generation gets more coherent the longer you train.">
           <TransformerLab />
         </Figure>
       </Beat>
 
       <Beat as="h2">The code (self-attention, by hand)</Beat>
       <Beat as="p">
-        No libraries — the forward pass and the full backprop through attention
-        are written out. Look for the causal loop <code>for (s = 0; s ≤ t; s++)</code>:
-        that one bound is the entire “don't look at the future” rule.
+        No libraries — the forward pass and the full backprop through attention are
+        written out. You now know every idea in it: the Q/K/V projections, the
+        dot-product scores, the softmax, the value blend, the feed-forward. Look for
+        the causal loop <code>for (s = 0; s ≤ t; s++)</code>: that one bound is the
+        entire “don't look at the future” rule.
       </Beat>
 
       <Beat>

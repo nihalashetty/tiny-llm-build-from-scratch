@@ -1459,3 +1459,25 @@ select.mini {
 .truth td.editable {
   padding: 4px 10px;
 }
+.lab-hint {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: #fff;
+  border: 1px solid var(--line-3);
+  border-radius: 10px;
+  padding: 10px 13px;
+}
+.boundary-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  align-items: center;
+  margin: 2px 0;
+}
+@media (max-width: 620px) {
+  .boundary-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}

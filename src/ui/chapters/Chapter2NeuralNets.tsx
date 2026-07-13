@@ -32,7 +32,7 @@ function Controls({ t }: { t: TrainerState<unknown> }) {
 
 function BoundaryLegend() {
   return (
-    <div className="dim" style={{ fontSize: 12, marginTop: 6, lineHeight: 1.55, maxWidth: 240 }}>
+    <div className="dim" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
       Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
       network's output there —{' '}
       <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
@@ -148,6 +148,10 @@ function PerceptronLab() {
         {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
+      <div className="lab-hint">
+        Try the <b>AND</b> or <b>OR</b> preset — a single perceptron learns those
+        easily (error → 0). Only <b>XOR</b> leaves it stuck near 0.25.
+      </div>
       <NetworkDiagram
         layers={[2, 1]}
         weights={[[[m.w[0]], [m.w[1]]]]}
@@ -155,17 +159,11 @@ function PerceptronLab() {
         outputLabel="out"
         height={140}
       />
-      <div className="lab-two">
-        <div>
-          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
-          <BoundaryLegend />
-        </div>
-        <LossCurve history={t.lossHistory} max={0.3} />
+      <div className="boundary-row">
+        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+        <BoundaryLegend />
       </div>
-      <div className="dim" style={{ fontSize: 13 }}>
-        Try the <b>AND</b> or <b>OR</b> preset — a single perceptron learns those
-        easily (error → 0). Only <b>XOR</b> leaves it stuck near 0.25.
-      </div>
+      <LossCurve history={t.lossHistory} max={0.3} height={170} />
     </div>
   );
 }
@@ -188,6 +186,11 @@ function XorLab() {
         {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
+      <div className="lab-hint">
+        Change the goal above (or flip a “want” cell) and press <b>Train</b> — the
+        hidden layer lets this same network learn <em>any</em> of these gates,
+        XOR included.
+      </div>
       <NetworkDiagram
         layers={[2, 4, 1]}
         weights={[m.w1, m.w2.map((w) => [w])]}
@@ -195,18 +198,11 @@ function XorLab() {
         outputLabel="out"
         height={190}
       />
-      <div className="lab-two">
-        <div>
-          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
-          <BoundaryLegend />
-        </div>
-        <LossCurve history={t.lossHistory} max={0.3} />
+      <div className="boundary-row">
+        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+        <BoundaryLegend />
       </div>
-      <div className="dim" style={{ fontSize: 13 }}>
-        Change the goal above (or flip a “want” cell) and press <b>Train</b> — the
-        hidden layer lets this same network learn <em>any</em> of these gates,
-        XOR included.
-      </div>
+      <LossCurve history={t.lossHistory} max={0.3} height={170} />
     </div>
   );
 }

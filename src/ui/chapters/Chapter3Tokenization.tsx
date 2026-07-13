@@ -43,16 +43,16 @@ export function Chapter3Tokenization() {
 
       <Beat as="h2">First, meet our corpus</Beat>
       <Beat as="p">
-        BPE finds patterns by <em>counting</em>, so before we count anything you
-        should see exactly what we're counting <em>in</em>. Here's the whole thing —
-        a tiny hand-written world called <strong>Little Kingdom</strong>, kept small
-        and repetitive on purpose so a model can learn it right here in your browser.
-        Read a few lines and one word jumps out: <code>the</code> is everywhere.
-        That repetition is the raw material BPE feeds on.
+        Here's the whole text we'll work with — a tiny hand-written world called{' '}
+        <strong>Little Kingdom</strong>, kept small and repetitive on purpose.{' '}
+        <strong>The tokenizer in the next section reads these exact sentences</strong>{' '}
+        and looks for the pieces that repeat most — like <code>the</code>, which shows
+        up in nearly every line. That's all “finding tokens” really is: counting what
+        recurs.
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 1 · Our entire training corpus — the actual text every demo in this chapter reads from. Each “th” is highlighted; there are 95, which is why t+h is the first pair BPE glues.">
+        <Figure caption="Fig 1 · Our entire corpus. The tokenizer below scans these very sentences to find the most-repeated character pairs and, eventually, whole words.">
           <CorpusView />
         </Figure>
       </Beat>
@@ -63,7 +63,7 @@ export function Chapter3Tokenization() {
         Find the two tokens that sit next to each other most often, and glue them
         into one new token. Repeat. Frequent chunks like <code>th</code>,{' '}
         <code>ee</code>, then whole words like <code>queen</code> emerge on their
-        own. Step through it on our Little Kingdom text:
+        own. Here it is, running on the sentences you just saw above:
       </Beat>
 
       <Beat as="p">

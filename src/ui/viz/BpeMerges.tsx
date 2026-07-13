@@ -45,7 +45,8 @@ export function BpeMerges() {
   }, [playing, step, maxStep]);
 
   const current = step > 0 ? result.steps[step - 1] : null;
-  const vocabSize = current ? current.vocabSize : result.baseVocab.length;
+  const vocab = current ? current.vocab : result.baseVocab;
+  const vocabSize = vocab.length;
 
   const sampleFor = (word: string): string[] =>
     current ? current.sample[word] ?? word.split('') : word.split('');
@@ -113,6 +114,19 @@ export function BpeMerges() {
       ) : (
         <div className="merge-eq dim">Every word starts as individual characters. Press Auto-merge.</div>
       )}
+
+      <div className="vocab-strip">
+        <span className="vocab-strip-label">
+          {current ? 'vocabulary' : 'starting vocabulary — every character in the text'}
+        </span>
+        <span className="tokens">
+          {vocab.map((t) => (
+            <span key={t} className={`tok${current && t === current.merged ? ' fresh' : ''}`}>
+              {t}
+            </span>
+          ))}
+        </span>
+      </div>
 
       <div>
         {SAMPLE_WORDS.map((w) => (

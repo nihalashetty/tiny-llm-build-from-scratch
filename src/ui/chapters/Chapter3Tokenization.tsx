@@ -49,8 +49,17 @@ export function Chapter3Tokenization() {
         own. Step through it on our Little Kingdom text:
       </Beat>
 
+      <Beat as="p">
+        So what <em>is</em> the vocabulary to begin with? Just the set of distinct
+        characters that appear in the whole corpus — for our Little Kingdom text
+        that's the 24 letters shown in the <strong>vocabulary strip</strong> below
+        (a–z minus the couple that never occur). Every merge then adds exactly one
+        new token to that strip, so you can literally watch the count climb from 24
+        upward as whole words form.
+      </Beat>
+
       <Beat>
-        <Figure caption="Fig 1 · Each step glues the most frequent adjacent pair. Watch the showcase words collapse from characters toward whole words.">
+        <Figure caption="Fig 1 · The vocabulary strip starts as the 24 characters in the text; each step glues the most frequent adjacent pair into a new token (highlighted) and the showcase words collapse from characters toward whole words.">
           <BpeMerges />
         </Figure>
       </Beat>

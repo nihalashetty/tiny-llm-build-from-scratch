@@ -128,6 +128,13 @@ function AttentionWidget() {
 export function Chapter5Transformers() {
   return (
     <ChapterFrame id="transformers">
+      <Beat>
+        <blockquote className="paper-hero">
+          <span className="paper-hero-title">Attention Is All You Need</span>
+          <span className="paper-hero-cite">Vaswani et al., 2017 — the eight-page paper that created the transformer</span>
+        </blockquote>
+      </Beat>
+
       <Beat as="p" className="lead">
         Embeddings give words meaning, but not <em>context</em>. “The bank of the
         river” and “money in the bank” share a word that means two different

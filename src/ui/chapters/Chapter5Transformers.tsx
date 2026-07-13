@@ -21,14 +21,14 @@ import txSource from '../../llm/transformer.ts?raw';
 
 function TransformerLab() {
   const t = useRafTrainer(
-    () => new TinyTransformer(corpusText, { dim: 24, context: 32, lr: 0.01, seed: 3 }),
+    () => new TinyTransformer(corpusText, { dim: 24, context: 16, lr: 0.01, seed: 3 }),
     (m) => m.trainStep(),
-    1500,
+    1200,
     2,
   );
   const m = t.model;
   const [prompt, setPrompt] = useState('the queen ');
-  const [output, setOutput] = useState('');
+  const [output, setOutput] = useState<{ prompt: string; text: string } | null>(null);
 
   return (
     <div className="lab">
@@ -52,7 +52,7 @@ function TransformerLab() {
         </span>
       </div>
 
-      <LossCurve history={t.lossHistory} max={3.4} />
+      <LossCurve history={t.lossHistory} max={5} />
 
       <div>
         <div className="field">
@@ -65,7 +65,7 @@ function TransformerLab() {
           />
           <button
             className="btn btn-run"
-            onClick={() => setOutput(m.generate(prompt, 130, 0.5, 0.9))}
+            onClick={() => setOutput(m.generate(prompt, 40, 0.8, 0.9))}
           >
             Generate ▶
           </button>
@@ -73,8 +73,8 @@ function TransformerLab() {
         <div className="gen-output" style={{ marginTop: 10 }}>
           {output ? (
             <>
-              <span className="prompt">{prompt}</span>
-              {output.slice(prompt.length)}
+              <span className="prompt">{output.prompt}</span>
+              {output.text.slice(output.prompt.length)}
             </>
           ) : (
             <span className="dim">
@@ -91,13 +91,13 @@ function TransformerLab() {
 
 function AttentionWidget() {
   const t = useRafTrainer(
-    () => new TinyTransformer(corpusText, { dim: 24, context: 32, lr: 0.01, seed: 5 }),
+    () => new TinyTransformer(corpusText, { dim: 24, context: 16, lr: 0.01, seed: 5 }),
     (m) => m.trainStep(),
-    700,
+    800,
     2,
   );
   const m = t.model;
-  const [text, setText] = useState('the queen sat');
+  const [text, setText] = useState('the queen sits on the throne');
   const attn = useMemo(() => m.attentionFor(text), [m, text, t.tick]);
 
   return (
@@ -126,6 +126,9 @@ function AttentionWidget() {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+      </div>
+      <div className="dim" style={{ fontSize: 12, margin: '2px 0 8px' }}>
+        Use words from the story (e.g. “the king wears a gold crown”); unknown words are skipped.
       </div>
       <AttentionHeatmap tokens={attn.tokens} alpha={attn.alpha} />
     </div>
@@ -302,13 +305,15 @@ export function Chapter5Transformers() {
       </Beat>
 
       <Beat as="p">
-        Enough schematics — here's a real transformer, training in your browser.
+        Enough schematics — here's a real transformer, training in your browser on
+        whole-word tokens. (Real models use <em>subword</em> tokens like the BPE
+        pieces from Chapter 3; we use whole words here so the grid stays readable.)
         Train it a moment, then type a phrase and read the heatmap: each row is one
-        character deciding where to look, brighter meaning more attention.
+        word deciding where to look, brighter meaning more attention.
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 4 · Real attention weights from a model trained live. Rows look back at columns; everything past the diagonal is masked — the future is off-limits.">
+        <Figure caption="Fig 4 · Real attention weights from a model trained live — now over whole words. Each row (a word) looks back at earlier columns; everything past the diagonal is masked, so the future stays off-limits.">
           <AttentionWidget />
         </Figure>
       </Beat>
@@ -431,7 +436,7 @@ export function Chapter5Transformers() {
         <strong>Train</strong> and watch the loss fall; then <strong>Generate</strong>.
         A single tiny head won't write poetry, but you'll watch it pull the kingdom's
         words and rhythms out of thin air — learned only by predicting the next
-        character, over and over, using every mechanism you just met.
+        word, over and over, using every mechanism you just met.
       </Beat>
 
       <Beat>
@@ -442,17 +447,17 @@ export function Chapter5Transformers() {
 
       <Beat>
         <Callout emoji="🔍">
-          <strong>Why does it still babble — do we need more data?</strong> Not really.
-          Look at what it <em>did</em> learn: the shape of the language — “the ___”,
-          where spaces fall, that words tumble out in plausible syllables, even “the
-          queen wears a…”. What it can't do is spell a real vocabulary, because it's{' '}
-          <em>one</em> block, <em>one</em> attention head, 24 numbers per character,
-          trained for a few seconds on ~3,000 characters. A model this small can't hold
-          much no matter how much text you pour in — more data would barely move it.
-          Fluency is a matter of <strong>scale</strong>: more blocks, more heads, wider
-          vectors, and vastly more text and training (remember Chapter 3 — real models
-          train on <em>trillions</em> of tokens). Our goal here wasn't to rival GPT; it
-          was to watch every gear of the real machine turn with our own eyes.
+          <strong>It reads like a half-dream — do we need more data?</strong> Not really.
+          Because it works with whole words now, it only ever emits real kingdom words —
+          so it nails local phrases (“the queen sat on the…”) and then wanders, because
+          it simply hasn't the room to hold a whole thought. It's <em>one</em> block,{' '}
+          <em>one</em> attention head, 24 numbers per token, trained for a few seconds on
+          a few hundred words. A model this small can't hold much no matter how much text
+          you pour in — more data would barely move it. Fluency is a matter of{' '}
+          <strong>scale</strong>: more blocks, more heads, wider vectors, subword tokens,
+          and vastly more text and training (remember Chapter 3 — real models train on{' '}
+          <em>trillions</em> of tokens). Our goal here wasn't to rival GPT; it was to
+          watch every gear of the real machine turn with our own eyes.
         </Callout>
       </Beat>
 

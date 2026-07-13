@@ -3,11 +3,12 @@
  * your browser on the Little Kingdom text.
  *
  * To keep the hand-written calculus correct AND readable, this is the smallest
- * honest version: character-level, ONE causal self-attention head, a small
- * feed-forward network, then a readout to next-character probabilities. Real
- * models stack many such blocks, run several attention heads at once, and add
- * layer-norm (we explain those in the chapter) — but the heart is exactly this,
- * and it's all here with no ML libraries.
+ * honest version: word-level (each token is a whole word, or a period), ONE
+ * causal self-attention head, a small feed-forward network, then a readout to
+ * next-token probabilities. Real models stack many such blocks, run several
+ * attention heads at once, use subword tokens (like the BPE ones from Ch.3), and
+ * add layer-norm (we explain those in the chapter) — but the heart is exactly
+ * this, and it's all here with no ML libraries.
  *
  * Forward for a sequence x₀…x_{L-1}, predicting the next char at each step:
  *   hₜ = E[xₜ] + P[t]                          (token + position embedding)
@@ -133,10 +134,11 @@ export class TinyTransformer {
     this.batch = cfg.batch ?? 8;
     this.rng = makeRng(cfg.seed ?? 3);
 
-    this.vocab = [...new Set(text.split(''))].sort();
+    const toks = TinyTransformer.tokenize(text);
+    this.vocab = [...new Set(toks)].sort();
     this.stoi = new Map(this.vocab.map((c, i) => [c, i]));
     this.V = this.vocab.length;
-    this.data = text.split('').map((c) => this.stoi.get(c)!);
+    this.data = toks.map((c) => this.stoi.get(c)!);
 
     const { D, F, V, T } = this;
     this.E = this.init(V, D, 0.02);
@@ -389,8 +391,26 @@ export class TinyTransformer {
     return loss / this.batch;
   }
 
+  /** Split text into tokens: whole words and standalone periods. */
+  static tokenize(text: string): string[] {
+    return text.toLowerCase().match(/[a-z]+|\./g) ?? [];
+  }
+
   private encode(text: string): number[] {
-    return text.split('').map((c) => this.stoi.get(c) ?? 0);
+    // keep only words the model actually knows (drop out-of-story words)
+    return TinyTransformer.tokenize(text)
+      .map((c) => this.stoi.get(c))
+      .filter((i): i is number => i !== undefined);
+  }
+
+  /** Join token ids back into readable text (no space before a period). */
+  private detok(ids: number[]): string {
+    let s = '';
+    for (const id of ids) {
+      const w = this.vocab[id];
+      s += w === '.' ? '.' : (s.length ? ' ' : '') + w;
+    }
+    return s;
   }
 
   /** Attention weights for a prompt (for the heatmap): rows attend to columns. */
@@ -408,16 +428,22 @@ export class TinyTransformer {
     return this.vocab.map((char, i) => ({ char, p: last[i] }));
   }
 
-  /** Autoregressive generation with temperature + nucleus (top-p) sampling. */
-  generate(prompt: string, length = 120, temperature = 0.8, topP = 0.9): string {
-    let out = prompt;
+  /**
+   * Autoregressive generation with temperature + nucleus (top-p) sampling.
+   * Returns the detokenized prompt (so the UI can highlight it) and the full text.
+   */
+  generate(prompt: string, length = 40, temperature = 0.8, topP = 0.9): { prompt: string; text: string } {
+    const promptIds = this.encode(prompt);
+    const ids = promptIds.slice();
+    if (ids.length === 0) ids.push(0);
+
     for (let i = 0; i < length; i++) {
-      const ids = this.encode(out).slice(-this.T);
-      const cache = this.forward(ids);
+      const ctx = ids.slice(-this.T);
+      const cache = this.forward(ctx);
       const logits = cache.probs[cache.probs.length - 1].map((p) => Math.log(p + EPS) / temperature);
       const probs = softmax(logits);
 
-      // nucleus sampling: keep the smallest set of chars whose mass ≥ topP
+      // nucleus sampling: keep the smallest set of tokens whose mass ≥ topP
       const ranked = probs.map((p, idx) => ({ p, idx })).sort((a, b) => b.p - a.p);
       let cum = 0;
       const keep: { p: number; idx: number }[] = [];
@@ -435,8 +461,8 @@ export class TinyTransformer {
           break;
         }
       }
-      out += this.vocab[chosen];
+      ids.push(chosen);
     }
-    return out;
+    return { prompt: this.detok(promptIds), text: this.detok(ids) };
   }
 }

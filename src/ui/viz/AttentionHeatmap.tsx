@@ -1,36 +1,33 @@
 /**
- * The attention matrix as a heatmap. Each ROW is a character asking "what should
- * I pay attention to?"; each COLUMN is an earlier character it could look at.
+ * The attention matrix as a heatmap. Each ROW is a token (word) asking "what
+ * should I pay attention to?"; each COLUMN is an earlier token it could look at.
  * A dark coral cell = strong attention. The upper triangle is blank because of
- * the causal mask — a character can't peek at the future.
+ * the causal mask — a token can't peek at the future.
  *
- * Cells auto-size to fit `maxSize`, so however much text you type, the whole
- * matrix stays inside the box (cells just get smaller) instead of spilling out.
+ * Cells auto-size to fit `maxSize`; column labels are drawn on a slant so word
+ * labels don't collide, and the whole thing stays inside the box.
  */
-function glyph(ch: string): string {
-  if (ch === ' ') return '␣';
-  if (ch === '\n') return '⏎';
-  return ch;
-}
-
 export function AttentionHeatmap({
   tokens,
   alpha,
-  maxSize = 300,
+  maxSize = 360,
 }: {
   tokens: string[];
   alpha: number[][];
   maxSize?: number;
 }) {
   const L = tokens.length;
-  const m = 22; // label margin
-  // shrink cells to fit the frame; clamp so short strings aren't giant
-  const cell = Math.max(7, Math.min(20, (maxSize - m) / Math.max(1, L)));
-  const size = m + L * cell;
-  const font = Math.max(6, Math.min(11, cell * 0.62));
+  const font = 11;
+  const maxLen = tokens.reduce((n, t) => Math.max(n, t.length), 1);
+  const labelPx = Math.min(78, maxLen * font * 0.62); // rough label length in px
+  const mL = Math.max(30, labelPx + 10); // left margin for row labels
+  const mT = Math.max(26, labelPx * 0.72 + 10); // top margin for slanted col labels
+  const cell = Math.max(15, Math.min(40, (maxSize - mL) / Math.max(1, L)));
+  const grid = L * cell;
+  const W = mL + grid + 6;
+  const H = mT + grid + 6;
 
   const color = (w: number) => {
-    // light paper → coral by weight
     const r = Math.round(253 + w * (240 - 253));
     const g = Math.round(246 + w * (102 - 246));
     const b = Math.round(236 + w * (62 - 236));
@@ -39,39 +36,38 @@ export function AttentionHeatmap({
 
   return (
     <span className="canvas-frame">
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
-        width={size}
-        height={size}
-        role="img"
-        aria-label="Attention weights between characters"
-      >
-        {/* column labels (keys) */}
-        {tokens.map((t, j) => (
-          <text
-            key={`c${j}`}
-            x={m + j * cell + cell / 2}
-            y={m - 7}
-            textAnchor="middle"
-            fontFamily="'JetBrains Mono', monospace"
-            fontSize={font}
-            fill="#a2917a"
-          >
-            {glyph(t)}
-          </text>
-        ))}
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Attention weights between words">
+        {/* column labels (keys) — slanted so words don't overlap */}
+        {tokens.map((t, j) => {
+          const cx = mL + j * cell + cell / 2;
+          const cy = mT - 5;
+          return (
+            <text
+              key={`c${j}`}
+              x={cx}
+              y={cy}
+              textAnchor="start"
+              fontFamily="'JetBrains Mono', monospace"
+              fontSize={font}
+              fill="#8a7d6b"
+              transform={`rotate(-45 ${cx} ${cy})`}
+            >
+              {t}
+            </text>
+          );
+        })}
         {/* row labels (queries) */}
         {tokens.map((t, i) => (
           <text
             key={`r${i}`}
-            x={m - 7}
-            y={m + i * cell + cell / 2 + font / 3}
+            x={mL - 7}
+            y={mT + i * cell + cell / 2 + font / 3}
             textAnchor="end"
             fontFamily="'JetBrains Mono', monospace"
             fontSize={font}
-            fill="#a2917a"
+            fill="#8a7d6b"
           >
-            {glyph(t)}
+            {t}
           </text>
         ))}
         {/* cells */}
@@ -81,11 +77,11 @@ export function AttentionHeatmap({
             return (
               <rect
                 key={`${i}-${j}`}
-                x={m + j * cell}
-                y={m + i * cell}
-                width={cell - 1}
-                height={cell - 1}
-                rx={cell > 12 ? 2 : 1}
+                x={mL + j * cell}
+                y={mT + i * cell}
+                width={cell - 1.5}
+                height={cell - 1.5}
+                rx={3}
                 fill={w < 0 ? '#f7f1e6' : color(w)}
                 stroke={w < 0 ? 'transparent' : '#efe4d2'}
                 strokeWidth="0.5"

@@ -23,8 +23,8 @@ function TransformerLab() {
   const t = useRafTrainer(
     () => new TinyTransformer(corpusText, { dim: 24, context: 32, lr: 0.01, seed: 3 }),
     (m) => m.trainStep(),
-    4000,
-    20,
+    1500,
+    2,
   );
   const m = t.model;
   const [prompt, setPrompt] = useState('the queen ');
@@ -65,7 +65,7 @@ function TransformerLab() {
           />
           <button
             className="btn btn-run"
-            onClick={() => setOutput(m.generate(prompt, 110, 0.6, 0.9))}
+            onClick={() => setOutput(m.generate(prompt, 130, 0.5, 0.9))}
           >
             Generate ▶
           </button>
@@ -78,7 +78,7 @@ function TransformerLab() {
             </>
           ) : (
             <span className="dim">
-              {t.epoch < 400
+              {t.epoch < 250
                 ? 'Train for a bit first, then generate — an untrained model just babbles.'
                 : 'Press Generate ▶.'}
             </span>
@@ -93,12 +93,12 @@ function AttentionWidget() {
   const t = useRafTrainer(
     () => new TinyTransformer(corpusText, { dim: 24, context: 32, lr: 0.01, seed: 5 }),
     (m) => m.trainStep(),
-    2500,
-    25,
+    700,
+    2,
   );
   const m = t.model;
   const [text, setText] = useState('the queen sat');
-  const attn = useMemo(() => m.attentionFor(text.slice(-16)), [m, text, t.tick]);
+  const attn = useMemo(() => m.attentionFor(text), [m, text, t.tick]);
 
   return (
     <div className="lab">
@@ -237,6 +237,19 @@ export function Chapter5Transformers() {
         </Figure>
       </Beat>
 
+      <Beat>
+        <Callout emoji="🤔">
+          <strong>Why three vectors, not just one?</strong> Because a word plays three
+          roles a single vector can't. What a word <em>is</em> (“I'm cat”) is not what
+          it's <em>looking for</em> (<code>sat</code> is hunting for a subject) or what
+          it <em>offers</em> to share. If words just compared their raw embeddings,{' '}
+          <code>sat</code> could only find words similar to <em>itself</em> — other
+          verbs. The separate Query and Key let <code>sat</code> advertise one thing
+          (“I'm a verb”) while searching for another (“who's my subject?”). That
+          mismatch is the whole trick.
+        </Callout>
+      </Beat>
+
       <Beat as="h2">Step 2 — attention: each word looks around and pulls in what matters</Beat>
       <Beat as="p">
         Here's the heart of it. Take <code>sat</code>, holding its query{' '}
@@ -301,6 +314,20 @@ export function Chapter5Transformers() {
       </Beat>
 
       <Beat>
+        <Callout emoji="💡">
+          <strong>So what did attention actually buy us?</strong> Before it, the vector
+          for <code>the</code> was identical everywhere it appeared — useless for
+          guessing what follows. <em>After</em> it, every word's vector is soaked in its
+          context: <code>sat</code> now carries “a cat did this”; the second{' '}
+          <code>the</code> knows it comes right after <code>on</code>. To predict what
+          follows “the cat sat on the ___”, the model needs that final slot to know
+          about <code>sat</code> and <code>on</code> — and attention is precisely how
+          that information travelled there. No attention, no context; no context, no
+          sensible next word.
+        </Callout>
+      </Beat>
+
+      <Beat>
         <Callout emoji="👓">
           <strong>One more thing, so you're not surprised later: multiple heads.</strong>{' '}
           Real models don't run attention once — they run several{' '}
@@ -333,6 +360,19 @@ export function Chapter5Transformers() {
         <Figure caption="Fig 5 · The feed-forward network: expand each word's vector into a wider space, apply ReLU, compress back. Same little network, run on every position independently.">
           <FeedForwardDiagram />
         </Figure>
+      </Beat>
+
+      <Beat as="p">
+        Why do we need this <em>on top of</em> attention? Because attention only{' '}
+        <em>moves information around</em> — at heart it's a weighted average, a fairly
+        gentle, linear operation. It can carry <code>cat</code> over to <code>sat</code>,
+        but it can't, by itself, compute a rule like “a royal subject followed by{' '}
+        <code>wears</code> tends to precede <code>crown</code>.” The feed-forward's
+        nonlinearity (that ReLU) is what lets the model actually detect patterns and
+        recall associations — it's where a lot of what the model “knows” is stored.
+        The cleanest way to hold the two apart:{' '}
+        <strong>attention decides what to look at; the feed-forward decides what to
+        make of it.</strong> Communication, then computation.
       </Beat>
 
       <Beat>
@@ -395,18 +435,36 @@ export function Chapter5Transformers() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 7 · Loss falling as a from-scratch transformer learns; generation gets more coherent the longer you train.">
+        <Figure caption="Fig 7 · A real, from-scratch transformer — one block, one head, plus the feed-forward — learning live. The loss falls fast; generation turns into kingdom-flavoured near-words, the ceiling for a model this tiny.">
           <TransformerLab />
         </Figure>
       </Beat>
 
+      <Beat>
+        <Callout emoji="🔍">
+          <strong>Why does it still babble — do we need more data?</strong> Not really.
+          Look at what it <em>did</em> learn: the shape of the language — “the ___”,
+          where spaces fall, that words tumble out in plausible syllables, even “the
+          queen wears a…”. What it can't do is spell a real vocabulary, because it's{' '}
+          <em>one</em> block, <em>one</em> attention head, 24 numbers per character,
+          trained for a few seconds on ~3,000 characters. A model this small can't hold
+          much no matter how much text you pour in — more data would barely move it.
+          Fluency is a matter of <strong>scale</strong>: more blocks, more heads, wider
+          vectors, and vastly more text and training (remember Chapter 3 — real models
+          train on <em>trillions</em> of tokens). Our goal here wasn't to rival GPT; it
+          was to watch every gear of the real machine turn with our own eyes.
+        </Callout>
+      </Beat>
+
       <Beat as="h2">The code (self-attention, by hand)</Beat>
       <Beat as="p">
-        No libraries — the forward pass and the full backprop through attention are
-        written out. You now know every idea in it: the Q/K/V projections, the
-        dot-product scores, the softmax, the value blend, the feed-forward. Look for
-        the causal loop <code>for (s = 0; s ≤ t; s++)</code>: that one bound is the
-        entire “don't look at the future” rule.
+        No libraries — the forward pass and the full backprop through attention{' '}
+        <em>and</em> the feed-forward are written out by hand (it's one block with a
+        single head; multi-head and stacking are the only things we left out). You now
+        know every idea in it: the Q/K/V projections, the dot-product scores, the
+        softmax, the value blend, the feed-forward. Look for the causal loop{' '}
+        <code>for (s = 0; s ≤ t; s++)</code>: that one bound is the entire “don't look
+        at the future” rule.
       </Beat>
 
       <Beat>

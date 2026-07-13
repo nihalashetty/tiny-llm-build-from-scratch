@@ -189,16 +189,10 @@ function PerceptronLab() {
       </div>
 
       <div className="lab-two" style={{ gridTemplateColumns: 'minmax(0, 216px) 1fr', alignItems: 'center' }}>
-        <DecisionBoundary
-          predict={(x) => m.predict(x)}
-          tick={t.tick}
-          size={200}
-          targets={targets}
-          line={[m.w[0], m.w[1], m.b]}
-        />
+        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
         <LossCurve history={t.lossHistory} max={0.3} width={400} height={230} />
       </div>
-      <BoundaryLegend line />
+      <BoundaryLegend />
     </div>
   );
 }
@@ -380,7 +374,7 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 2 · One perceptron. The diagram shows its two weights + bias (live, on the right); the square shows its single decision line; the graph shows the error. Try AND/OR (the line finds them), then XOR (it can't).">
+        <Figure caption="Fig 2 · One perceptron. The diagram shows its two weights + bias (live, on the right); the square shows its output everywhere; the graph shows the error. Try AND/OR (it wins), then XOR (it can't).">
           <PerceptronLab />
         </Figure>
       </Beat>

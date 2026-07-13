@@ -7,6 +7,7 @@ import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { LossCurve } from '../viz/LossCurve';
 import { EmbeddingScatter } from '../viz/EmbeddingScatter';
+import { VectorArrowDiagram, DimensionLadder, DimensionScale, CosineDiagram } from '../viz/VectorDiagrams';
 import { useRafTrainer } from '../useRafTrainer';
 import { Word2Vec } from '../../llm/word2vec';
 import { sentences } from '../../llm/corpus/little-kingdom';
@@ -27,6 +28,7 @@ function EmbeddingLab() {
     4,
   );
   const m = t.model;
+  const trained = t.epoch > 0;
 
   const [near, setNear] = useState('fox');
   const [a, setA] = useState('man');
@@ -41,14 +43,15 @@ function EmbeddingLab() {
     { word: a, color: '#3e6ff0' },
     { word: b, color: '#f0663e' },
     { word: c, color: '#1f9e7a' },
-    ...(result ? [{ word: result, color: '#c24a28' }] : []),
+    ...(trained && result ? [{ word: result, color: '#c24a28' }] : []),
   ];
-  const arrows = result
-    ? [
-        { from: a, to: b, color: '#f0663e' },
-        { from: c, to: result, color: '#1f9e7a' },
-      ]
-    : [];
+  const arrows =
+    trained && result
+      ? [
+          { from: a, to: b, color: '#f0663e' },
+          { from: c, to: result, color: '#1f9e7a' },
+        ]
+      : [];
 
   const opts = m.vocab.slice().sort();
 
@@ -74,13 +77,19 @@ function EmbeddingLab() {
         </span>
       </div>
 
-      <div className="lab-two" style={{ gridTemplateColumns: '340px 1fr' }}>
+      <div className="lab-two" style={{ gridTemplateColumns: '340px 1fr', gap: 22 }}>
         <EmbeddingScatter points={m.positions2D()} labelWords={LABELS} highlight={highlight} arrows={arrows} />
 
         <div className="explorer">
-          <LossCurve history={t.lossHistory} max={2.5} />
+          <div className="panel-block">
+            <div className="panel-title">Training loss</div>
+            <LossCurve history={t.lossHistory} max={2.5} />
+          </div>
 
-          <div>
+          <div className="panel-block">
+            <div className="panel-title">
+              Nearest neighbours <span className="dim">· by cosine similarity</span>
+            </div>
             <div className="field">
               <label>Nearest to</label>
               <select className="mini" value={near} onChange={(e) => setNear(e.target.value)}>
@@ -89,16 +98,21 @@ function EmbeddingLab() {
                 ))}
               </select>
             </div>
-            <div className="neighbors" style={{ marginTop: 8 }}>
-              {neighbors.map((n) => (
-                <span className="neighbor" key={n.word}>
-                  {n.word} <b>{n.score.toFixed(2)}</b>
-                </span>
-              ))}
-            </div>
+            {trained ? (
+              <div className="neighbors" style={{ marginTop: 8 }}>
+                {neighbors.map((n) => (
+                  <span className="neighbor" key={n.word}>
+                    {n.word} <b>{n.score.toFixed(2)}</b>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="panel-empty">Press Train ▶ — until the vectors learn, neighbours are random.</div>
+            )}
           </div>
 
-          <div>
+          <div className="panel-block">
+            <div className="panel-title">Word analogy</div>
             <div className="field">
               <select className="mini" value={a} onChange={(e) => setA(e.target.value)}>
                 {opts.map((w) => (
@@ -120,8 +134,9 @@ function EmbeddingLab() {
               <span>→ ?</span>
             </div>
             <div className="analogy-result" style={{ marginTop: 8 }}>
-              {b} − {a} + {c} = <span className="big">{result ?? '…'}</span>
+              {b} − {a} + {c} = <span className="big">{trained ? result ?? '…' : '?'}</span>
             </div>
+            {!trained && <div className="panel-empty">Train first — this should resolve to “queen”.</div>}
           </div>
         </div>
       </div>
@@ -140,38 +155,114 @@ export function Chapter4Embeddings() {
         placed so that meaning becomes geometry.
       </Beat>
 
-      <Beat as="h2">What's a vector? (arrows with meaning)</Beat>
+      <Beat as="h2">What's a vector? (an arrow with meaning)</Beat>
       <Beat as="p">
-        A vector is just a list of numbers — think of it as an arrow pointing to a
-        spot in space. Two words with similar meaning should sit close together;
-        the <em>direction</em> between words can capture a relationship. The wild
-        part, discovered in 2013, is that these directions become arithmetic you
-        can actually do.
+        A <strong>vector</strong> is nothing scary — it's just a list of numbers.
+        Each number is a <em>coordinate</em>, and together they point to one exact
+        spot. Take two numbers, read them as <code>(x, y)</code>, and the word
+        becomes an arrow from the origin to a point on a plane. Place words well and
+        the geometry starts to mean something: similar words point to nearby spots,
+        unrelated words point off on their own.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 1 · A word as an arrow. Give “king” the numbers [.78, .82] and it points to a spot; “queen” lands nearby (similar meaning), while “rock” points somewhere else entirely.">
+          <VectorArrowDiagram />
+        </Figure>
       </Beat>
 
       <Beat as="p">
-        The idea is centuries old in disguise. Frege said a word's meaning lives
-        in its context; the linguist J. R. Firth put it memorably: “you shall
-        know a word by the company it keeps.” <strong>Word2Vec</strong> turned
-        that slogan into an algorithm — train each word to predict its neighbours,
-        and words used alike drift together.
+        The idea is centuries old in disguise. Frege said a word's meaning lives in
+        its context; the linguist J. R. Firth put it memorably: “you shall know a
+        word by the company it keeps.” <strong>Word2Vec</strong> (2013) turned that
+        slogan into an algorithm — train each word to predict its neighbours, and
+        words used alike drift together.
       </Beat>
 
       <Beat>
         <CitationCard ids={['frege-1884', 'firth-1957', 'word2vec-2013', 'word2vec-ns-2013']} />
       </Beat>
 
-      <Beat as="h2">Watch words find their place</Beat>
+      <Beat as="h2">What's a dimension?</Beat>
       <Beat as="p">
-        Below, every word in our Little Kingdom starts as a random dot. Press{' '}
-        <strong>Train</strong> and watch them organize: royalty and people cluster
-        here, forest animals there. Then play with the <strong>analogy</strong>{' '}
-        tool — set “man → king”, and ask what “woman” maps to. The two dashed
-        arrows should come out parallel.
+        Each number in that list is one <strong>dimension</strong> — one independent
+        axis you're free to move along. One number pins a point on a line; two, a
+        point on a plane; three, a point floating in a box of space. Every extra
+        number is simply one more direction to move in.
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 1 · Word vectors projected to 2D. Similar words cluster; king − man + woman really does land on queen.">
+        <Figure caption="Fig 2 · Each extra number is one more axis. One → a line, two → a plane, three → space.">
+          <DimensionLadder />
+        </Figure>
+      </Beat>
+
+      <Beat as="p">
+        Here's the mind-bender: nothing forces us to stop at three. A word can be a
+        list of 16, or 300, or thousands of numbers — a point in a space with that
+        many axes. We can't <em>picture</em> 300-dimensional space, but every formula
+        we care about (distance, direction, the analogy arithmetic) works there
+        exactly the same. The pictures run out; the math never does.
+      </Beat>
+
+      <Beat as="h2">How many dimensions do real models use?</Beat>
+      <Beat as="p">
+        More dimensions means more room to encode subtle distinctions — royalty
+        <em>and</em> gender <em>and</em> size <em>and</em> a hundred shades you'd
+        never name. Our toy uses just <strong>16</strong> so it trains in a blink and
+        can be drawn. Real models are far wider:
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 3 · Embedding width (log scale): our 16-dim toy vs. classic Word2Vec (300), GPT-2 (768), and GPT-3 (12,288 numbers per token).">
+          <DimensionScale />
+        </Figure>
+      </Beat>
+
+      <Beat>
+        <Callout emoji="🖼️">
+          <strong>So how do we draw 16-D on a flat screen?</strong> The map below
+          squashes each 16-number vector down to 2 with a trick called <em>PCA</em> —
+          like photographing a sculpture from its single most informative angle. The
+          clusters you'll see are real; the exact positions are a flattened shadow of
+          the full space.
+        </Callout>
+      </Beat>
+
+      <Beat as="h2">Measuring closeness: cosine similarity</Beat>
+      <Beat as="p">
+        If words are arrows, how do we score two as “similar”? Not by the gap between
+        their tips, but by the <strong>angle</strong> between them. Two arrows aimed
+        the same way mean the same thing even if one is longer. Turn that angle into a
+        single number and you get <strong>cosine similarity</strong>:{' '}
+        <strong>+1</strong> for the same direction, <strong>0</strong> for a right
+        angle (unrelated), <strong>−1</strong> for dead opposite.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 4 · Cosine similarity is the angle between two vectors, not the distance between their tips.">
+          <CosineDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat as="p">
+        Those <code>0.85</code>-style scores in the <strong>nearest neighbours</strong>{' '}
+        box below are exactly this — the cosine between one word's arrow and every
+        other word's. Now you have everything you need to read the demo.
+      </Beat>
+
+      <Beat as="h2">Watch words find their place</Beat>
+      <Beat as="p">
+        Every word in our Little Kingdom starts as a random dot. Press{' '}
+        <strong>Train</strong> and watch them organize: royalty and people cluster
+        here, forest animals there. Zoom into a crowded corner (scroll or the{' '}
+        <code>+</code> button) to read overlapping labels. Then play with the{' '}
+        <strong>analogy</strong> tool — set “man → king”, ask what “woman” maps to,
+        and watch the two dashed arrows come out parallel.
+      </Beat>
+
+      <Beat>
+        <Figure caption="Fig 5 · Word vectors projected to 2D. Similar words cluster; after training, king − man + woman really does land on queen.">
           <EmbeddingLab />
         </Figure>
       </Beat>
@@ -179,8 +270,8 @@ export function Chapter4Embeddings() {
       <Beat>
         <Callout emoji="✨">
           <strong>king − man + woman ≈ queen.</strong> Nobody programmed that. It
-          falls out of the geometry once words are placed by the company they
-          keep. Meaning became math.
+          falls out of the geometry once words are placed by the company they keep.
+          Meaning became math.
         </Callout>
       </Beat>
 
@@ -197,9 +288,9 @@ export function Chapter4Embeddings() {
 
       <Beat as="p">
         We now have tokens with <em>meaning</em>. But there's still something big
-        missing: <strong>order and context</strong>. “The dog bit the man” and
-        “the man bit the dog” use identical words. A pile of vectors can't tell
-        them apart. Solving that took until 2017 — and it changed everything.
+        missing: <strong>order and context</strong>. “The dog bit the man” and “the
+        man bit the dog” use identical words. A pile of vectors can't tell them apart.
+        Solving that took until 2017 — and it changed everything.
       </Beat>
     </ChapterFrame>
   );

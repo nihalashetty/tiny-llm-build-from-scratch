@@ -1,27 +1,22 @@
 import { useEffect, useRef } from 'react';
-import { INPUTS } from '../../llm/perceptron';
+import { XOR_INPUTS } from '../../llm/perceptron';
 
 /**
- * Paints a model's output across the input square [0,1]² as a heatmap (cool =
- * predicts 0, coral = predicts 1), with the four training examples on top,
- * coloured by the output you asked for. For a single perceptron we also draw its
- * decision LINE — the one straight cut it's allowed — so you can see, with your
- * own eyes, why it can't separate XOR's diagonal corners.
+ * Paints a model's output across the input square [0,1]² as a heatmap (blue =
+ * predicts 0, coral = predicts 1), with the four training examples drawn on
+ * top, each coloured by the output you asked for.
  */
 export function DecisionBoundary({
   predict,
   tick,
   size = 220,
   targets = [0, 1, 1, 0],
-  line,
 }: {
   predict: (x: [number, number]) => number;
   tick: number;
   size?: number;
-  /** desired output for each of the 4 INPUTS, for colouring the dots */
+  /** desired output for each of the 4 XOR_INPUTS, for colouring the dots */
   targets?: number[];
-  /** [w0, w1, b] of a single perceptron — draws its 0.5 decision line */
-  line?: [number, number, number];
 }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
 
@@ -46,37 +41,8 @@ export function DecisionBoundary({
       }
     }
 
-    // the single perceptron's decision line (where output crosses 0.5)
-    if (line) {
-      const [w0, w1, b] = line;
-      const toPx = (x0: number, x1: number): [number, number] => [x0 * size, (1 - x1) * size];
-      let p0: [number, number];
-      let p1: [number, number];
-      if (Math.abs(w1) > 1e-6) {
-        p0 = toPx(0, -b / w1);
-        p1 = toPx(1, -(w0 + b) / w1);
-      } else {
-        const x0v = -b / (w0 || 1e-6);
-        p0 = toPx(x0v, 0);
-        p1 = toPx(x0v, 1);
-      }
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.moveTo(p0[0], p0[1]);
-      ctx.lineTo(p1[0], p1[1]);
-      ctx.stroke();
-      ctx.strokeStyle = '#26211d';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(p0[0], p0[1]);
-      ctx.lineTo(p1[0], p1[1]);
-      ctx.stroke();
-    }
-
     // the four training examples, coloured by the output we want
-    INPUTS.forEach((x, i) => {
+    XOR_INPUTS.forEach((x, i) => {
       const px = x[0] * size;
       const py = (1 - x[1]) * size;
       ctx.beginPath();
@@ -87,7 +53,7 @@ export function DecisionBoundary({
       ctx.strokeStyle = '#fff';
       ctx.stroke();
     });
-  }, [predict, tick, size, targets, line]);
+  }, [predict, tick, size, targets]);
 
   return (
     <span className="canvas-frame">

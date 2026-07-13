@@ -3,8 +3,9 @@
  * seventeen years, cracked by adding one "hidden" layer of neurons and training
  * with backpropagation (Rumelhart, Hinton & Williams, 1986).
  *
- * Read this file top to bottom and you'll understand the three ideas that ALL
- * of deep learning is built on:
+ * Like the perceptron, we train on ONE concrete task — XOR — so you can trace
+ * real numbers through every line. Read this top to bottom and you'll
+ * understand the three ideas ALL of deep learning is built on:
  *   • a WEIGHT  — a number that says how much one input matters,
  *   • the ERROR — a number that says how wrong the current guess is,
  *   • TRAINING  — nudging every weight a little to make the error smaller,
@@ -14,9 +15,8 @@
  */
 
 import { makeRng, uniform, type Rng } from './rng';
-import { INPUTS, XOR_DATA, type Sample } from './perceptron';
-
-export { INPUTS, XOR_DATA };
+// The same four XOR examples we trained the perceptron on.
+import { XOR_INPUTS, XOR_TARGETS } from './perceptron';
 
 // The "squash" function. It takes any number and bends it into the range 0–1,
 // so the network's output reads like a confidence ("how strongly: yes?").
@@ -73,44 +73,52 @@ export class XorNet {
   }
 
   /**
-   * ONE EPOCH of training = one full pass over the examples.
+   * ONE EPOCH of training = one full pass over the four XOR examples.
    *
-   * For each example we:
-   *   1. guess (forward pass),
-   *   2. measure how wrong we were: error = guess − wanted  (we report its
-   *      square, so bigger mistakes count for much more),
-   *   3. work out which direction to nudge every weight to shrink that error —
-   *      this is BACKPROPAGATION: start at the output and pass the "blame"
-   *      backward through the network using the chain rule from calculus,
-   *   4. take a small step in that direction. `lr` (the LEARNING RATE) is the
-   *      step size: too big and we overshoot, too small and it crawls.
+   * Take one row — say input [0, 1], where we WANT a 1. We:
+   *   1. guess it (forward pass) — maybe the network says 0.73,
+   *   2. measure how wrong that was:  error = guess − want = 0.73 − 1 = −0.27
+   *      (we sum error², so bigger mistakes count for far more),
+   *   3. work out which way to nudge every weight to shrink that error — this is
+   *      BACKPROPAGATION: start at the output and pass the "blame" backward
+   *      through the network using the chain rule from calculus,
+   *   4. take a small step that way. `lr` (the LEARNING RATE) is the step size:
+   *      too big and we overshoot, too small and it crawls.
    *
-   * Returns the average error over the examples — the number you watch fall.
+   * (The demo lets you edit the wanted answers to make AND / OR / XOR, so
+   * `inputs` and `targets` are arguments — but they default to the XOR task.)
+   *
+   * Returns the average error over the four examples — the number you watch fall.
    */
-  trainEpoch(lr = 1, data: Sample[] = XOR_DATA): number {
+  trainEpoch(lr = 1, inputs = XOR_INPUTS, targets = XOR_TARGETS): number {
     let loss = 0;
-    for (const { x, y } of data) {
+    for (let i = 0; i < inputs.length; i++) {
+      const x = inputs[i]; //     one input pair, e.g. [0, 1]
+      const want = targets[i]; // the answer we want for it, e.g. 1
+
+      // 1. GUESS
       const { h, out } = this.forward(x);
-      const error = out - y; // + means we guessed too high, − too low
+
+      // 2. MEASURE how wrong. error > 0 → guessed too high, < 0 → too low.
+      const error = out - want;
       loss += error * error;
 
-      // How much the output should change (error, scaled by how sensitive the
-      // squash was here — sigmoid's slope is out·(1−out)).
+      // 3. ASSIGN BLAME (backpropagation).
+      // How much the output should change: the error, scaled by how sensitive
+      // the squash was here (sigmoid's slope is out·(1−out)).
       const dOut = error * out * (1 - out);
-
-      // Pass the blame back to each hidden neuron: it's to blame in proportion
-      // to how strongly it was wired to the output (w2[j]).
+      // Pass that blame back to each hidden neuron, in proportion to how
+      // strongly it was wired to the output (w2[j]).
       const dH = new Array<number>(this.hidden);
       for (let j = 0; j < this.hidden; j++) {
         dH[j] = dOut * this.w2[j] * h[j] * (1 - h[j]);
       }
 
-      // Nudge the output layer's weights DOWN the error (hence −=).
-      // A weight that fed in a big value gets a bigger nudge.
+      // 4. NUDGE every weight a small step DOWN the error (hence −=).
+      // Output layer first: a hidden neuron that fired strongly gets a bigger nudge.
       for (let j = 0; j < this.hidden; j++) this.w2[j] -= lr * dOut * h[j];
       this.b2 -= lr * dOut;
-
-      // Nudge the hidden layer's weights the same way.
+      // Then the hidden layer, one step further back.
       for (let j = 0; j < this.hidden; j++) {
         this.w1[0][j] -= lr * dH[j] * x[0];
         this.w1[1][j] -= lr * dH[j] * x[1];
@@ -118,7 +126,7 @@ export class XorNet {
       }
     }
     this.epoch++;
-    return loss / data.length; // average error this pass
+    return loss / inputs.length; // average error this pass
   }
 }
 

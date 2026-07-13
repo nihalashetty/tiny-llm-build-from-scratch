@@ -11,8 +11,9 @@ import { NetworkDiagram } from '../viz/NetworkDiagram';
 import { NeuronDiagram } from '../viz/NeuronDiagram';
 import { WeightsReadout } from '../viz/WeightsReadout';
 import { useRafTrainer, type TrainerState } from '../useRafTrainer';
-import { Perceptron } from '../../llm/perceptron';
-import { XorNet, INPUTS } from '../../llm/xor-net';
+import { Perceptron, XOR_INPUTS } from '../../llm/perceptron';
+import { XorNet } from '../../llm/xor-net';
+import perceptronSource from '../../llm/perceptron.ts?raw';
 import xorSource from '../../llm/xor-net.ts?raw';
 
 function Controls({ t, stepN = 1 }: { t: TrainerState<unknown>; stepN?: number }) {
@@ -39,15 +40,14 @@ function Controls({ t, stepN = 1 }: { t: TrainerState<unknown>; stepN?: number }
   );
 }
 
-function BoundaryLegend({ line = false }: { line?: boolean }) {
+function BoundaryLegend() {
   return (
     <div className="dim" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
       Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
       network's output there —{' '}
       <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
       <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
-      big dots are the examples it's trying to get right
-      {line ? ', and the dark line is the single straight cut this perceptron is allowed to make.' : '.'}
+      big dots are the examples it's trying to get right.
     </div>
   );
 }
@@ -104,7 +104,7 @@ function LogicTable({
           </tr>
         </thead>
         <tbody>
-          {INPUTS.map((x, i) => {
+          {XOR_INPUTS.map((x, i) => {
             const p = predict(x);
             const ok = Math.round(p) === targets[i];
             return (
@@ -136,16 +136,20 @@ function useLogicTargets(initial: number[]) {
   const [targets, setTargets] = useState(initial);
   const ref = useRef(targets);
   ref.current = targets;
-  const data = () => INPUTS.map((x, i) => ({ x, y: ref.current[i] }));
-  return { targets, setTargets, data };
+  return { targets, setTargets, ref };
 }
 
 const fmtArr = (arr: number[]) => '[' + arr.map((v) => v.toFixed(1)).join(', ') + ']';
 
 function PerceptronLab() {
-  const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
-  // slow on purpose (few epochs per frame) so the line + weights move readably
-  const t = useRafTrainer(() => new Perceptron(42), (m) => m.trainEpoch(0.5, data()), 2000, 3);
+  const { targets, setTargets, ref: targetsRef } = useLogicTargets(PRESETS.XOR);
+  // slow on purpose (few epochs per frame) so the weights move readably
+  const t = useRafTrainer(
+    () => new Perceptron(42),
+    (m) => m.trainEpoch(0.5, XOR_INPUTS, targetsRef.current),
+    2000,
+    3,
+  );
   const m = t.model;
   const setGoal = (next: number[]) => {
     setTargets(next);
@@ -198,8 +202,13 @@ function PerceptronLab() {
 }
 
 function XorLab() {
-  const { targets, setTargets, data } = useLogicTargets(PRESETS.XOR);
-  const t = useRafTrainer(() => new XorNet(4, 7), (m) => m.trainEpoch(1, data()), 3000, 4);
+  const { targets, setTargets, ref: targetsRef } = useLogicTargets(PRESETS.XOR);
+  const t = useRafTrainer(
+    () => new XorNet(4, 7),
+    (m) => m.trainEpoch(1, XOR_INPUTS, targetsRef.current),
+    3000,
+    4,
+  );
   const m = t.model;
   const setGoal = (next: number[]) => {
     setTargets(next);
@@ -417,13 +426,26 @@ export function Chapter2NeuralNets() {
 
       <Beat as="h2">The real code — now you know every word in it</Beat>
       <Beat as="p">
-        Here's the actual network behind the demos, no libraries. You now know each
-        term: <code>w1</code>/<code>w2</code> are the weights, <code>trainEpoch</code>{' '}
-        is one pass of that four-step loop, <code>error</code> is how wrong it was,
-        and <code>lr</code> is the stride size. Read the comments — the story and the
-        code finally line up.
+        Here are both networks behind the demos, no libraries. Notice the task is
+        spelled out right at the top — <code>XOR_INPUTS</code> and{' '}
+        <code>XOR_TARGETS</code>, the four examples — and every step works on those
+        actual numbers, not some abstract “input.” You now know each term:{' '}
+        <code>w</code>/<code>w1</code>/<code>w2</code> are the weights,{' '}
+        <code>trainEpoch</code> is one pass of that four-step loop, <code>error</code>{' '}
+        is how wrong it was, and <code>lr</code> is the stride size.
       </Beat>
 
+      <Beat as="p">
+        First the single neuron — the one that stalls on XOR:
+      </Beat>
+      <Beat>
+        <CodeViewer code={perceptronSource} filename="src/llm/perceptron.ts" lang="typescript" />
+      </Beat>
+
+      <Beat as="p">
+        Now add a hidden layer, and the very same loop — reaching back through two
+        layers instead of one — finally cracks it. Same story, one more row of neurons:
+      </Beat>
       <Beat>
         <CodeViewer code={xorSource} filename="src/llm/xor-net.ts" lang="typescript" />
       </Beat>

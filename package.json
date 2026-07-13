@@ -1,0 +1,31 @@
+{
+  "name": "tiny-llm-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A visual, story-driven, run-it-yourself course on how LLMs work — build a tiny one from scratch in your browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "prebuild:data": "tsx scripts/prebuild.ts"
+  },
+  "dependencies": {
+    "animejs": "^3.2.2",
+    "prismjs": "^1.29.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/animejs": "^3.1.12",
+    "@types/prismjs": "^1.26.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}

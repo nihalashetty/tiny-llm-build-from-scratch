@@ -6,6 +6,8 @@ import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { LossCurve } from '../viz/LossCurve';
 import { DecisionBoundary } from '../viz/DecisionBoundary';
+import { NetworkDiagram } from '../viz/NetworkDiagram';
+import { NeuronDiagram } from '../viz/NeuronDiagram';
 import { useRafTrainer, type TrainerState } from '../useRafTrainer';
 import { Perceptron } from '../../llm/perceptron';
 import { XorNet, XOR_DATA } from '../../llm/xor-net';
@@ -23,6 +25,18 @@ function Controls({ t }: { t: TrainerState<unknown> }) {
       <button className="btn btn-light" onClick={t.reset}>
         Reset
       </button>
+    </div>
+  );
+}
+
+function BoundaryLegend() {
+  return (
+    <div className="dim" style={{ fontSize: 12, marginTop: 6, lineHeight: 1.55, maxWidth: 240 }}>
+      Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
+      network's output there —{' '}
+      <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
+      <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
+      big dots are the XOR examples it's trying to get right.
     </div>
   );
 }
@@ -73,8 +87,18 @@ function PerceptronLab() {
         </span>
         <span className="dim">(watch it stall near 0.25…)</span>
       </div>
+      <NetworkDiagram
+        layers={[2, 1]}
+        weights={[[[m.w[0]], [m.w[1]]]]}
+        inputLabels={['a', 'b']}
+        outputLabel="out"
+        height={140}
+      />
       <div className="lab-two">
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+        <div>
+          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+          <BoundaryLegend />
+        </div>
         <div>
           <LossCurve history={t.lossHistory} max={0.3} />
           <TruthTable predict={(x) => m.predict(x)} />
@@ -99,8 +123,18 @@ function XorLab() {
         </span>
         {t.done && <span className="ok" style={{ color: 'var(--green)', fontWeight: 700 }}>solved ✓</span>}
       </div>
+      <NetworkDiagram
+        layers={[2, 4, 1]}
+        weights={[m.w1, m.w2.map((w) => [w])]}
+        inputLabels={['a', 'b']}
+        outputLabel="out"
+        height={190}
+      />
       <div className="lab-two">
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+        <div>
+          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} />
+          <BoundaryLegend />
+        </div>
         <div>
           <LossCurve history={t.lossHistory} max={0.3} />
           <TruthTable predict={(x) => m.predict(x)} />
@@ -131,6 +165,12 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
+        <Figure caption="Fig 1 · One neuron. Inputs get multiplied by weights, added up (with a bias), and squashed into a 0–1 answer. Training just tweaks the weights.">
+          <NeuronDiagram />
+        </Figure>
+      </Beat>
+
+      <Beat>
         <CitationCard ids={['mcculloch-pitts-1943', 'perceptron-1958']} />
       </Beat>
 
@@ -151,7 +191,7 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 1 · One perceptron, one straight line. XOR needs the corners split diagonally — impossible. Error flatlines around 0.25.">
+        <Figure caption="Fig 2 · One perceptron, one straight line. The wires above are its two weights; the square is what it computes. XOR can't be split by a line — error flatlines near 0.25.">
           <PerceptronLab />
         </Figure>
       </Beat>
@@ -185,7 +225,7 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat>
-        <Figure caption="Fig 2 · Add a hidden layer and the boundary can bend. This is learning: no rules written, just weights nudged.">
+        <Figure caption="Fig 3 · Now with a hidden layer (4 middle neurons). Watch the wires shift colour as it trains — that's the boundary learning to bend into the checkerboard XOR needs.">
           <XorLab />
         </Figure>
       </Beat>

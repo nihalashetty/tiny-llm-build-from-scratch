@@ -78,11 +78,13 @@ export function VectorArrowDiagram() {
 export function DimensionLadder() {
   const panel = (title: string, sub: string, draw: ReactNode) => (
     <div style={{ flex: 1, minWidth: 150 }}>
-      <svg viewBox="0 0 160 120" width="100%" role="img" aria-label={title}>
+      <svg viewBox="0 0 160 120" width="100%" role="img" aria-label={title} style={{ display: 'block' }}>
         {draw}
       </svg>
-      <div style={{ fontFamily: MONO, fontSize: 12, color: INK, fontWeight: 700, marginTop: 2 }}>{title}</div>
-      <div style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>{sub}</div>
+      <div style={{ fontFamily: MONO, fontSize: 12, lineHeight: 1.3, color: INK, fontWeight: 700, marginTop: 4 }}>
+        {title}
+      </div>
+      <div style={{ fontFamily: MONO, fontSize: 11, lineHeight: 1.3, color: MUTED, marginTop: 2 }}>{sub}</div>
     </div>
   );
 
@@ -190,6 +192,7 @@ export function SkipGramDiagram() {
               style={{
                 fontFamily: MONO,
                 fontSize: 13,
+                lineHeight: 1.4,
                 padding: '4px 9px',
                 borderRadius: 7,
                 border: `1.5px solid ${center ? CORAL : ctx ? GREEN : LINE}`,
@@ -203,7 +206,7 @@ export function SkipGramDiagram() {
           );
         })}
       </div>
-      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 11, color: MUTED, marginBottom: 4 }}>
+      <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: 11, lineHeight: 1.5, color: MUTED, marginBottom: 6 }}>
         slide a window: a <span style={{ color: CORAL_DEEP, fontWeight: 700 }}>centre word</span> and the{' '}
         <span style={{ color: '#12795b', fontWeight: 700 }}>neighbours</span> it should predict
       </div>

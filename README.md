@@ -80,13 +80,6 @@ pnpm typecheck  # type-check with tsc
   `src/ui/useRafTrainer.ts`), so the UI stays smooth while you watch the loss
   fall - no backend, no build-time precompute.
 
-### Design
-
-The look is a warm "paper" theme (coral accent, Bricolage Grotesque / Figtree /
-JetBrains Mono), ported from a Claude Design starter and kept consistent across
-every chapter.
-
----
 
 ## Credits & sources
 

@@ -48,8 +48,8 @@ narrative reading experience.
 Requires **Node 20+** and **pnpm**.
 
 ```sh
-git clone https://github.com/nihalashetty/tiny-llm.git
-cd tiny-llm
+git clone https://github.com/nihalashetty/tiny-llm-build-from-scratch.git
+cd tiny-llm-build-from-scratch
 pnpm install
 pnpm dev        # start the dev server (http://localhost:5173)
 ```

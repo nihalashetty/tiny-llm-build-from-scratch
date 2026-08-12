@@ -267,12 +267,16 @@ export function Chapter8Epilogue() {
       <Beat as="h2">Now go build</Beat>
       <Beat as="p">
         Everything you ran here lives in{' '}
-        <a href="https://github.com/nihalashetty/tiny-llm" target="_blank" rel="noreferrer">
+        <a
+          href="https://github.com/nihalashetty/tiny-llm-build-from-scratch"
+          target="_blank"
+          rel="noreferrer"
+        >
           one small repo
         </a>{' '}
         - the readable{' '}
         <a
-          href="https://github.com/nihalashetty/tiny-llm/tree/main/src/llm"
+          href="https://github.com/nihalashetty/tiny-llm-build-from-scratch/tree/main/src/llm"
           target="_blank"
           rel="noreferrer"
         >

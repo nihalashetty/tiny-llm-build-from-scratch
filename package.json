@@ -6,7 +6,7 @@
   "description": "A visual, story-driven, run-it-yourself course on how LLMs work - build a tiny one from scratch in your browser.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nihalashetty/tiny-llm.git"
+    "url": "git+https://github.com/nihalashetty/tiny-llm-build-from-scratch.git"
   },
   "scripts": {
     "dev": "vite",

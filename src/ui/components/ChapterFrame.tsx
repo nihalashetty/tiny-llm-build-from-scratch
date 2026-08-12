@@ -6,7 +6,7 @@ import { useProgress } from '../progress';
 /**
  * Shared shell for a chapter page: breadcrumb, title block, the story content,
  * and the prev/next footer. It also marks the chapter "done" once the reader
- * scrolls to the end sentinel — that's what drives the sidebar progress bar.
+ * scrolls to the end sentinel - that's what drives the sidebar progress bar.
  */
 export function ChapterFrame({ id, children }: { id: string; children: ReactNode }) {
   const ch = chapterById(id)!;
@@ -30,11 +30,14 @@ export function ChapterFrame({ id, children }: { id: string; children: ReactNode
   return (
     <div className="reading-inner">
       <div className="topbar">
-        <div className="crumb">
-          {ch.group}
+        {/* One quiet line. The chapter title lives in the h1 below, so it is
+            deliberately not repeated here - and neither is the group, which
+            used to appear a third time as an "eyebrow" above the title. */}
+        <nav className="crumb" aria-label="Breadcrumb">
+          <span className="crumb-part">{ch.part.split(':')[0]}</span>
           <span className="sep">/</span>
-          <span className="cur">{ch.navTitle}</span>
-        </div>
+          <span className="crumb-group">{ch.group}</span>
+        </nav>
         <div className="nav-arrows">
           <Link
             to={prev ? `/c/${prev.id}` : '#'}
@@ -56,7 +59,6 @@ export function ChapterFrame({ id, children }: { id: string; children: ReactNode
         </div>
       </div>
 
-      <div className="eyebrow">{ch.group}</div>
       <h1>{ch.title}</h1>
       <div className="meta-row">
         <span>⏱ {ch.minutes} min read</span>

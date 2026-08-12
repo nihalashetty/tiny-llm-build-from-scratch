@@ -1,12 +1,12 @@
 /**
- * Byte Pair Encoding (BPE) — the tokenizer trick behind GPT-2, GPT-4, LLaMA and
+ * Byte Pair Encoding (BPE) - the tokenizer trick behind GPT-2, GPT-4, LLaMA and
  * friends. Philip Gage invented it in 1994 to *compress* files; Sennrich et al.
  * reused it in 2015 to break words into reusable subword pieces for translation.
  *
  * The whole idea in one breath: start with a vocabulary of individual
  * CHARACTERS, then repeatedly find the two tokens that sit next to each other
  * most often and glue them into ONE new token. Do that a few dozen times and
- * common chunks ("th", "ee") — then whole words ("queen") — become single
+ * common chunks ("th", "ee") - then whole words ("queen") - become single
  * tokens, while rare words stay split into pieces. No neural network, no magic:
  * just counting pairs and gluing the winner. Read this file top to bottom and
  * you'll have implemented a real tokenizer.
@@ -24,7 +24,7 @@ export interface Merge {
   count: number; //          how often that pair was seen when we chose it
 }
 
-/** A snapshot after one merge — everything the animation needs to draw a frame. */
+/** A snapshot after one merge - everything the animation needs to draw a frame. */
 export interface BpeStep extends Merge {
   vocabSize: number; //  how many distinct tokens exist now
   vocab: string[]; //    the actual tokens, so you can watch the vocabulary grow
@@ -46,7 +46,7 @@ const PAIR_SEP = ' ';
 /**
  * Count how often each WORD appears (letters only, lower-cased). BPE works one
  * word at a time, and a word that shows up 50× should pull 50× as hard on which
- * pair wins — so we keep these counts and weight everything by them.
+ * pair wins - so we keep these counts and weight everything by them.
  * "The king. The queen." → { the: 2, king: 1, queen: 1 }
  */
 export function countWords(text: string): Map<string, number> {
@@ -85,7 +85,7 @@ function mergeTokens(toks: string[], a: string, b: string, merged: string): stri
   for (let i = 0; i < toks.length; i++) {
     if (i < toks.length - 1 && toks[i] === a && toks[i + 1] === b) {
       out.push(merged);
-      i++; // skip b — it's now part of `merged`
+      i++; // skip b - it's now part of `merged`
     } else {
       out.push(toks[i]);
     }

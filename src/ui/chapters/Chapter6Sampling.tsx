@@ -104,7 +104,7 @@ function ContextWindow() {
               className="tok"
               style={{
                 opacity: inside ? 1 : 0.28,
-                background: inside ? 'var(--coral-tint)' : '#f6eee1',
+                background: inside ? 'var(--coral-tint)' : '#f1f3f6',
                 borderColor: inside ? 'var(--coral-tint-line)' : 'var(--line)',
                 color: inside ? 'var(--coral-deep)' : 'var(--muted)',
               }}
@@ -150,12 +150,12 @@ export function Chapter6Sampling() {
         part: two dials that reshape those probabilities before we pick.
       </Beat>
 
-      <Beat as="h3">Temperature — the boldness dial</Beat>
+      <Beat as="h3">Temperature - the boldness dial</Beat>
       <Beat as="p">
         <strong>Temperature</strong> stretches or flattens the distribution. Turn
         it down toward 0 and the model almost always takes the single most likely
-        token — safe and repetitive. Turn it up and unlikely tokens get a real
-        shot — creative, but riskier. <strong>Top-p</strong> then trims the
+        token - safe and repetitive. Turn it up and unlikely tokens get a real
+        shot - creative, but riskier. <strong>Top-p</strong> then trims the
         long tail, keeping only the most plausible options. Play with both:
       </Beat>
 
@@ -194,7 +194,7 @@ export function Chapter6Sampling() {
         </ol>
       </Beat>
       <Beat as="p">
-        That loop — predict, pick, append, repeat — is <em>all</em> that's
+        That loop - predict, pick, append, repeat - is <em>all</em> that's
         happening when you watch a model “type” an answer. Every token you see was
         chosen one at a time, each one fed back in as part of the next prompt.
       </Beat>
@@ -202,7 +202,7 @@ export function Chapter6Sampling() {
       <Beat as="h2">The context window</Beat>
       <Beat as="p">
         But the model can't feed <em>everything</em> back in forever. It has a
-        fixed-size <strong>context window</strong> — a maximum number of tokens it
+        fixed-size <strong>context window</strong> - a maximum number of tokens it
         can look at in one step. Slide the window below: whatever scrolls off the
         edge is gone for that step. That's why long chats “forget” the beginning,
         and why context length is such a big deal.
@@ -222,9 +222,11 @@ export function Chapter6Sampling() {
       <Beat as="p">
         And that's the complete machine. Tokenize → embed → attention → predict →
         sample → repeat. You've now seen every moving part of a modern language
-        model. But there's a puzzle left: a model trained this way just{' '}
-        <em>continues text</em>. How does it become something that answers your
-        questions and follows instructions? That's the final chapter.
+        model. What's left is knowing whether it's any good: next we check that it's
+        genuinely <em>learning</em> rather than memorizing, then ask why making it
+        bigger works so well. After that, one last puzzle - a model trained this way
+        only <em>continues text</em>, so how does it become something that answers
+        your questions and follows instructions?
       </Beat>
     </ChapterFrame>
   );

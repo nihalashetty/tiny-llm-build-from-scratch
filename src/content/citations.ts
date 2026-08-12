@@ -3,7 +3,7 @@
  *
  * Every historical claim in the course points back to a real paper or a
  * reputable summary. We deliberately DO NOT reproduce figures or scans from
- * these papers — each card just links out to the source (arXiv / Wikipedia /
+ * these papers - each card just links out to the source (arXiv / Wikipedia /
  * publisher). Titles, authors and years are facts, not creative content.
  */
 
@@ -43,7 +43,7 @@ const list: Citation[] = [
   {
     id: 'eliza-1966',
     year: '1966',
-    title: 'ELIZA — A Computer Program for the Study of Natural Language Communication',
+    title: 'ELIZA - A Computer Program for the Study of Natural Language Communication',
     authors: 'Joseph Weizenbaum',
     url: 'https://dl.acm.org/doi/10.1145/365153.365168',
   },
@@ -57,7 +57,7 @@ const list: Citation[] = [
   {
     id: 'alice-1995',
     year: '1995',
-    title: 'A.L.I.C.E. — Artificial Linguistic Internet Computer Entity',
+    title: 'A.L.I.C.E. - Artificial Linguistic Internet Computer Entity',
     authors: 'Richard Wallace',
     url: 'https://en.wikipedia.org/wiki/Artificial_Linguistic_Internet_Computer_Entity',
   },
@@ -179,7 +179,7 @@ const list: Citation[] = [
   {
     id: 'common-crawl',
     year: '2008',
-    title: 'Common Crawl — an open crawl of the web',
+    title: 'Common Crawl - an open crawl of the web',
     authors: 'Common Crawl Foundation',
     url: 'https://en.wikipedia.org/wiki/Common_Crawl',
   },
@@ -196,6 +196,36 @@ const list: Citation[] = [
     title: 'The Dartmouth Summer Research Project on AI',
     authors: 'McCarthy, Minsky, Rochester & Shannon',
     url: 'https://en.wikipedia.org/wiki/Dartmouth_workshop',
+  },
+
+  // --- Chapters: evaluation & scaling ---
+  {
+    id: 'perplexity',
+    year: '-',
+    title: 'Perplexity - evaluating language models',
+    authors: 'Overview',
+    url: 'https://en.wikipedia.org/wiki/Perplexity',
+  },
+  {
+    id: 'scaling-laws-2020',
+    year: '2020',
+    title: 'Scaling Laws for Neural Language Models',
+    authors: 'Kaplan, McCandlish et al.',
+    url: 'https://arxiv.org/abs/2001.08361',
+  },
+  {
+    id: 'chinchilla-2022',
+    year: '2022',
+    title: 'Training Compute-Optimal Large Language Models (Chinchilla)',
+    authors: 'Hoffmann et al.',
+    url: 'https://arxiv.org/abs/2203.15556',
+  },
+  {
+    id: 'emergent-2022',
+    year: '2022',
+    title: 'Emergent Abilities of Large Language Models',
+    authors: 'Wei et al.',
+    url: 'https://arxiv.org/abs/2206.07682',
   },
 
   // --- Epilogue: the frontier ---

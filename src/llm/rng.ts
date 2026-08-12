@@ -2,7 +2,7 @@
  * A tiny seeded random-number generator (mulberry32).
  *
  * Why bother? So every "training" demo starts from the same place each time you
- * press the button — the animation is reproducible, and the story ("watch it go
+ * press the button - the animation is reproducible, and the story ("watch it go
  * from random to solved") always lands the same way.
  */
 

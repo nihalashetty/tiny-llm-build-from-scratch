@@ -2,7 +2,7 @@
  * The attention matrix as a heatmap. Each ROW is a token (word) asking "what
  * should I pay attention to?"; each COLUMN is an earlier token it could look at.
  * A dark coral cell = strong attention. The upper triangle is blank because of
- * the causal mask — a token can't peek at the future.
+ * the causal mask - a token can't peek at the future.
  *
  * Cells auto-size to fit `maxSize`; column labels are drawn on a slant so word
  * labels don't collide, and the whole thing stays inside the box.
@@ -37,7 +37,7 @@ export function AttentionHeatmap({
   return (
     <span className="canvas-frame">
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Attention weights between words">
-        {/* column labels (keys) — slanted so words don't overlap */}
+        {/* column labels (keys) - slanted so words don't overlap */}
         {tokens.map((t, j) => {
           const cx = mL + j * cell + cell / 2;
           const cy = mT - 5;

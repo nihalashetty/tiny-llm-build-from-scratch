@@ -1,7 +1,7 @@
 /**
  * How a model turns a pile of scores ("logits") into an actual next-token
  * choice. These four little functions are the last mechanism in the whole
- * pipeline — and the knobs (temperature, top-p) you may have seen in an API.
+ * pipeline, and the knobs (temperature, top-p) you may have seen in an API.
  */
 
 /**

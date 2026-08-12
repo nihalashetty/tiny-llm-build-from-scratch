@@ -4,6 +4,7 @@ import { Beat } from '../components/Beat';
 import { Callout } from '../components/Callout';
 import { Figure } from '../components/Figure';
 import { CitationCard } from '../components/CitationCard';
+import { ChapterRef } from '../components/ChapterRef';
 import { CodeViewer } from '../components/CodeViewer';
 import { LossCurve } from '../viz/LossCurve';
 import { EmbeddingScatter } from '../viz/EmbeddingScatter';
@@ -12,8 +13,8 @@ import {
   DimensionLadder,
   DimensionScale,
   CosineDiagram,
-  SkipGramDiagram,
 } from '../viz/VectorDiagrams';
+import { SkipGramWalk } from '../viz/SkipGramWalk';
 import { useRafTrainer } from '../useRafTrainer';
 import { Word2Vec } from '../../llm/word2vec';
 import { sentences } from '../../llm/corpus/little-kingdom';
@@ -47,15 +48,15 @@ function EmbeddingLab() {
 
   const highlight = [
     { word: a, color: '#3e6ff0' },
-    { word: b, color: '#f0663e' },
-    { word: c, color: '#1f9e7a' },
-    ...(trained && result ? [{ word: result, color: '#c24a28' }] : []),
+    { word: b, color: '#e0553a' },
+    { word: c, color: '#10866a' },
+    ...(trained && result ? [{ word: result, color: '#a63a25' }] : []),
   ];
   const arrows =
     trained && result
       ? [
-          { from: a, to: b, color: '#f0663e' },
-          { from: c, to: result, color: '#1f9e7a' },
+          { from: a, to: b, color: '#e0553a' },
+          { from: c, to: result, color: '#10866a' },
         ]
       : [];
 
@@ -78,7 +79,7 @@ function EmbeddingLab() {
             epoch <b>{t.epoch}</b>
           </span>
           <span>
-            loss <b>{t.loss === null ? '—' : t.loss.toFixed(3)}</b>
+            loss <b>{t.loss === null ? '-' : t.loss.toFixed(3)}</b>
           </span>
         </span>
       </div>
@@ -113,7 +114,7 @@ function EmbeddingLab() {
                 ))}
               </div>
             ) : (
-              <div className="panel-empty">Press Train ▶ — until the vectors learn, neighbours are random.</div>
+              <div className="panel-empty">Press Train ▶ - until the vectors learn, neighbours are random.</div>
             )}
           </div>
 
@@ -142,7 +143,7 @@ function EmbeddingLab() {
             <div className="analogy-result" style={{ marginTop: 8 }}>
               {b} − {a} + {c} = <span className="big">{trained ? result ?? '…' : '?'}</span>
             </div>
-            {!trained && <div className="panel-empty">Train first — this should resolve to “queen”.</div>}
+            {!trained && <div className="panel-empty">Train first - this should resolve to “queen”.</div>}
           </div>
         </div>
       </div>
@@ -154,16 +155,26 @@ export function Chapter4Embeddings() {
   return (
     <ChapterFrame id="embeddings">
       <Beat as="p" className="lead">
-        We can tokenize now — but a token is just an ID. To the model,{' '}
-        <code>queen</code> and <code>king</code> are two unrelated numbers, no
-        closer than <code>queen</code> and <code>rock</code>. That's hopeless for
-        language. We need to give each word a <strong>position in space</strong>,
-        placed so that meaning becomes geometry.
+        First, something worth stopping on: <strong>from here on there are no words.</strong>{' '}
+        The tokenizer in <ChapterRef id="tokenization" /> was the last place text
+        existed. It reads “the queen sits”, looks each piece up in its vocabulary, and
+        hands the model back <code>[5, 42, 31]</code> - and that row of integers is all
+        the model ever sees. Every chapter after this one is arithmetic on numbers like
+        those.
+      </Beat>
+
+      <Beat as="p">
+        Which leaves us with a problem. An ID is just a shelf number: <code>queen</code>{' '}
+        is 42 because it happened to be the 42nd entry, and <code>king</code> is 17 for
+        no better reason. Nothing about 42 and 17 says those two belong together, and
+        <code> rock</code> at 43 would look like queen's closest relative. That's
+        hopeless for language. We need to give each token a{' '}
+        <strong>position in space</strong>, placed so that meaning becomes geometry.
       </Beat>
 
       <Beat as="h2">What's a vector? (an arrow with meaning)</Beat>
       <Beat as="p">
-        A <strong>vector</strong> is nothing scary — it's just a list of numbers.
+        A <strong>vector</strong> is nothing scary - it's just a list of numbers.
         Each number is a <em>coordinate</em>, and together they point to one exact
         spot. Take two numbers, read them as <code>(x, y)</code>, and the word
         becomes an arrow from the origin to a point on a plane. Place words well and
@@ -181,7 +192,7 @@ export function Chapter4Embeddings() {
         The idea is centuries old in disguise. Frege said a word's meaning lives in
         its context; the linguist J. R. Firth put it memorably: “you shall know a
         word by the company it keeps.” <strong>Word2Vec</strong> (2013) turned that
-        slogan into an algorithm — train each word to predict its neighbours, and
+        slogan into an algorithm - train each word to predict its neighbours, and
         words used alike drift together.
       </Beat>
 
@@ -191,7 +202,7 @@ export function Chapter4Embeddings() {
 
       <Beat as="h2">What's a dimension?</Beat>
       <Beat as="p">
-        Each number in that list is one <strong>dimension</strong> — one independent
+        Each number in that list is one <strong>dimension</strong> - one independent
         axis you're free to move along. One number pins a point on a line; two, a
         point on a plane; three, a point floating in a box of space. Every extra
         number is simply one more direction to move in.
@@ -205,7 +216,7 @@ export function Chapter4Embeddings() {
 
       <Beat as="p">
         Here's the mind-bender: nothing forces us to stop at three. A word can be a
-        list of 16, or 300, or thousands of numbers — a point in a space with that
+        list of 16, or 300, or thousands of numbers - a point in a space with that
         many axes. We can't <em>picture</em> 300-dimensional space, but every formula
         we care about (distance, direction, the analogy arithmetic) works there
         exactly the same. The pictures run out; the math never does.
@@ -213,7 +224,7 @@ export function Chapter4Embeddings() {
 
       <Beat as="h2">How many dimensions do real models use?</Beat>
       <Beat as="p">
-        More dimensions means more room to encode subtle distinctions — royalty
+        More dimensions means more room to encode subtle distinctions - royalty
         <em>and</em> gender <em>and</em> size <em>and</em> a hundred shades you'd
         never name. Our toy uses just <strong>16</strong> so it trains in a blink and
         can be drawn. Real models are far wider:
@@ -228,7 +239,7 @@ export function Chapter4Embeddings() {
       <Beat>
         <Callout emoji="🖼️">
           <strong>So how do we draw 16-D on a flat screen?</strong> The map below
-          squashes each 16-number vector down to 2 with a trick called <em>PCA</em> —
+          squashes each 16-number vector down to 2 with a trick called <em>PCA</em> -
           like photographing a sculpture from its single most informative angle. The
           clusters you'll see are real; the exact positions are a flattened shadow of
           the full space.
@@ -253,15 +264,15 @@ export function Chapter4Embeddings() {
 
       <Beat as="p">
         Those <code>0.85</code>-style scores in the <strong>nearest neighbours</strong>{' '}
-        box below are exactly this — the cosine between one word's arrow and every
+        box below are exactly this - the cosine between one word's arrow and every
         other word's.
       </Beat>
 
       <Beat as="h2">So how do the vectors actually get set?</Beat>
       <Beat as="p">
         This is the part that matters most, and it's easy to miss: nobody{' '}
-        <em>assigns</em> these numbers. We start from pure nonsense — every word is
-        handed a <strong>random</strong> vector, a random point in space — and then a
+        <em>assigns</em> these numbers. We start from pure nonsense - every word is
+        handed a <strong>random</strong> vector, a random point in space - and then a
         training loop turns Firth's slogan (“a word is known by the company it keeps”)
         into millions of tiny nudges:
       </Beat>
@@ -273,7 +284,7 @@ export function Chapter4Embeddings() {
             <div>
               <strong>Slide a window over the corpus.</strong> For each word (the{' '}
               <em>centre</em>), the few words on either side are its{' '}
-              <em>neighbours</em> — the company it keeps in that spot.
+              <em>neighbours</em> - the company it keeps in that spot.
             </div>
           </li>
           <li>
@@ -289,7 +300,7 @@ export function Chapter4Embeddings() {
             <div>
               <strong>Push random words apart.</strong> Also pick a handful of words
               that <em>didn't</em> appear nearby and nudge them away. This is{' '}
-              <strong>negative sampling</strong> — without it every vector would
+              <strong>negative sampling</strong> - without it every vector would
               collapse into one useless blob.
             </div>
           </li>
@@ -304,17 +315,39 @@ export function Chapter4Embeddings() {
         </ol>
       </Beat>
 
+      <Beat as="p">
+        Said in one line: <strong>we read the corpus one word at a time, and every
+        time two words turn up beside each other we move them a little closer.</strong>{' '}
+        See “king” next to “throne” once and they barely budge. See it a hundred times
+        and they end up neighbours.
+      </Beat>
+
+      <Beat as="p">
+        Easier to watch than to read. Below is a five-line corpus and eleven words
+        dropped at random on a map. Press <strong>Play</strong> - or drag the slider to
+        move the window yourself - and each stop is one step: the sentence in the
+        middle says what's happening, and the dots underneath actually move.
+      </Beat>
+
       <Beat>
-        <Figure caption="Fig 5 · One training step: pull the centre word toward a real neighbour, shove it away from a random word. Do that across the whole corpus and meaning organizes itself.">
-          <SkipGramDiagram />
+        <Figure caption="Fig 5 · Slide the window across the corpus. Green = seen together, so move closer. Red dashed = wasn't there, so push away. After three passes the royal words have found each other and the fox words are off in their own corner - nobody arranged that.">
+          <SkipGramWalk />
         </Figure>
       </Beat>
 
       <Beat as="p">
-        And <strong>plotting</strong>? The vectors live in 16 dimensions, which we
-        can't draw, so the map below flattens them to 2 with that PCA trick. The dots
-        drift while you train because the vectors themselves are still moving — you're
-        literally watching steps 1–4 happen.
+        Notice that “king” and “queen” drift together even though they never appear in
+        the same line. They don't have to - they keep the <em>same company</em>{' '}
+        (“sits”, “throne”, “wears”, “crown”), and that's enough. That is Firth's
+        slogan turning into geometry, right in front of you.
+      </Beat>
+
+      <Beat as="p">
+        The real thing works exactly like this, just bigger: the map above is 2D
+        because you have to see it, while our vectors live in 16 dimensions. The demo
+        below flattens those 16 back down to 2 with the PCA trick. The dots drift while
+        you train for the same reason they drift above - the vectors themselves are
+        still moving.
       </Beat>
 
       <Beat as="h2">Watch words find their place</Beat>
@@ -323,7 +356,7 @@ export function Chapter4Embeddings() {
         <strong>Train</strong> and watch them organize: royalty and people cluster
         here, forest animals there. Zoom into a crowded corner (scroll or the{' '}
         <code>+</code> button) to read overlapping labels. Then play with the{' '}
-        <strong>analogy</strong> tool — set “man → king”, ask what “woman” maps to,
+        <strong>analogy</strong> tool - set “man → king”, ask what “woman” maps to,
         and watch the two dashed arrows come out parallel.
       </Beat>
 
@@ -343,7 +376,7 @@ export function Chapter4Embeddings() {
 
       <Beat as="h2">The code</Beat>
       <Beat as="p">
-        Skip-gram with negative sampling — push a word toward its real neighbours,
+        Skip-gram with negative sampling - push a word toward its real neighbours,
         shove it away from random ones. The vectors are the <code>Win</code>{' '}
         matrix; everything else is bookkeeping.
       </Beat>
@@ -356,7 +389,7 @@ export function Chapter4Embeddings() {
         We now have tokens with <em>meaning</em>. But there's still something big
         missing: <strong>order and context</strong>. “The dog bit the man” and “the
         man bit the dog” use identical words. A pile of vectors can't tell them apart.
-        Solving that took until 2017 — and it changed everything.
+        Solving that took until 2017 - and it changed everything.
       </Beat>
     </ChapterFrame>
   );

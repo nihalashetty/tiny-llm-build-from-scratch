@@ -3,16 +3,16 @@ import { useState } from 'react';
 /**
  * Illustrated, mostly-static SVG diagrams for the transformer chapter, built to
  * teach one idea each with the running example "The cat sat on the mat":
- *   PipelineDiagram  — the whole data flow, end to end
- *   QKVDiagram       — every word splits into a Query, Key, and Value
- *   AttentionArcs    — interactive: pick a word, watch it look back and blend
- *   FeedForwardDiagram — each word "thinks" on its own (expand → ReLU → compress)
- *   StackedBlocks    — many blocks turn syntax into meaning into reasoning
+ *   PipelineDiagram  - the whole data flow, end to end
+ *   QKVDiagram       - every word splits into a Query, Key, and Value
+ *   AttentionArcs    - interactive: pick a word, watch it look back and blend
+ *   FeedForwardDiagram - each word "thinks" on its own (expand → ReLU → compress)
+ *   StackedBlocks    - many blocks turn syntax into meaning into reasoning
  * Weights in AttentionArcs are a hand-drawn schematic; the real, learned weights
  * are in the live heatmap in the chapter.
  */
 
-const INK = '#2b2622';
+const INK = '#16181d';
 const MUTED = '#8a7d6b';
 const FAINT = '#b6a68f';
 const LINE = '#e7dcc9';
@@ -23,7 +23,7 @@ const WORDS = ['The', 'cat', 'sat', 'on', 'the', 'mat'];
 const WCOL = ['#4f7cc4', '#8a5cc4', '#3f9e6f', '#b5754a', '#4a8a97', '#9a8f3c'];
 const Q_COL = '#d9534f';
 const K_COL = '#3e6ff0';
-const V_COL = '#1f9e7a';
+const V_COL = '#10866a';
 
 /* ---------- 1. Pipeline overview ---------- */
 export function PipelineDiagram() {
@@ -99,13 +99,13 @@ export function QKVDiagram() {
           </g>
         ))}
         <text x={40} y={162} fontFamily={MONO} fontSize={12.5} fill={INK}>
-          <tspan fill={Q_COL} fontWeight={700}>Query</tspan> — what am I looking for?
+          <tspan fill={Q_COL} fontWeight={700}>Query</tspan> - what am I looking for?
         </text>
         <text x={40} y={182} fontFamily={MONO} fontSize={12.5} fill={INK}>
-          <tspan fill={K_COL} fontWeight={700}>Key</tspan> — what do I offer to others?
+          <tspan fill={K_COL} fontWeight={700}>Key</tspan> - what do I offer to others?
         </text>
         <text x={40} y={202} fontFamily={MONO} fontSize={12.5} fill={INK}>
-          <tspan fill={V_COL} fontWeight={700}>Value</tspan> — what I'll hand over if I'm picked
+          <tspan fill={V_COL} fontWeight={700}>Value</tspan> - what I'll hand over if I'm picked
         </text>
       </svg>
     </span>
@@ -232,7 +232,7 @@ export function AttentionArcs() {
       </span>
       <div className="sample-note">
         Click any word to make it the “current” one. It can only look at itself and the words{' '}
-        <em>before</em> it — the greyed-out words to its right are the future, hidden by the causal mask.
+        <em>before</em> it - the greyed-out words to its right are the future, hidden by the causal mask.
         (Weights here are a schematic; the live heatmap below shows a real model's learned weights.)
       </div>
     </div>
@@ -289,7 +289,7 @@ export function StackedBlocks() {
   const rows: { label: string; color: string; qs: string[] }[] = [
     { label: 'syntax', color: '#4f7cc4', qs: ['word order?', 'part of speech?', 'punctuation?', 'local context?'] },
     { label: 'meaning', color: '#3f9e6f', qs: ['word sense?', "who is 'the'?", 'named entities?', 'relationships?'] },
-    { label: 'reasoning', color: '#c24a28', qs: ['sentiment?', 'intent?', 'what comes next?', '…'] },
+    { label: 'reasoning', color: '#a63a25', qs: ['sentiment?', 'intent?', 'what comes next?', '…'] },
   ];
   return (
     <span className="canvas-frame" style={{ display: 'block' }}>
@@ -312,7 +312,7 @@ export function StackedBlocks() {
       </div>
       <div className="stack-caption">
         early blocks sort out grammar; middle blocks resolve meaning; later blocks reason. Real models stack
-        dozens — GPT-3 has 96 of these.
+        dozens - GPT-3 has 96 of these.
       </div>
     </span>
   );

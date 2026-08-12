@@ -17,7 +17,7 @@ const SUGGESTIONS = [
 
 /**
  * Live ELIZA chat for Chapter 1. Every reply comes from src/llm/eliza.ts, and
- * the rule that fired lights up in the panel on the right — so the reader sees
+ * the rule that fired lights up in the panel on the right - so the reader sees
  * there is no "brain", just a rulebook being consulted top to bottom.
  */
 export function ChatBox() {

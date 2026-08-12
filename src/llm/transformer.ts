@@ -1,5 +1,5 @@
 /**
- * A tiny transformer — the 2017 architecture, shrunk until it trains live in
+ * A tiny transformer, the 2017 architecture, shrunk until it trains live in
  * your browser on the Little Kingdom text.
  *
  * To keep the hand-written calculus correct AND readable, this is the smallest
@@ -7,10 +7,10 @@
  * causal self-attention head, a small feed-forward network, then a readout to
  * next-token probabilities. Real models stack many such blocks, run several
  * attention heads at once, use subword tokens (like the BPE ones from Ch.3), and
- * add layer-norm (we explain those in the chapter) — but the heart is exactly
+ * add layer-norm (we explain those in the chapter), but the heart is exactly
  * this, and it's all here with no ML libraries.
  *
- * Forward for a sequence x₀…x_{L-1}, predicting the next char at each step:
+ * Forward for a sequence x₀…x_{L-1}, predicting the next token at each step:
  *   hₜ = E[xₜ] + P[t]                          (token + position embedding)
  *   qₜ,kₜ,vₜ = Wq hₜ, Wk hₜ, Wv hₜ             (queries / keys / values)
  *   scoreₜ,ₛ = (qₜ·kₛ)/√D   for s ≤ t          (causal: can't look ahead)
@@ -18,7 +18,7 @@
  *   zₜ = Σ αₜ,ₛ vₛ                              (a blend of the past)
  *   uₜ = hₜ + Wo zₜ                             (attention + residual)
  *   yₜ = uₜ + W2·relu(W1·uₜ)                    (feed-forward + residual)
- *   logitsₜ = Wl yₜ  → softmax → next char
+ *   logitsₜ = Wl yₜ  → softmax → next token
  */
 
 import { makeRng, gaussian, type Rng } from './rng';
@@ -84,6 +84,8 @@ export interface TransformerConfig {
   lr?: number;
   seed?: number;
   batch?: number;
+  /** fraction of the corpus kept aside (never trained on) to test generalization */
+  holdout?: number;
 }
 
 export interface ForwardCache {
@@ -124,7 +126,8 @@ export class TinyTransformer {
   private lr: number;
   private batch: number;
   private rng: Rng;
-  private data: number[]; // whole corpus as char ids
+  private data: number[]; // whole corpus as token ids
+  private trainLen: number; // training only samples windows from data[0 .. trainLen)
 
   constructor(text: string, cfg: TransformerConfig = {}) {
     this.D = cfg.dim ?? 24;
@@ -139,6 +142,11 @@ export class TinyTransformer {
     this.stoi = new Map(this.vocab.map((c, i) => [c, i]));
     this.V = this.vocab.length;
     this.data = toks.map((c) => this.stoi.get(c)!);
+    // Optionally hold out the tail of the corpus. Training only ever samples
+    // windows from the first `trainLen` tokens; the rest is unseen "test" text
+    // we can use to check the model is learning the language, not memorizing.
+    const holdout = Math.min(0.9, Math.max(0, cfg.holdout ?? 0));
+    this.trainLen = Math.max(this.T + 2, Math.floor(this.data.length * (1 - holdout)));
 
     const { D, F, V, T } = this;
     this.E = this.init(V, D, 0.02);
@@ -230,7 +238,7 @@ export class TinyTransformer {
     return { ids, L, h, q, k, v, alpha, z, u, f1, act, y, probs };
   }
 
-  /** Cross-entropy of predicting the next char at every position. */
+  /** Cross-entropy of predicting the next token at every position. */
   private lossFrom(cache: ForwardCache): number {
     let loss = 0;
     for (let t = 0; t < cache.L - 1; t++) {
@@ -371,7 +379,7 @@ export class TinyTransformer {
 
   /**
    * One training step. We average over a small BATCH of random windows before
-   * nudging the weights — a single window is far too noisy to learn from, so we
+   * nudging the weights, a single window is far too noisy to learn from, so we
    * accumulate gradients across a handful and take one Adam step. Returns the
    * average loss over the batch (the smooth number you watch fall).
    */
@@ -380,7 +388,7 @@ export class TinyTransformer {
     for (const p of this.params) p.zeroGrad();
     let loss = 0;
     for (let b = 0; b < this.batch; b++) {
-      const start = Math.floor(this.rng() * (this.data.length - L - 1));
+      const start = Math.floor(this.rng() * (this.trainLen - L - 1));
       const ids = this.data.slice(start, start + L);
       const cache = this.forward(ids);
       loss += this.lossFrom(cache);
@@ -413,6 +421,37 @@ export class TinyTransformer {
     return s;
   }
 
+  /** Average next-token loss on the training text (windows the model learns from). */
+  trainLoss(samples = 12): number {
+    return this.regionLoss(0, this.trainLen, samples);
+  }
+
+  /**
+   * Average next-token loss on the held-out tail the model NEVER trains on, the
+   * honest test of whether it's learning the language or just memorizing. Equal
+   * to the training loss until they diverge, which is exactly what overfitting
+   * looks like. Deterministic (fixed, evenly-spaced windows) so it's stable
+   * frame to frame. Only meaningful when built with a `holdout` fraction.
+   */
+  evalLoss(samples = 12): number {
+    return this.regionLoss(this.trainLen, this.data.length, samples);
+  }
+
+  /** Average loss over evenly-spaced windows inside [lo, hi), no training. */
+  private regionLoss(lo: number, hi: number, samples: number): number {
+    const L = this.T;
+    const last = hi - L; // last valid window start inside the region
+    if (last <= lo) return this.lossFrom(this.forward(this.data.slice(lo, lo + L)));
+    const stepBy = Math.max(1, Math.floor((last - lo) / samples));
+    let loss = 0;
+    let n = 0;
+    for (let s = lo; s <= last; s += stepBy) {
+      loss += this.lossFrom(this.forward(this.data.slice(s, s + L)));
+      n++;
+    }
+    return loss / Math.max(1, n);
+  }
+
   /** Attention weights for a prompt (for the heatmap): rows attend to columns. */
   attentionFor(text: string): { tokens: string[]; alpha: number[][] } {
     const ids = this.encode(text).slice(-this.T);
@@ -420,12 +459,36 @@ export class TinyTransformer {
     return { tokens: ids.map((i) => this.vocab[i]), alpha: cache.alpha };
   }
 
-  /** The model's probability distribution for the very next character. */
+  /** The model's probability distribution for the very next token. */
   nextDistribution(text: string): { char: string; p: number }[] {
     const ids = this.encode(text).slice(-this.T);
     const cache = this.forward(ids);
     const last = cache.probs[cache.probs.length - 1];
     return this.vocab.map((char, i) => ({ char, p: last[i] }));
+  }
+
+  // ── Public helpers used by the Part 2 (inference) visualizations ──
+
+  /** Encode text into the token ids the model will actually read (known words only). */
+  encodeIds(text: string): number[] {
+    return this.encode(text);
+  }
+
+  /** Join token ids back into readable text (public wrapper of the detokenizer). */
+  decode(ids: number[]): string {
+    return this.detok(ids);
+  }
+
+  /** The learned embedding vector for one token id (for the embeddings visual). */
+  tokenEmbedding(id: number): number[] {
+    const off = id * this.D;
+    return Array.from({ length: this.D }, (_, d) => this.E.data[off + d]);
+  }
+
+  /** The positional embedding added at sequence position t (for the embeddings visual). */
+  positionEmbedding(t: number): number[] {
+    const off = Math.min(t, this.T - 1) * this.D;
+    return Array.from({ length: this.D }, (_, d) => this.P.data[off + d]);
   }
 
   /**

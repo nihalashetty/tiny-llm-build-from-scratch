@@ -1,4 +1,4 @@
 # pnpm 11 asks which dependency build scripts may run. esbuild ships a native
-# binary that its install script links, and Vite needs it — so allow it.
+# binary that its install script links, and Vite needs it - so allow it.
 allowBuilds:
   esbuild: true

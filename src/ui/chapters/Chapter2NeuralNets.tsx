@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ChapterFrame } from '../components/ChapterFrame';
 import { Beat } from '../components/Beat';
+import { ChapterRef } from '../components/ChapterRef';
 import { Callout } from '../components/Callout';
 import { Figure } from '../components/Figure';
 import { CitationCard } from '../components/CitationCard';
@@ -44,23 +45,27 @@ function BoundaryLegend() {
   return (
     <div className="dim" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
       Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
-      network's output there —{' '}
-      <span style={{ color: '#c24a28', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
+      network's output there -{' '}
+      <span style={{ color: '#a63a25', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
       <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
       big dots are the examples it's trying to get right.
     </div>
   );
 }
 
+// Order matters: this is the order the preset buttons appear in, and it's the
+// order the story asks you to try them. AND and OR both work with a single
+// straight line, so they come first; XOR is the one that fails, so it lands last
+// as the punchline.
 const PRESETS: Record<string, number[]> = {
-  XOR: [0, 1, 1, 0],
   AND: [0, 0, 0, 1],
   OR: [0, 1, 1, 1],
+  XOR: [0, 1, 1, 0],
 };
 
 /**
  * The editable "task": the four inputs are fixed (they're the only pairs of two
- * bits), but you choose the output you want for each — defining any logic gate.
+ * bits), but you choose the output you want for each - defining any logic gate.
  * Click a preset or flip a cell, then Train and watch the network chase it.
  */
 function LogicTable({
@@ -80,7 +85,7 @@ function LogicTable({
   const activePreset = Object.keys(PRESETS).find((k) => PRESETS[k].join('') === targets.join(''));
   return (
     <div>
-      <div className="task-label">The task — choose the output you want for each input</div>
+      <div className="task-label">The task - choose the output you want for each input</div>
       <div className="lab-controls" style={{ marginBottom: 8 }}>
         {Object.keys(PRESETS).map((name) => (
           <button
@@ -162,7 +167,7 @@ function PerceptronLab() {
       <Controls t={t} stepN={1} />
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
-        <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
+        <span>error <b>{t.loss === null ? '-' : t.loss.toFixed(4)}</b></span>
         {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
         {t.done && !learned && <span style={{ color: 'var(--coral-deep)', fontWeight: 700 }}>stuck ✗</span>}
       </div>
@@ -170,7 +175,7 @@ function PerceptronLab() {
       <div className="lab-hint">
         Press <b>Step +1</b> to watch the two weights change one nudge at a time, or{' '}
         <b>Train</b> to run it. Try <b>AND</b>/<b>OR</b> (the line finds them) then{' '}
-        <b>XOR</b> — no single line can split it.
+        <b>XOR</b> - no single line can split it.
       </div>
 
       <div className="diagram-row">
@@ -220,12 +225,12 @@ function XorLab() {
       <Controls t={t} stepN={10} />
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
-        <span>error <b>{t.loss === null ? '—' : t.loss.toFixed(4)}</b></span>
+        <span>error <b>{t.loss === null ? '-' : t.loss.toFixed(4)}</b></span>
         {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
       <div className="lab-hint">
-        Same controls — <b>Step +10</b> or <b>Train</b>. Watch the four hidden
+        Same controls - <b>Step +10</b> or <b>Train</b>. Watch the hidden
         weights (the wires) shuffle as the boundary bends. This same network learns{' '}
         <em>any</em> gate, XOR included.
       </div>
@@ -264,8 +269,9 @@ export function Chapter2NeuralNets() {
   return (
     <ChapterFrame id="neural-networks">
       <Beat as="p" className="lead">
-        Chapter 1 ended at a wall: you can't hand-write a rule for every sentence.
-        So here's the idea that eventually wins — <strong>stop writing rules. Show
+        <ChapterRef id="chatbots" /> ended at a wall: you can't hand-write a rule
+        for every sentence.
+        So here's the idea that eventually wins - <strong>stop writing rules. Show
         examples, and let the machine adjust itself until it gets them right.</strong>{' '}
         To see how, we need to meet the two things every neural network is built
         from: neurons, and weights.
@@ -274,7 +280,7 @@ export function Chapter2NeuralNets() {
       <Beat as="h2">First: what is a neuron?</Beat>
       <Beat as="p">
         Forget brains. An artificial neuron is a tiny calculator: a few numbers go
-        in, one number comes out. It does exactly three things — multiply each input
+        in, one number comes out. It does exactly three things - multiply each input
         by a <strong>weight</strong>, add them all up (plus a <strong>bias</strong>),
         then “squash” the total into a value between 0 and 1.
       </Beat>
@@ -298,7 +304,7 @@ export function Chapter2NeuralNets() {
         <Callout emoji="🧮">
           <strong>The whole neuron in one line:</strong>{' '}
           <code>output = σ(x₁·w₁ + x₂·w₂ + bias)</code>. That <code>σ</code>{' '}
-          (“sigmoid”) is just the squasher — give it any number and it hands back
+          (“sigmoid”) is just the squasher - give it any number and it hands back
           something between 0 and 1, like a confidence.
         </Callout>
       </Beat>
@@ -310,7 +316,7 @@ export function Chapter2NeuralNets() {
       <Beat as="h2">What does it mean to “train”?</Beat>
       <Beat as="p">
         This is the part that usually stays fuzzy, so let's make it concrete. We
-        never set the weights by hand — the network <em>finds</em> them, by
+        never set the weights by hand - the network <em>finds</em> them, by
         repeating one simple loop until its answers stop being wrong:
       </Beat>
 
@@ -345,7 +351,7 @@ export function Chapter2NeuralNets() {
             <div>
               <strong>Nudge, and repeat.</strong> Move each weight a tiny step in the
               helpful direction. The step size is the <strong>learning rate</strong>.
-              One full pass over all the examples is one <strong>epoch</strong> — we
+              One full pass over all the examples is one <strong>epoch</strong> - we
               run thousands.
             </div>
           </li>
@@ -355,7 +361,7 @@ export function Chapter2NeuralNets() {
       <Beat as="p">
         A picture that helps: imagine the error as a hilly landscape and your current
         weights as a spot on it. Each epoch you take one small step downhill. The
-        learning rate is your stride — too big and you leap clean over the valley,
+        learning rate is your stride - too big and you leap clean over the valley,
         too small and you're there all day. That downhill walk has a name,{' '}
         <strong>gradient descent</strong>, and it trains every model in this course.
       </Beat>
@@ -364,21 +370,21 @@ export function Chapter2NeuralNets() {
         <Callout emoji="🔑">
           <strong>That's the entire secret:</strong> start random, measure the error,
           nudge the weights to shrink it, repeat. Everything fancier in this course is
-          the same loop — just with more weights and far more data. And you don't have
-          to take it on faith — in the demos below you can press <b>Step</b> and watch
+          the same loop - just with more weights and far more data. And you don't have
+          to take it on faith - in the demos below you can press <b>Step</b> and watch
           the actual weight numbers change, one nudge at a time.
         </Callout>
       </Beat>
 
       <Beat as="h2">The problem that froze the field: XOR</Beat>
       <Beat as="p">
-        Now the twist. In 1958 Frank Rosenblatt built a single neuron — the{' '}
-        <strong>Perceptron</strong> — and headlines promised machines that would soon
+        Now the twist. In 1958 Frank Rosenblatt built a single neuron - the{' '}
+        <strong>Perceptron</strong> - and headlines promised machines that would soon
         walk and talk. Then Minsky and Papert pointed out something crushing, and the
         easiest way to get it is to <em>feel</em> it. <strong>XOR</strong> is the
         simplest “tricky” pattern: output <strong>1</strong> only when the two inputs{' '}
         <em>differ</em>. A single neuron can only slice the space with one straight
-        line — and no straight line separates XOR's two coral corners from its two
+        line - and no straight line separates XOR's two coral corners from its two
         blue ones. Pick a goal below, press Train, and watch the error stall.
       </Beat>
 
@@ -400,7 +406,7 @@ export function Chapter2NeuralNets() {
       <Beat as="p">
         Put a middle (“hidden”) layer of neurons between input and output. That
         hidden layer first <em>reshapes</em> the problem into a new space where the
-        final neuron <em>can</em> split it with a line — and the exact same training
+        final neuron <em>can</em> split it with a line - and the exact same training
         loop (now called <strong>backpropagation</strong> once it reaches across
         layers) still handles everything. Same machine you watched above; now try to
         teach it XOR yourself.
@@ -424,11 +430,11 @@ export function Chapter2NeuralNets() {
         </Callout>
       </Beat>
 
-      <Beat as="h2">The real code — now you know every word in it</Beat>
+      <Beat as="h2">The real code - now you know every word in it</Beat>
       <Beat as="p">
         Here are both networks behind the demos, no libraries. Notice the task is
-        spelled out right at the top — <code>XOR_INPUTS</code> and{' '}
-        <code>XOR_TARGETS</code>, the four examples — and every step works on those
+        spelled out right at the top - <code>XOR_INPUTS</code> and{' '}
+        <code>XOR_TARGETS</code>, the four examples - and every step works on those
         actual numbers, not some abstract “input.” You now know each term:{' '}
         <code>w</code>/<code>w1</code>/<code>w2</code> are the weights,{' '}
         <code>trainEpoch</code> is one pass of that four-step loop, <code>error</code>{' '}
@@ -436,15 +442,15 @@ export function Chapter2NeuralNets() {
       </Beat>
 
       <Beat as="p">
-        First the single neuron — the one that stalls on XOR:
+        First the single neuron - the one that stalls on XOR:
       </Beat>
       <Beat>
         <CodeViewer code={perceptronSource} filename="src/llm/perceptron.ts" lang="typescript" />
       </Beat>
 
       <Beat as="p">
-        Now add a hidden layer, and the very same loop — reaching back through two
-        layers instead of one — finally cracks it. Same story, one more row of neurons:
+        Now add a hidden layer, and the very same loop - reaching back through two
+        layers instead of one - finally cracks it. Same story, one more row of neurons:
       </Beat>
       <Beat>
         <CodeViewer code={xorSource} filename="src/llm/xor-net.ts" lang="typescript" />
@@ -453,7 +459,7 @@ export function Chapter2NeuralNets() {
       <Beat as="p">
         We can now learn patterns from examples. But this network only eats{' '}
         <em>numbers</em>, and language is made of words. So before a model can learn
-        language, we have to turn text into numbers — carefully. That's next.
+        language, we have to turn text into numbers - carefully. That's next.
       </Beat>
     </ChapterFrame>
   );

@@ -1,7 +1,7 @@
 /**
  * A live diagram of the actual network: circles are neurons, lines are weights.
  * A line is coral when its weight is positive, blue when negative, and thicker
- * the stronger it is. As the network trains, the wires visibly shift — that IS
+ * the stronger it is. As the network trains, the wires visibly shift - that IS
  * "learning": the numbers on these connections being nudged.
  */
 export function NetworkDiagram({
@@ -51,7 +51,7 @@ export function NetworkDiagram({
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke={w >= 0 ? '#f0663e' : '#3e6ff0'}
+                  stroke={w >= 0 ? '#e0553a' : '#3e6ff0'}
                   strokeWidth={0.5 + mag * 3.5}
                   opacity={0.2 + mag * 0.65}
                 />
@@ -73,7 +73,7 @@ export function NetworkDiagram({
                   cy={nodeY(count, i)}
                   r={15}
                   fill={isInput ? '#d7e5ff' : isOutput ? '#c9ecdb' : '#ffe6b0'}
-                  stroke={isInput ? '#3e6ff0' : isOutput ? '#1f9e7a' : '#e0a53c'}
+                  stroke={isInput ? '#3e6ff0' : isOutput ? '#10866a' : '#e0a53c'}
                   strokeWidth="1.5"
                 />
                 {label && (
@@ -83,7 +83,7 @@ export function NetworkDiagram({
                     textAnchor="middle"
                     fontFamily="'JetBrains Mono', monospace"
                     fontSize="12"
-                    fill="#2b2622"
+                    fill="#16181d"
                   >
                     {label}
                   </text>
@@ -94,15 +94,15 @@ export function NetworkDiagram({
         )}
 
         {/* layer captions */}
-        <text x={colX(0)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#a2917a">
+        <text x={colX(0)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
           inputs
         </text>
         {layers.length === 3 && (
-          <text x={colX(1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#a2917a">
+          <text x={colX(1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
             hidden layer
           </text>
         )}
-        <text x={colX(layers.length - 1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#a2917a">
+        <text x={colX(layers.length - 1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
           output
         </text>
       </svg>

@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { totalChapters } from '../content/curriculum';
+import { chapters, totalChapters } from '../content/curriculum';
 
 /**
  * Tracks which chapters the reader has finished, persisted in localStorage so
@@ -29,12 +29,19 @@ interface ProgressValue {
 
 const ProgressContext = createContext<ProgressValue | null>(null);
 
+/** Chapter ids that currently exist, so stale saved progress can be discarded. */
+const validIds = new Set(chapters.map((c) => c.id));
+
 function load(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return new Set();
     const arr = JSON.parse(raw) as string[];
-    return new Set(Array.isArray(arr) ? arr : []);
+    if (!Array.isArray(arr)) return new Set();
+    // Drop ids that aren't in the curriculum any more - a renamed or removed
+    // chapter, or progress written by a different build on the same origin.
+    // Without this the count can exceed the number of chapters ("32 / 19").
+    return new Set(arr.filter((id) => validIds.has(id)));
   } catch {
     return new Set();
   }
@@ -47,7 +54,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...done]));
     } catch {
-      /* storage may be unavailable (private mode) — progress just won't persist */
+      /* storage may be unavailable (private mode) - progress just won't persist */
     }
   }, [done]);
 

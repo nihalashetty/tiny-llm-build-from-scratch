@@ -12,8 +12,8 @@ export function ComingSoon({ id }: { id: string }) {
     <ChapterFrame id={id}>
       <p className="lead">{ch.blurb}</p>
       <Callout emoji="🚧">
-        This chapter is being built next. The engine underneath — the story
-        layout, animations, and the run-it-yourself code — is already working;
+        This chapter is being built next. The engine underneath - the story
+        layout, animations, and the run-it-yourself code - is already working;
         we're rolling chapters out one polished piece at a time so nothing feels
         half-baked.
       </Callout>

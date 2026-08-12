@@ -2,7 +2,7 @@ import { cite } from '../../content/citations';
 
 /**
  * Renders a set of citation cards from their registry ids. Each card links out
- * to the real source (arXiv / Wikipedia / publisher) — we never reproduce the
+ * to the real source (arXiv / Wikipedia / publisher) - we never reproduce the
  * papers' own figures or text.
  */
 export function CitationCard({ ids }: { ids: string[] }) {

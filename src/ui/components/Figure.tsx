@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 /**
  * A framed visual with a caption. Unlike the starter design's dashed
- * placeholders, this holds real, self-drawn diagrams and interactive widgets —
+ * placeholders, this holds real, self-drawn diagrams and interactive widgets -
  * never scanned figures from papers.
  */
 export function Figure({

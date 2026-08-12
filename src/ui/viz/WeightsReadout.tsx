@@ -1,5 +1,5 @@
 /**
- * A compact, JSON-ish readout of a network's actual weight numbers — the same
+ * A compact, JSON-ish readout of a network's actual weight numbers - the same
  * thing CJ shows as a weights file in the video. It updates live as the network
  * trains, and turns green (labelled "final weights") once training settles, so
  * you can read exactly what the model learned.

@@ -47,7 +47,7 @@ export function DecisionBoundary({
       const py = (1 - x[1]) * size;
       ctx.beginPath();
       ctx.arc(px, py, 9, 0, Math.PI * 2);
-      ctx.fillStyle = targets[i] === 1 ? '#f0663e' : '#3e6ff0';
+      ctx.fillStyle = targets[i] === 1 ? '#e0553a' : '#3e6ff0';
       ctx.fill();
       ctx.lineWidth = 3;
       ctx.strokeStyle = '#fff';

@@ -111,6 +111,11 @@ export function useRafTrainer<M>(
 
   useEffect(
     () => () => {
+      // On unmount, the loop is no longer running. Resetting this ref matters
+      // under React 18 StrictMode, whose dev-only mount→unmount→remount would
+      // otherwise leave runningRef stuck `true`, so an auto-started loop
+      // (see useInferenceModel) never reschedules after the fake unmount.
+      runningRef.current = false;
       if (rafId.current) cancelAnimationFrame(rafId.current);
     },
     [],

@@ -76,7 +76,7 @@ export function EmbeddingScatter({
   const maxX = Math.max(...xs);
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
-  // base fit-to-frame, then apply zoom/pan (positions only — sizes stay constant)
+  // base fit-to-frame, then apply zoom/pan (positions only - sizes stay constant)
   const bx = (x: number) => pad + ((x - minX) / (maxX - minX || 1)) * (size - 2 * pad);
   const by = (y: number) => size - (pad + ((y - minY) / (maxY - minY || 1)) * (size - 2 * pad));
   const sx = (x: number) => bx(x) * view.k + view.tx;
@@ -136,7 +136,7 @@ export function EmbeddingScatter({
       >
         <defs>
           <marker id="scatter-arrow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="#8a7d6b" />
+            <path d="M0,0 L6,3 L0,6 Z" fill="#79808e" />
           </marker>
           <clipPath id="scatter-clip">
             <rect x="0" y="0" width={size} height={size} rx="10" />
@@ -150,7 +150,7 @@ export function EmbeddingScatter({
             const labeled = labelSet.has(p.word) || hi;
             return (
               <g key={p.word}>
-                <circle cx={sx(p.x)} cy={sy(p.y)} r={hi ? 5 : 3} fill={hi ?? (labeled ? '#8a7d6b' : '#d8c9b2')} />
+                <circle cx={sx(p.x)} cy={sy(p.y)} r={hi ? 5 : 3} fill={hi ?? (labeled ? '#79808e' : '#cbd1da')} />
                 {labeled && (
                   <text
                     x={sx(p.x) + 7}
@@ -158,7 +158,7 @@ export function EmbeddingScatter({
                     fontFamily="'JetBrains Mono', monospace"
                     fontSize={hi ? 12 : 10.5}
                     fontWeight={hi ? 700 : 400}
-                    fill={hi ?? '#4a423b'}
+                    fill={hi ?? '#3c414b'}
                   >
                     {p.word}
                   </text>

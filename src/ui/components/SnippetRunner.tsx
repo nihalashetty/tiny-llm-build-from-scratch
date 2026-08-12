@@ -7,7 +7,7 @@ import { useState } from 'react';
  * predefined input/output style.
  *
  * Scope note: this runs the reader's own JavaScript in their own browser tab.
- * There are no imports or special globals exposed — it's for small, safe
+ * There are no imports or special globals exposed - it's for small, safe
  * experiments (loops, string ops, math), not arbitrary programs.
  */
 
@@ -21,7 +21,7 @@ const toneColor: Record<Tone, string> = {
   log: '#efe7dc',
   warn: '#e6b980',
   error: '#f0a38a',
-  muted: '#6f665b',
+  muted: '#767d88',
 };
 
 function fmt(v: unknown): string {

@@ -1,7 +1,7 @@
 /**
  * The "Little Kingdom" corpus.
  *
- * This is our original, hand-written training text — no copyright strings
+ * This is our original, hand-written training text - no copyright strings
  * attached. It is deliberately:
  *   - small and very repetitive, so a tiny model trained in your browser can
  *     actually produce plausible text instead of noise;

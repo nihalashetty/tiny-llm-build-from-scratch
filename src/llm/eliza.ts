@@ -1,7 +1,7 @@
 /**
  * A rule-based chatbot, in the spirit of ELIZA (Weizenbaum, 1966).
  *
- * There is no learning here and absolutely no "understanding" — just a list of
+ * There is no learning here and absolutely no "understanding" - just a list of
  * text patterns and canned replies. When your sentence matches a pattern, the
  * bot echoes part of it back, swapping "I" for "you", "my" for "your", and so
  * on. That single trick (pattern-match + reflection) was enough to make people
@@ -64,7 +64,7 @@ function clean(text: string): string {
   return text.replace(/[.!?,;:]+$/g, '').trim();
 }
 
-/** The rulebook, checked top to bottom — the first match wins. */
+/** The rulebook, checked top to bottom - the first match wins. */
 export const rules: ElizaRule[] = [
   {
     id: 'need',
@@ -89,7 +89,9 @@ export const rules: ElizaRule[] = [
   {
     id: 'am',
     label: '“I am …”',
-    pattern: /\bi (?:am|'m) (.*)/,
+    // "i am …" needs the space; "i'm …" must not, so the space lives inside the
+    // first branch. (Written as /\bi (?:am|'m)/ the contraction never matched.)
+    pattern: /\bi(?: am|'m) (.*)/,
     responses: [
       'How long have you been $1?',
       'And how do you feel about being $1?',
@@ -122,7 +124,7 @@ export const rules: ElizaRule[] = [
     pattern: /\b(?:sorry|apolog)/,
     responses: [
       'No need to apologize in this hall.',
-      'Apologies are not required here — go on.',
+      'Apologies are not required here - go on.',
     ],
   },
   {
@@ -140,7 +142,7 @@ export const rules: ElizaRule[] = [
     pattern: /\b(king|queen|prince|princess|mother|father|family|crown|throne)\b/,
     responses: [
       'Tell me more about the $1.',
-      'The $1 — why does that come to mind now?',
+      'The $1 - why does that come to mind now?',
       'What does the $1 mean to you?',
     ],
   },
@@ -150,7 +152,7 @@ export const rules: ElizaRule[] = [
     pattern: /\b(hello|hi|hey|greetings|good day)\b/,
     responses: [
       'Well met, traveller. What weighs on your mind?',
-      'Greetings. Speak freely — what troubles you?',
+      'Greetings. Speak freely - what troubles you?',
     ],
   },
   {
@@ -177,7 +179,7 @@ export const rules: ElizaRule[] = [
   },
 ];
 
-/** Used when nothing above matched — keep the conversation moving. */
+/** Used when nothing above matched - keep the conversation moving. */
 export const fallbackRule: ElizaRule = {
   id: 'fallback',
   label: 'No pattern matched → fallback',
@@ -186,7 +188,7 @@ export const fallbackRule: ElizaRule = {
     'Go on…',
     'I see. Please, tell me more.',
     'Why do you say that?',
-    'Let us return to your thoughts — what troubles you most?',
+    'Let us return to your thoughts - what troubles you most?',
   ],
 };
 

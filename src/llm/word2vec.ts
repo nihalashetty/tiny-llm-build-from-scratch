@@ -1,10 +1,10 @@
 /**
- * Word2Vec (skip-gram with negative sampling) — the 2013 idea that turned words
+ * Word2Vec (skip-gram with negative sampling) - the 2013 idea that turned words
  * into vectors that actually carry meaning.
  *
  * The intuition, straight from Firth (1957): "you shall know a word by the
  * company it keeps." So we train each word to predict the words around it. Words
- * that appear in similar company drift to similar vectors — and, famously, the
+ * that appear in similar company drift to similar vectors - and, famously, the
  * directions between them become meaningful: king − man + woman ≈ queen.
  *
  * The training loop is just four moves, repeated millions of times:
@@ -34,7 +34,7 @@ export interface Word2VecOptions {
   dim?: number; //          length of each word vector (how many dimensions)
   window?: number; //       how many words on each side count as "neighbours"
   negatives?: number; //    how many random words to push away per step
-  lr?: number; //           learning rate — the size of each nudge
+  lr?: number; //           learning rate - the size of each nudge
   seed?: number; //         fixes the randomness so runs are reproducible
   targetEpochs?: number; // used to fade the learning rate toward the end
 }
@@ -48,8 +48,8 @@ export class Word2Vec {
   // TWO vectors per word. Win is the "word vector" we keep and show; Wout is a
   // scratch "context vector" used only while training. Splitting them is the
   // standard skip-gram setup and makes the math behave.
-  Win: number[][]; //  center vectors — these become the meaningful "word vectors"
-  Wout: number[][]; // context vectors — helpers, thrown away after training
+  Win: number[][]; //  center vectors - these become the meaningful "word vectors"
+  Wout: number[][]; // context vectors - helpers, thrown away after training
   epoch = 0;
 
   private pairs: [number, number][]; // every (centre, neighbour) training pair
@@ -96,7 +96,7 @@ export class Word2Vec {
     }
 
     // 4. Build a "lucky dip" for random negatives. A word is added to the bag
-    //    ∝ frequency^0.75 — common words like "the" appear more often (so they're
+    //    ∝ frequency^0.75 - common words like "the" appear more often (so they're
     //    likely negatives), but the ^0.75 power stops them from dominating.
     this.negTable = [];
     const power = 0.75;
@@ -122,7 +122,7 @@ export class Word2Vec {
   /**
    * One EPOCH = one full pass over every (centre, neighbour) pair, in random
    * order. For each pair we do moves 2–3 from the top of the file. Returns the
-   * average loss — the number you watch fall as the map organizes itself.
+   * average loss - the number you watch fall as the map organizes itself.
    */
   trainEpoch(): number {
     // Fade the learning rate toward the end so early epochs move boldly and
@@ -135,8 +135,8 @@ export class Word2Vec {
       const inVec = this.Win[c]; // the centre word's vector (the one we keep)
       const gradIn = new Array<number>(this.D).fill(0); // its pending nudge
 
-      // One POSITIVE example — the real neighbour `o`, which we want to score
-      // high (label 1) — plus a few NEGATIVES, random words we want scored low.
+      // One POSITIVE example - the real neighbour `o`, which we want to score
+      // high (label 1) - plus a few NEGATIVES, random words we want scored low.
       const targets: [number, number][] = [[o, 1]];
       for (let k = 0; k < this.neg; k++) targets.push([this.sampleNegative(o), 0]);
 
@@ -206,8 +206,8 @@ export class Word2Vec {
   }
 
   /**
-   * Analogy "a is to b as c is to ?". We do the arithmetic on the arrows —
-   * target = b − a + c — then find the word nearest that spot. With a=man,
+   * Analogy "a is to b as c is to ?". We do the arithmetic on the arrows -
+   * target = b − a + c - then find the word nearest that spot. With a=man,
    * b=king, c=woman the target lands right on "queen".
    */
   analogy(a: string, b: string, c: string, k = 3): Neighbor[] {

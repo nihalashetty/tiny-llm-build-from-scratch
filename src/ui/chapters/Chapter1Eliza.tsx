@@ -6,7 +6,7 @@ import { CitationCard } from '../components/CitationCard';
 import { CodeViewer } from '../components/CodeViewer';
 import { SnippetRunner } from '../components/SnippetRunner';
 import { ChatBox } from '../components/ChatBox';
-// The real source of our chatbot — this exact text is what runs the chat above.
+// The real source of our chatbot - this exact text is what runs the chat above.
 import elizaSource from '../../llm/eliza.ts?raw';
 
 const pocketEliza = `// A pocket-sized ELIZA you can edit. Try adding your own rule!
@@ -36,8 +36,8 @@ export function Chapter1Eliza() {
     <ChapterFrame id="chatbots">
       <Beat as="p" className="lead">
         In 1966, at MIT, a program called <strong>ELIZA</strong> pretended to be
-        a therapist. People sat down, typed their worries, and — this is the
-        part that unsettled everyone — they <em>opened up</em>. One story goes
+        a therapist. People sat down, typed their worries, and - this is the
+        part that unsettled everyone - they <em>opened up</em>. One story goes
         that its creator's own secretary asked him to leave the room so she
         could talk to it privately.
       </Beat>
@@ -69,7 +69,7 @@ export function Chapter1Eliza() {
         <strong>reflects</strong> the rest back at you, flipping pronouns so it
         sounds personal: <em>you</em> → <em>I</em>, <em>my</em> → <em>your</em>.
         Say “I feel nervous about my journey” and it can answer “Tell me more
-        about feeling nervous about your journey” — without having any idea what
+        about feeling nervous about your journey” - without having any idea what
         nervousness, or a journey, is.
       </Beat>
 
@@ -83,7 +83,7 @@ export function Chapter1Eliza() {
 
       <Beat as="h2">Look under the hood</Beat>
       <Beat as="p">
-        This isn't a simplified retelling — the code below is the actual file
+        This isn't a simplified retelling - the code below is the actual file
         powering the chat above. Notice there's no “intelligence” anywhere: it's
         a list of <code>{'{ pattern, responses }'}</code> objects, checked top to
         bottom, first match wins.
@@ -93,7 +93,7 @@ export function Chapter1Eliza() {
         <CodeViewer code={elizaSource} filename="src/llm/eliza.ts" lang="typescript" />
       </Beat>
 
-      <Beat as="h2">Now you try — add a rule</Beat>
+      <Beat as="h2">Now you try - add a rule</Beat>
       <Beat as="p">
         Here's a pocket version you can edit. Add a rule for something like{' '}
         <code>/i love (.*)/i</code> and press <strong>Run</strong>. You're now
@@ -104,11 +104,11 @@ export function Chapter1Eliza() {
         <SnippetRunner initialCode={pocketEliza} filename="pocket-eliza.js" />
       </Beat>
 
-      <Beat as="h2">It caught on — and it kept faking</Beat>
+      <Beat as="h2">It caught on - and it kept faking</Beat>
       <Beat as="p">
         A few years later, psychiatrist Kenneth Colby built <strong>PARRY</strong>,
         a bot that imitated a person with paranoia. In 1972 the two were
-        connected over the early internet and left to “talk” to each other — two
+        connected over the early internet and left to “talk” to each other - two
         piles of rules, bouncing canned lines back and forth. The same idea kept
         resurfacing for decades: <strong>A.L.I.C.E.</strong> in the 1990s, and{' '}
         <strong>SmarterChild</strong>, which a generation met on instant
@@ -119,7 +119,9 @@ export function Chapter1Eliza() {
         <CitationCard ids={['eliza-1966', 'parry-1971', 'alice-1995', 'smarterchild-2001']} />
       </Beat>
 
-      <Beat as="h2">The honest problem (this is the whole reason for Chapter 2)</Beat>
+      <Beat as="h2">
+        The honest problem (this is the whole reason for the next chapter)
+      </Beat>
       <Beat as="p">
         Play with the Oracle long enough and the magic collapses. Step outside
         its patterns and it goes blank. It can't learn from you. It has no idea
@@ -133,7 +135,7 @@ export function Chapter1Eliza() {
           <strong>The wall:</strong> rules don't scale. Real language has endless
           variety, and you can't write an <code>if</code>-statement for every
           sentence a person might say. To go further, we need a machine that
-          learns the patterns <em>itself</em>, from examples — instead of us
+          learns the patterns <em>itself</em>, from examples - instead of us
           spelling them all out.
         </Callout>
       </Beat>
@@ -141,7 +143,7 @@ export function Chapter1Eliza() {
       <Beat as="p">
         That's exactly the leap the world spent decades trying to make. Next, we
         stop writing rules and start <strong>teaching a machine to learn</strong>{' '}
-        — and we'll watch one figure something out that stumped researchers for
+        - and we'll watch one figure something out that stumped researchers for
         seventeen years.
       </Beat>
     </ChapterFrame>

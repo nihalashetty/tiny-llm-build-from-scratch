@@ -1,14 +1,14 @@
 /**
- * A neural network that learns XOR — the problem that stumped researchers for
+ * A neural network that learns XOR - the problem that stumped researchers for
  * seventeen years, cracked by adding one "hidden" layer of neurons and training
  * with backpropagation (Rumelhart, Hinton & Williams, 1986).
  *
- * Like the perceptron, we train on ONE concrete task — XOR — so you can trace
+ * Like the perceptron, we train on ONE concrete task - XOR - so you can trace
  * real numbers through every line. Read this top to bottom and you'll
  * understand the three ideas ALL of deep learning is built on:
- *   • a WEIGHT  — a number that says how much one input matters,
- *   • the ERROR — a number that says how wrong the current guess is,
- *   • TRAINING  — nudging every weight a little to make the error smaller,
+ *   • a WEIGHT  - a number that says how much one input matters,
+ *   • the ERROR - a number that says how wrong the current guess is,
+ *   • TRAINING  - nudging every weight a little to make the error smaller,
  *                 then repeating that thousands of times.
  *
  * Shape: 2 inputs → 4 hidden neurons → 1 output. No ML libraries; just loops.
@@ -25,7 +25,7 @@ const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 export class XorNet {
   readonly hidden: number;
 
-  // WEIGHTS. These numbers ARE the network's knowledge — the only thing that
+  // WEIGHTS. These numbers ARE the network's knowledge - the only thing that
   // changes as it learns. w1[i][j] is how strongly input i pushes on hidden
   // neuron j; w2[j] is how strongly hidden neuron j pushes on the output.
   w1: number[][]; // input → hidden   (2 × hidden)
@@ -40,7 +40,7 @@ export class XorNet {
     this.hidden = hidden;
     this.rng = makeRng(seed);
     // Start every weight at a small RANDOM number. The network begins knowing
-    // nothing, so its first guesses are basically coin-flips — that's expected.
+    // nothing, so its first guesses are basically coin-flips - that's expected.
     this.w1 = [
       Array.from({ length: hidden }, () => uniform(this.rng, -1, 1)),
       Array.from({ length: hidden }, () => uniform(this.rng, -1, 1)),
@@ -51,7 +51,7 @@ export class XorNet {
   }
 
   /**
-   * FORWARD PASS — make a guess.
+   * FORWARD PASS - make a guess.
    * Each neuron computes  squash( inputs · weights + bias ). We do that for the
    * hidden layer, then again for the single output neuron. We keep the hidden
    * values `h` because the training step needs them.
@@ -75,20 +75,20 @@ export class XorNet {
   /**
    * ONE EPOCH of training = one full pass over the four XOR examples.
    *
-   * Take one row — say input [0, 1], where we WANT a 1. We:
-   *   1. guess it (forward pass) — maybe the network says 0.73,
+   * Take one row - say input [0, 1], where we WANT a 1. We:
+   *   1. guess it (forward pass) - maybe the network says 0.73,
    *   2. measure how wrong that was:  error = guess − want = 0.73 − 1 = −0.27
    *      (we sum error², so bigger mistakes count for far more),
-   *   3. work out which way to nudge every weight to shrink that error — this is
+   *   3. work out which way to nudge every weight to shrink that error - this is
    *      BACKPROPAGATION: start at the output and pass the "blame" backward
    *      through the network using the chain rule from calculus,
    *   4. take a small step that way. `lr` (the LEARNING RATE) is the step size:
    *      too big and we overshoot, too small and it crawls.
    *
    * (The demo lets you edit the wanted answers to make AND / OR / XOR, so
-   * `inputs` and `targets` are arguments — but they default to the XOR task.)
+   * `inputs` and `targets` are arguments - but they default to the XOR task.)
    *
-   * Returns the average error over the four examples — the number you watch fall.
+   * Returns the average error over the four examples - the number you watch fall.
    */
   trainEpoch(lr = 1, inputs = XOR_INPUTS, targets = XOR_TARGETS): number {
     let loss = 0;

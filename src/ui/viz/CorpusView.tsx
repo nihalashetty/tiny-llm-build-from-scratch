@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { sentences, corpusText } from '../../llm/corpus/little-kingdom';
 
 /**
- * Simply shows the entire Little Kingdom corpus — the exact text the tokenizer
+ * Simply shows the entire Little Kingdom corpus - the exact text the tokenizer
  * below reads. Seeing it makes the demo's pair counts obvious: words like "the"
  * repeat constantly, so their pieces are what get merged first.
  */

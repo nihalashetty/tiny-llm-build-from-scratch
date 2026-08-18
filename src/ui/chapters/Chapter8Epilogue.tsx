@@ -265,30 +265,9 @@ export function Chapter8Epilogue() {
       </Beat>
 
       <Beat as="h2">Now go build</Beat>
-      <Beat as="p">
-        Everything you ran here lives in{' '}
-        <a
-          href="https://github.com/nihalashetty/tiny-llm-build-from-scratch"
-          target="_blank"
-          rel="noreferrer"
-        >
-          one small repo
-        </a>{' '}
-        - the readable{' '}
-        <a
-          href="https://github.com/nihalashetty/tiny-llm-build-from-scratch/tree/main/src/llm"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <code>src/llm</code>
-        </a>{' '}
-        files are yours to fork, break, and rebuild. Change the corpus. Add a second
-        attention head. Make the transformer bigger and see what it writes. That's the
-        best way to truly get it.
-      </Beat>
 
       <Beat as="p">
-        And if you enjoyed this, the whole journey was inspired by{' '}
+        If you enjoyed this, the whole journey was inspired by{' '}
         <a href="https://youtu.be/YmLp8qe87A0" target="_blank" rel="noreferrer">
           CJ's talk “How LLMs Work”
         </a>{' '}

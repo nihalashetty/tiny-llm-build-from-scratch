@@ -1,3 +1,5 @@
+import { Progress } from '@/components/ui/progress';
+
 /**
  * A slim "warming up the pretrained model…" bar shown by Part 2 labs while the
  * shared TinyTransformer finishes its background warm-up. Once `ready`, it
@@ -7,17 +9,20 @@
 export function WarmupBar({ ready, progress }: { ready: boolean; progress: number }) {
   if (ready) {
     return (
-      <div className="warmup ready" aria-live="polite">
-        <span className="warmup-badge">❄ weights frozen · running inference</span>
+      <div className="mb-3 flex items-center" aria-live="polite">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 font-mono text-[0.66rem] text-muted-foreground">
+          ❄ weights frozen · running inference
+        </span>
       </div>
     );
   }
   return (
-    <div className="warmup" aria-live="polite">
-      <span className="warmup-label">warming up the pretrained model…</span>
-      <span className="warmup-track">
-        <span className="warmup-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
-      </span>
+    <div
+      className="mb-3 flex items-center gap-2.5 font-mono text-[0.7rem] text-muted-foreground"
+      aria-live="polite"
+    >
+      <span className="whitespace-nowrap">warming up the pretrained model…</span>
+      <Progress value={Math.round(progress * 100)} className="h-1.5 max-w-[220px]" />
     </div>
   );
 }

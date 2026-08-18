@@ -9,6 +9,7 @@ import { DualLossCurve } from '../viz/DualLossCurve';
 import { useRafTrainer } from '../useRafTrainer';
 import { TinyTransformer } from '../../llm/transformer';
 import { corpusText } from '../../llm/corpus/little-kingdom';
+import { Button } from '@/components/ui/button';
 
 /** Format a possibly-huge perplexity compactly. */
 function ppl(loss: number | null): string {
@@ -49,15 +50,15 @@ function EvaluationLab() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+        <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
           {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-        </button>
-        <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
           Pause
-        </button>
-        <button className="btn btn-light" onClick={t.reset}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.reset}>
           Reset
-        </button>
+        </Button>
         <span className="lab-stats">
           <span>
             step <b>{t.epoch}</b>
@@ -68,7 +69,7 @@ function EvaluationLab() {
       <DualLossCurve train={train} val={val} baseline={baseline} />
 
       <div className="lab-stats" style={{ marginTop: 6 }}>
-        <span style={{ color: 'var(--coral-deep)' }}>
+        <span style={{ color: '#e0553a' }}>
           training loss <b>{lastTrain === null ? '-' : lastTrain.toFixed(2)}</b> · perplexity{' '}
           <b>{ppl(lastTrain)}</b>
         </span>
@@ -77,8 +78,8 @@ function EvaluationLab() {
           <b>{ppl(lastVal)}</b>
         </span>
       </div>
-      <div className="lab-hint">
-        The <b style={{ color: 'var(--coral-deep)' }}>coral</b> line is loss on text the model
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
+        The <b style={{ color: '#e0553a' }}>coral</b> line is loss on text the model
         trains on; the <b style={{ color: '#3e6ff0' }}>blue</b> line is loss on the held-out tail
         it never sees. Watch them start together and fan apart - coral diving toward zero while blue
         climbs past “random guess.” That growing gap <em>is</em> overfitting.

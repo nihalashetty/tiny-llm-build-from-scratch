@@ -13,6 +13,8 @@ import { sample } from '../../llm/sampling';
 import { corpusText } from '../../llm/corpus/little-kingdom';
 import { useProgress } from '../progress';
 import { chapterNumber } from '../../content/curriculum';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 /**
  * The capstone: one input flowing through every stage you built - tokenize,
@@ -43,15 +45,15 @@ function PipelinePlayground() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+        <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
           {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-        </button>
-        <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
           Pause
-        </button>
-        <button className="btn btn-light" onClick={t.reset}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.reset}>
           Reset
-        </button>
+        </Button>
         <span className="lab-stats">
           <span>
             step <b>{t.epoch}</b>
@@ -62,10 +64,9 @@ function PipelinePlayground() {
         </span>
       </div>
 
-      <div className="field">
-        <label>Input</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Input</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 320 }}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -73,13 +74,13 @@ function PipelinePlayground() {
       </div>
 
       {!trained ? (
-        <div className="panel-empty" style={{ marginTop: 10 }}>
+        <div className="font-mono text-xs text-muted-foreground" style={{ marginTop: 10 }}>
           Press <b>Train ▶</b> for a few seconds first - an untrained model has nothing to show.
         </div>
       ) : (
         <div style={{ marginTop: 12, display: 'grid', gap: 14 }}>
           <div>
-            <div className="panel-title">1 · Tokenize → known words become IDs</div>
+            <div className="mb-2.5 font-mono text-[0.78rem] font-bold text-foreground">1 · Tokenize → known words become IDs</div>
             <div className="tokens" style={{ marginTop: 6 }}>
               {attn.tokens.length ? (
                 attn.tokens.map((tok, i) => (
@@ -99,21 +100,21 @@ function PipelinePlayground() {
           {attn.tokens.length > 0 && (
             <>
               <div>
-                <div className="panel-title">2 · Attention → every word looks back at earlier ones</div>
+                <div className="mb-2.5 font-mono text-[0.78rem] font-bold text-foreground">2 · Attention → every word looks back at earlier ones</div>
                 <AttentionHeatmap tokens={attn.tokens} alpha={attn.alpha} maxSize={300} />
               </div>
 
               <div>
-                <div className="panel-title">3 · Readout → a probability for every next token</div>
+                <div className="mb-2.5 font-mono text-[0.78rem] font-bold text-foreground">3 · Readout → a probability for every next token</div>
                 <ProbBars items={top.map((d) => ({ label: d.char, p: d.p }))} />
               </div>
 
               <div>
-                <div className="panel-title">4 · Sample → pick one, append it, and loop</div>
+                <div className="mb-2.5 font-mono text-[0.78rem] font-bold text-foreground">4 · Sample → pick one, append it, and loop</div>
                 <div className="lab-controls" style={{ marginTop: 4 }}>
-                  <button className="btn btn-run" onClick={pick}>
+                  <Button size="sm" onClick={pick}>
                     Sample the next token 🎲
-                  </button>
+                  </Button>
                   <span className="dim">each click feeds the result back in as step 1</span>
                 </div>
               </div>
@@ -153,10 +154,10 @@ function FullPipeline() {
         return (
           <g key={i}>
             <rect x={x} y={40} width={bw} height={58} rx={12} fill={last ? '#fdeeea' : '#fff'} stroke={last ? '#e0553a' : '#e2e5ea'} />
-            <text x={x + bw / 2} y={66} textAnchor="middle" fontFamily="'Inter Tight', sans-serif" fontWeight="700" fontSize="14" fill="#16181d">
+            <text x={x + bw / 2} y={66} textAnchor="middle" fontFamily="'Geist', sans-serif" fontWeight="700" fontSize="14" fill="#16181d">
               {st.t}
             </text>
-            <text x={x + bw / 2} y={84} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="10" fill="#79808e">
+            <text x={x + bw / 2} y={84} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="10" fill="#79808e">
               {st.s}
             </text>
             {i < steps.length - 1 && (
@@ -242,12 +243,12 @@ export function Chapter8Epilogue() {
       </Beat>
 
       <Beat>
-        <div className="summit-grid">
+        <div className="my-6 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
           {SUMMIT.map((c) => (
-            <div className="summit-card" key={c.name}>
-              <div className="emoji">{c.emoji}</div>
-              <div className="name">{c.name}</div>
-              <div className="role">{c.role}</div>
+            <div className="rounded-xl border bg-card p-3.5" key={c.name}>
+              <div className="text-2xl">{c.emoji}</div>
+              <div className="mt-2 mb-0.5 text-sm font-bold">{c.name}</div>
+              <div className="text-[0.78rem] leading-snug text-muted-foreground">{c.role}</div>
             </div>
           ))}
         </div>
@@ -281,13 +282,14 @@ export function Chapter8Epilogue() {
       <Beat>
         <Callout emoji="🧭" tone="neutral">
           You finished {doneCount} of {total} chapters.{' '}
-          <button
-            className="btn btn-light"
+          <Button
+            size="sm"
+            variant="outline"
             style={{ marginLeft: 8 }}
             onClick={reset}
           >
             Reset progress
-          </button>
+          </Button>
         </Callout>
       </Beat>
     </ChapterFrame>

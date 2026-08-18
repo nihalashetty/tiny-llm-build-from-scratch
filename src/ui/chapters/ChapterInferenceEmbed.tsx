@@ -5,6 +5,7 @@ import { Callout } from '../components/Callout';
 import { Figure } from '../components/Figure';
 import { WarmupBar } from '../components/WarmupBar';
 import { useInferenceModel } from '../useInferenceModel';
+import { Input } from '@/components/ui/input';
 
 /** Diverging colour: blue for negative, coral for positive, pale near zero. */
 function cellColor(v: number, scale: number) {
@@ -20,9 +21,9 @@ function cellColor(v: number, scale: number) {
 
 function Strip({ vec, scale }: { vec: number[]; scale: number }) {
   return (
-    <span className="vecstrip">
+    <span className="inline-flex gap-px rounded border bg-card p-0.5">
       {vec.map((v, i) => (
-        <span key={i} className="veccell" style={{ background: cellColor(v, scale) }} title={v.toFixed(3)} />
+        <span key={i} className="rounded-[1px] w-[7px] h-4" style={{ background: cellColor(v, scale) }} title={v.toFixed(3)} />
       ))}
     </span>
   );
@@ -49,10 +50,9 @@ function EmbedLab() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="field">
-        <label>Prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-[0.78rem] text-muted-foreground">Prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 320 }}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -63,21 +63,21 @@ function EmbedLab() {
         Blue = negative, coral = positive.
       </div>
 
-      <div className="embed-table">
-        <div className="embed-legend">
-          <span>token vector</span>
+      <div className="flex flex-col gap-1.5 overflow-x-auto">
+        <div className="grid gap-2 pl-0.5 font-mono text-[0.62rem] text-muted-foreground" style={{ gridTemplateColumns: '120px auto 16px auto 16px auto' }}>
+          <span style={{ gridColumn: 2 }}>token vector</span>
           <span>+ position</span>
           <span>= what flows in</span>
         </div>
         {rows.map((r) => (
-          <div key={r.pos} className="embed-row">
-            <span className="embed-word">
-              {r.word} <span className="embed-id">#{r.id}</span>
+          <div key={r.pos} className="flex items-center gap-2">
+            <span className="w-[120px] flex-none text-right font-mono text-xs text-foreground">
+              {r.word} <span className="text-[0.62rem] text-muted-foreground">#{r.id}</span>
             </span>
             <Strip vec={r.tokEmb} scale={scale} />
-            <span className="embed-plus">+</span>
+            <span className="font-mono text-muted-foreground text-[0.8rem]">+</span>
             <Strip vec={r.posEmb} scale={scale} />
-            <span className="embed-eq">=</span>
+            <span className="font-mono text-muted-foreground text-[0.8rem]">=</span>
             <Strip vec={r.sum} scale={scale} />
           </div>
         ))}
@@ -107,10 +107,10 @@ function SameWordLab() {
         The word <code>the</code> at four different positions, same token vector, but the
         positional stamp makes each final vector distinct:
       </div>
-      <div className="embed-table">
+      <div className="flex flex-col gap-1.5 overflow-x-auto">
         {rows.map((r) => (
-          <div key={r.pos} className="embed-row">
-            <span className="embed-word">
+          <div key={r.pos} className="flex items-center gap-2">
+            <span className="w-[120px] flex-none text-right font-mono text-xs text-foreground">
               “the” @ pos {r.pos}
             </span>
             <Strip vec={r.sum} scale={0.15} />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 /**
  * A tiny, editable code playground. The reader can tweak the snippet and hit
@@ -69,33 +70,38 @@ export function SnippetRunner({
   }
 
   return (
-    <div className="runner">
-      <div className="runner-head">
-        <span className="code-dot" style={{ background: '#F0663E' }} />
-        <span className="runner-file">{filename}</span>
-        <span className="runner-actions">
-          <button className="btn btn-ghost" onClick={reset}>
+    <div className="my-6 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+      <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-800/50 px-3 py-2">
+        <span className="size-[11px] rounded-full" style={{ background: '#F0663E' }} />
+        <span className="ml-1 font-mono text-xs text-zinc-300">{filename}</span>
+        <span className="ml-auto flex gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-7 bg-zinc-700 text-zinc-100 hover:bg-zinc-600"
+            onClick={reset}
+          >
             Reset
-          </button>
-          <button className="btn btn-run" onClick={run}>
+          </Button>
+          <Button size="sm" className="h-7" onClick={run}>
             Run ▶
-          </button>
+          </Button>
         </span>
       </div>
       <textarea
-        className="runner-editor"
+        className="block min-h-[150px] w-full resize-y bg-zinc-900 p-4 font-mono text-[0.8rem] leading-relaxed text-zinc-100 outline-none"
         value={code}
         spellCheck={false}
         onChange={(e) => setCode(e.target.value)}
         rows={Math.min(16, code.split('\n').length + 1)}
         aria-label="Editable code"
       />
-      <div className="runner-output">
+      <div className="max-h-[260px] overflow-auto border-t border-zinc-800 bg-[#111317] p-4 font-mono text-[0.78rem] leading-relaxed">
         {output === null ? (
-          <span className="out-empty">Press Run ▶ to see the output.</span>
+          <span className="text-zinc-500">Press Run ▶ to see the output.</span>
         ) : (
           output.map((l, i) => (
-            <div className="out-line" key={i} style={{ color: toneColor[l.tone] }}>
+            <div className="break-words whitespace-pre-wrap" key={i} style={{ color: toneColor[l.tone] }}>
               {l.text}
             </div>
           ))

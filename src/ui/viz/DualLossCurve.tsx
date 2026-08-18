@@ -46,7 +46,7 @@ export function DualLossCurve({
         return (
           <g key={i}>
             <line x1={pad.l} y1={y} x2={pad.l + w} y2={y} stroke="#f0f2f5" />
-            <text x={pad.l - 6} y={y + 3} textAnchor="end" fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#79808e">
+            <text x={pad.l - 6} y={y + 3} textAnchor="end" fontFamily="'Geist Mono', monospace" fontSize="9" fill="#79808e">
               {t.toFixed(1)}
             </text>
           </g>
@@ -56,7 +56,7 @@ export function DualLossCurve({
       {baseY !== null && (
         <g>
           <line x1={pad.l} y1={baseY} x2={pad.l + w} y2={baseY} stroke="#b7a98f" strokeWidth="1.2" strokeDasharray="4 3" />
-          <text x={pad.l + w - 4} y={baseY - 4} textAnchor="end" fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#9c8d76">
+          <text x={pad.l + w - 4} y={baseY - 4} textAnchor="end" fontFamily="'Geist Mono', monospace" fontSize="9" fill="#9c8d76">
             random guess
           </text>
         </g>
@@ -65,12 +65,12 @@ export function DualLossCurve({
       {val.length > 1 && <polyline points={toPts(val)} fill="none" stroke="#3e6ff0" strokeWidth="2" />}
       {train.length > 1 && <polyline points={toPts(train)} fill="none" stroke="#e0553a" strokeWidth="2" />}
 
-      <text x={pad.l} y={height - 7} fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#79808e">
+      <text x={pad.l} y={height - 7} fontFamily="'Geist Mono', monospace" fontSize="9" fill="#79808e">
         training time →
       </text>
 
       {/* legend */}
-      <g fontFamily="'JetBrains Mono', monospace" fontSize="10">
+      <g fontFamily="'Geist Mono', monospace" fontSize="10">
         <line x1={pad.l + 8} y1={pad.t + 6} x2={pad.l + 26} y2={pad.t + 6} stroke="#e0553a" strokeWidth="2" />
         <text x={pad.l + 30} y={pad.t + 9} fill="#7c7266">training</text>
         <line x1={pad.l + 92} y1={pad.t + 6} x2={pad.l + 110} y2={pad.t + 6} stroke="#3e6ff0" strokeWidth="2" />

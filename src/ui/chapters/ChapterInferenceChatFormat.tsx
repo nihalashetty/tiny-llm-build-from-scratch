@@ -6,6 +6,7 @@ import { Figure } from '../components/Figure';
 import { CodeViewer } from '../components/CodeViewer';
 import { applyChatTemplate, SPECIAL, type ChatMessage } from '../../llm/chat-template';
 import chatTemplateSource from '../../llm/chat-template.ts?raw';
+import { Input } from '@/components/ui/input';
 
 /**
  * Reveal the hidden wrapper. The reader edits a system prompt + a couple of
@@ -31,31 +32,29 @@ function ChatWrapperLab() {
 
   return (
     <div className="lab">
-      <div className="field">
-        <label>System prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-[0.78rem] text-muted-foreground">System prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 360 }}
           value={system}
           onChange={(e) => setSystem(e.target.value)}
         />
       </div>
-      <div className="field" style={{ marginTop: 8 }}>
-        <label>Your message</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2" style={{ marginTop: 8 }}>
+        <label className="font-mono text-[0.78rem] text-muted-foreground">Your message</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 360 }}
           value={user}
           onChange={(e) => setUser(e.target.value)}
         />
       </div>
 
-      <div className="wrapper-out">
-        <div className="wrapper-out-label">what the model is really fed:</div>
-        <pre className="wrapper-pre">
+      <div className="mt-3.5">
+        <div className="mb-1.5 font-mono text-[0.7rem] text-muted-foreground">what the model is really fed:</div>
+        <pre className="rounded-xl border bg-zinc-900 p-4 font-mono text-[0.78rem] leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">
           {parts.map((p, i) =>
             specials.includes(p) ? (
-              <span key={i} className="special-tok">
+              <span key={i} className="text-[#f0a37e] font-bold">
                 {p}
               </span>
             ) : (
@@ -65,7 +64,7 @@ function ChatWrapperLab() {
           <span className="cursor-blink">▊</span>
         </pre>
       </div>
-      <div className="lab-hint">
+      <div className="rounded-lg border bg-card px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
         Notice the last line: an <b>open</b> <code>{SPECIAL.assistant}</code> with nothing
         after it. The model’s entire task is to <em>continue the text from right there</em>.
         “Generating a reply” is just finishing this unfinished script.

@@ -14,7 +14,7 @@ const CORAL = '#e0553a';
 const CORAL_DEEP = '#a63a25';
 const GREEN = '#10866a';
 const BLUE = '#3e6ff0';
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Geist Mono', monospace";
 
 /** A vector is a list of numbers = an arrow to a point. Similar words point similarly. */
 export function VectorArrowDiagram() {

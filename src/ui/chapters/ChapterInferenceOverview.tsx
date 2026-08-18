@@ -3,6 +3,7 @@ import { ChapterFrame } from '../components/ChapterFrame';
 import { Beat } from '../components/Beat';
 import { Callout } from '../components/Callout';
 import { Figure } from '../components/Figure';
+import { cn } from '@/lib/utils';
 
 /**
  * The eight stops on the journey a single message takes through the model at
@@ -111,11 +112,14 @@ function PipelineMap() {
 
   return (
     <div className="lab">
-      <div className="pipe-flow">
+      <div className="mb-4 flex flex-wrap items-stretch gap-1.5">
         {STAGES.map((s, i) => (
-          <div key={s.key} className="pipe-cell" style={{ display: 'contents' }}>
+          <div key={s.key} style={{ display: 'contents' }}>
             <button
-              className={`pipe-node${sel === s.key ? ' sel' : ''}`}
+              className={cn(
+                'flex flex-1 basis-[92px] min-w-[92px] cursor-pointer flex-col items-center gap-1 rounded-xl border bg-card px-2 py-2.5 text-center transition-colors hover:border-ring',
+                sel === s.key && 'border-primary bg-muted',
+              )}
               style={
                 {
                   '--pipe-c': s.color,
@@ -124,12 +128,12 @@ function PipelineMap() {
               onClick={() => setSel(s.key)}
               aria-pressed={sel === s.key}
             >
-              <span className="pipe-glyph">{s.glyph}</span>
-              <span className="pipe-title">{s.title}</span>
-              <span className="pipe-short">{s.short}</span>
+              <span className="text-xl leading-none">{s.glyph}</span>
+              <span className="font-bold text-[0.78rem]">{s.title}</span>
+              <span className="font-mono text-[0.6rem] leading-tight text-muted-foreground">{s.short}</span>
             </button>
             {i < STAGES.length - 1 && (
-              <span className="pipe-arrow" aria-hidden="true">
+              <span className="self-center text-base text-muted-foreground/60" aria-hidden="true">
                 {/* the loop lives between "Pick a word" and "Reply" */}
                 {s.key === 'pick' ? '↺' : '→'}
               </span>
@@ -138,16 +142,16 @@ function PipelineMap() {
         ))}
       </div>
 
-      <div className="pipe-detail" style={{ borderColor: active.color }}>
-        <div className="pipe-detail-head" style={{ color: active.color }}>
+      <div className="mb-3.5 rounded-xl border bg-card px-3.5 py-3" style={{ borderColor: active.color }}>
+        <div className="mb-1.5 flex flex-wrap items-baseline gap-2 text-[0.95rem] font-semibold" style={{ color: active.color }}>
           <span>{active.glyph}</span>
           <b>{active.title}</b>
-          <span className="pipe-detail-chapter">→ “{active.chapter}”</span>
+          <span className="font-mono text-[0.7rem] text-muted-foreground">→ “{active.chapter}”</span>
         </div>
-        <p>{active.detail}</p>
+        <p className="m-0 text-[0.9rem] leading-relaxed text-foreground/90">{active.detail}</p>
       </div>
 
-      <div className="lab-hint">
+      <div className="rounded-lg border bg-card px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
         Click any stop on the journey. The loop symbol <b>↺</b> is the whole trick:
         after picking one word, the model feeds it back and runs the pass again, so a
         long answer is really the same tiny step repeated, once per word.

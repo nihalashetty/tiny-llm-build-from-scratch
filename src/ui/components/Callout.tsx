@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 /**
  * The little tip/insight box from the starter design. `emoji` sets the icon;
- * `tone="neutral"` switches from the coral tint to a plain card.
+ * `tone="neutral"` switches from the subtle filled card to a plain bordered one.
  */
 export function Callout({
   emoji = '💡',
@@ -14,11 +16,18 @@ export function Callout({
   children: ReactNode;
 }) {
   return (
-    <div className={`callout${tone === 'neutral' ? ' neutral' : ''}`}>
-      <div className="emoji" aria-hidden="true">
+    <Alert
+      className={cn(
+        'my-6 grid-cols-[auto_1fr] items-start gap-x-3.5',
+        tone === 'coral' && 'border-transparent bg-muted',
+      )}
+    >
+      <span className="text-xl leading-none" aria-hidden="true">
         {emoji}
-      </div>
-      <div className="body">{children}</div>
-    </div>
+      </span>
+      <AlertDescription className="block text-[0.97rem] leading-relaxed text-foreground">
+        {children}
+      </AlertDescription>
+    </Alert>
   );
 }

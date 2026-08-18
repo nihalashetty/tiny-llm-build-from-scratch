@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { makeRng } from '../../llm/rng';
+import { Button } from '@/components/ui/button';
 
 /**
  * Skip-gram, one step at a time - the interactive version of "words that keep
@@ -21,7 +22,7 @@ const CORAL = '#e0553a';
 const CORAL_DEEP = '#a63a25';
 const GREEN = '#10866a';
 const GREEN_DEEP = '#12795b';
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Geist Mono', monospace";
 
 /** A deliberately tiny corpus: two "royal" lines, two more, and one about a fox. */
 const SENTENCES = [
@@ -245,6 +246,10 @@ export function SkipGramWalk() {
   return (
     <span className="canvas-frame" style={{ display: 'block' }}>
       <div style={{ lineHeight: 1.5, padding: '4px 6px 2px' }}>
+        {/* Corpus + step description on the left, the moving map on the right, so
+            the whole demo fits in one view and uses the full width. */}
+        <div className="grid grid-cols-1 items-center gap-x-5 gap-y-3 sm:grid-cols-[minmax(0,300px)_1fr]">
+          <div>
         {/* ---- the corpus, one line per sentence ---- */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'center' }}>
           {SENTENCES.map((line, s) => {
@@ -315,9 +320,10 @@ export function SkipGramWalk() {
             </>
           )}
         </div>
+          </div>
 
-        {/* ---- the same words as dots, actually moving ---- */}
-        <svg
+          {/* ---- the same words as dots, actually moving ---- */}
+          <svg
           viewBox={`0 0 ${W} ${H}`}
           width="100%"
           role="img"
@@ -387,21 +393,22 @@ export function SkipGramWalk() {
             );
           })}
         </svg>
+        </div>
 
         {/* ---- controls ---- */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <button className="btn btn-light" onClick={() => step(-1)} disabled={i === 0}>
+          <Button size="sm" variant="outline" onClick={() => step(-1)} disabled={i === 0}>
             ◀
-          </button>
-          <button
-            className="btn btn-run"
+          </Button>
+          <Button
+            size="sm"
             onClick={() => (i >= last ? (setI(0), setPlaying(true)) : setPlaying((p) => !p))}
           >
             {playing ? 'Pause' : i >= last ? 'Replay ▶' : i === 0 ? 'Play ▶' : 'Resume ▶'}
-          </button>
-          <button className="btn btn-light" onClick={() => step(1)} disabled={i >= last}>
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => step(1)} disabled={i >= last}>
             ▶
-          </button>
+          </Button>
           <input
             type="range"
             min={0}

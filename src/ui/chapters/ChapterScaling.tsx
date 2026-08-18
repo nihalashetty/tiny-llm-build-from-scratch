@@ -46,7 +46,7 @@ function ScalingLab() {
 
         {/* irreducible floor */}
         <line x1={pad.l} y1={Y(L_FLOOR)} x2={pad.l + w} y2={Y(L_FLOOR)} stroke="#b7a98f" strokeWidth="1.2" strokeDasharray="4 3" />
-        <text x={pad.l + w - 4} y={Y(L_FLOOR) + 13} textAnchor="end" fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#9c8d76">
+        <text x={pad.l + w - 4} y={Y(L_FLOOR) + 13} textAnchor="end" fontFamily="'Geist Mono', monospace" fontSize="9" fill="#9c8d76">
           irreducible floor - the entropy of language itself
         </text>
 
@@ -61,7 +61,7 @@ function ScalingLab() {
               x={X(e.s)}
               y={Y(loss(e.s)) - 8}
               textAnchor="middle"
-              fontFamily="'JetBrains Mono', monospace"
+              fontFamily="'Geist Mono', monospace"
               fontSize="8.5"
               fill="#79808e"
             >
@@ -75,14 +75,14 @@ function ScalingLab() {
         <circle cx={X(s)} cy={Y(cur)} r={6} fill="#3e6ff0" stroke="#fff" strokeWidth="2" />
 
         {/* axis labels */}
-        <text x={pad.l + w / 2} y={H - 6} textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="11" fill="#656c7a">
+        <text x={pad.l + w / 2} y={H - 6} textAnchor="middle" fontFamily="'Geist', sans-serif" fontSize="11" fill="#656c7a">
           parameters × data × compute (log scale) →
         </text>
         <text
           x={14}
           y={pad.t + h / 2}
           textAnchor="middle"
-          fontFamily="'Inter', sans-serif"
+          fontFamily="'Geist', sans-serif"
           fontSize="11"
           fill="#656c7a"
           transform={`rotate(-90 14 ${pad.t + h / 2})`}
@@ -91,12 +91,12 @@ function ScalingLab() {
         </text>
       </svg>
 
-      <div className="slider-row">
-        <label>scale</label>
-        <input type="range" min={0} max={1} step={0.01} value={s} onChange={(e) => setS(+e.target.value)} />
-        <span className="val">{nearest.label}</span>
+      <div className="my-2 flex items-center gap-3">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">scale</label>
+        <input type="range" min={0} max={1} step={0.01} value={s} onChange={(e) => setS(+e.target.value)} className="flex-1 accent-primary" />
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{nearest.label}</span>
       </div>
-      <div className="lab-hint">
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
         Drag <b>scale</b> to grow the model, its training data, and the compute all at
         once. Loss falls along a smooth <strong>power law</strong> - huge gains early,
         then diminishing returns as it approaches the floor. It never reaches zero:
@@ -123,11 +123,11 @@ function DialsDiagram() {
         return (
           <g key={d.t}>
             <rect x={x} y={22} width={bw} height={74} rx={14} fill="#fff" stroke={d.c} strokeWidth="1.5" />
-            <text x={x + bw / 2} y={50} textAnchor="middle" fontFamily="'Inter Tight', sans-serif" fontWeight="800" fontSize="16" fill={d.c}>
+            <text x={x + bw / 2} y={50} textAnchor="middle" fontFamily="'Geist', sans-serif" fontWeight="800" fontSize="16" fill={d.c}>
               {d.t}
             </text>
             <foreignObject x={x + 10} y={58} width={bw - 20} height={34}>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10.5, color: '#656c7a', lineHeight: 1.25, textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Geist, sans-serif', fontSize: 10.5, color: '#656c7a', lineHeight: 1.25, textAlign: 'center' }}>
                 {d.s}
               </div>
             </foreignObject>

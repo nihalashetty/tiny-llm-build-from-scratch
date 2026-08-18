@@ -9,6 +9,9 @@ import { WarmupBar } from '../components/WarmupBar';
 import { useInferenceModel } from '../useInferenceModel';
 import { softmaxT, topP, sample } from '../../llm/sampling';
 import samplingSource from '../../llm/sampling.ts?raw';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const EPS = 1e-9;
 
@@ -43,10 +46,9 @@ function SamplingLab() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="field">
-        <label>Prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 260 }}
           value={prompt}
           onChange={(e) => { setPrompt(e.target.value); setCounts(null); }}
@@ -57,21 +59,21 @@ function SamplingLab() {
         prompts (“the”, “the fox”) spread the odds so temperature has room to work; a nailed-on
         prompt (“the king is a”) barely moves.
       </div>
-      <div className="slider-row">
-        <label>temperature</label>
-        <input type="range" min={0.1} max={2} step={0.05} value={temp}
+      <div className="flex items-center gap-3 my-2">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">temperature</label>
+        <input className="flex-1 accent-primary" type="range" min={0.1} max={2} step={0.05} value={temp}
           onChange={(e) => { setTemp(+e.target.value); setCounts(null); }} />
-        <span className="val">{temp.toFixed(2)}</span>
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{temp.toFixed(2)}</span>
       </div>
-      <div className="slider-row">
-        <label>top-p (nucleus)</label>
-        <input type="range" min={0.1} max={1} step={0.05} value={p}
+      <div className="flex items-center gap-3 my-2">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">top-p (nucleus)</label>
+        <input className="flex-1 accent-primary" type="range" min={0.1} max={1} step={0.05} value={p}
           onChange={(e) => { setP(+e.target.value); setCounts(null); }} />
-        <span className="val">{p.toFixed(2)}</span>
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{p.toFixed(2)}</span>
       </div>
       <ProbBars items={items} />
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={roll} disabled={!ready}>Sample 100× 🎲</button>
+        <Button size="sm" onClick={roll} disabled={!ready}>Sample 100× 🎲</Button>
         {counts && <span className="dim">counts shown after each bar</span>}
       </div>
     </div>
@@ -117,26 +119,29 @@ function LoopStepper() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="gen-output" style={{ minHeight: 54 }}>
+      <div
+        className="rounded-xl border bg-zinc-900 p-4 font-mono text-[0.85rem] leading-relaxed text-zinc-100 whitespace-pre-wrap break-words min-h-[54px]"
+        style={{ minHeight: 54 }}
+      >
         {shown.map((id, i) => (
           <span
             key={i}
-            className={i < generatedFrom ? 'prompt' : undefined}
-            style={
-              i === shown.length - 1 && shown.length > generatedFrom
-                ? { background: 'var(--coral-tint)', color: 'var(--coral-deep)', borderRadius: 4, padding: '0 2px' }
-                : undefined
-            }
+            className={cn(
+              i < generatedFrom && 'font-bold text-amber-300',
+              i === shown.length - 1 &&
+                shown.length > generatedFrom &&
+                'rounded bg-muted px-0.5 text-foreground',
+            )}
           >
             {(i > 0 && model.vocab[id] !== '.' ? ' ' : '') + model.vocab[id]}
           </span>
         ))}
       </div>
       <div className="lab-controls" style={{ marginTop: 10 }}>
-        <button className="btn btn-run" onClick={step} disabled={!ready || shown.length >= model.T}>
+        <Button size="sm" onClick={step} disabled={!ready || shown.length >= model.T}>
           + Next token
-        </button>
-        <button className="btn btn-light" onClick={reset}>Reset</button>
+        </Button>
+        <Button size="sm" variant="outline" onClick={reset}>Reset</Button>
         {last && (
           <span className="lab-stats">
             <span>picked <b>{last.word === '.' ? '·' : last.word}</b></span>
@@ -144,7 +149,7 @@ function LoopStepper() {
           </span>
         )}
       </div>
-      <div className="lab-hint">
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
         Each click runs the <em>entire</em> network once to produce a single word, glues it
         on (highlighted), and gets ready to go again. That’s the whole loop, the model is
         doing exactly this, just very fast.
@@ -173,13 +178,13 @@ function KVCacheDiagram() {
         const y0 = top + mode * (blockH + gap);
         return (
           <g key={mode}>
-            <text x={0} y={y0 + 14} fontFamily="'Inter Tight', sans-serif" fontWeight="800" fontSize="12"
+            <text x={0} y={y0 + 14} fontFamily="'Geist', sans-serif" fontWeight="800" fontSize="12"
               fill={mode === 0 ? '#c0392b' : '#10866a'}>
               {mode === 0 ? 'no cache' : 'KV cache'}
             </text>
             {steps.map((_, r) => (
               <g key={r}>
-                <text x={0} y={y0 + labelH + r * rowH + 15} fontFamily="'JetBrains Mono', monospace" fontSize="10" fill="#9c8d76">
+                <text x={0} y={y0 + labelH + r * rowH + 15} fontFamily="'Geist Mono', monospace" fontSize="10" fill="#9c8d76">
                   step {r + 1}
                 </text>
                 {steps.map((tok, c) => {
@@ -193,7 +198,7 @@ function KVCacheDiagram() {
                         fill={active ? (mode === 0 ? '#f6ccc0' : '#c7ecdf') : reused ? '#eef4f1' : '#f1f3f6'}
                         stroke={active ? (mode === 0 ? '#e07a5f' : '#10866a') : '#e6dcc8'} strokeWidth="1" opacity={done ? 1 : 0.35} />
                       <text x={x0 + c * cell + (cell - 6) / 2} y={y0 + labelH + r * rowH + 18} textAnchor="middle"
-                        fontFamily="'JetBrains Mono', monospace" fontSize="10"
+                        fontFamily="'Geist Mono', monospace" fontSize="10"
                         fill={done ? '#5b5348' : '#c9bca6'}>{tok}</text>
                     </g>
                   );

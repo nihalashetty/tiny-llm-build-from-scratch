@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * Illustrated, mostly-static SVG diagrams for the transformer chapter, built to
@@ -17,7 +18,7 @@ const MUTED = '#8a7d6b';
 const FAINT = '#b6a68f';
 const LINE = '#e7dcc9';
 const AMBER = '#d69a3c';
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Geist Mono', monospace";
 
 const WORDS = ['The', 'cat', 'sat', 'on', 'the', 'mat'];
 const WCOL = ['#4f7cc4', '#8a5cc4', '#3f9e6f', '#b5754a', '#4a8a97', '#9a8f3c'];
@@ -152,10 +153,19 @@ export function AttentionArcs() {
 
   return (
     <div>
-      <div className="attn-picker">
-        <span className="attn-picker-label">current word:</span>
+      <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+        <span className="mr-0.5 font-mono text-xs text-muted-foreground">current word:</span>
         {WORDS.map((word, i) => (
-          <button key={i} className={`attn-word${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>
+          <button
+            key={i}
+            className={cn(
+              'rounded-md border px-2.5 py-1 font-mono text-[0.82rem] leading-tight',
+              i === sel
+                ? 'border-primary bg-primary font-bold text-primary-foreground'
+                : 'bg-card hover:border-ring',
+            )}
+            onClick={() => setSel(i)}
+          >
             {word}
           </button>
         ))}
@@ -230,7 +240,7 @@ export function AttentionArcs() {
           ))}
         </svg>
       </span>
-      <div className="sample-note">
+      <div className="my-3 font-mono text-xs leading-relaxed text-muted-foreground">
         Click any word to make it the “current” one. It can only look at itself and the words{' '}
         <em>before</em> it - the greyed-out words to its right are the future, hidden by the causal mask.
         (Weights here are a schematic; the live heatmap below shows a real model's learned weights.)
@@ -293,24 +303,30 @@ export function StackedBlocks() {
   ];
   return (
     <span className="canvas-frame" style={{ display: 'block' }}>
-      <div className="stack-rows">
+      <div className="flex flex-col gap-3">
         {rows.map((row) => (
-          <div key={row.label} className="stack-row">
-            <span className="stack-row-label" style={{ color: row.color }}>
+          <div key={row.label} className="flex items-center gap-3">
+            <span
+              className="min-w-[74px] text-right font-mono text-xs leading-tight font-bold"
+              style={{ color: row.color }}
+            >
               {row.label}
             </span>
-            <div className="stack-chips">
+            <div className="flex flex-1 flex-wrap gap-2">
               {row.qs.map((q, i) => (
-                <div key={i} className="stack-chip">
-                  <span className="stack-chip-q">{q}</span>
-                  <span className="stack-chip-dots" style={{ background: row.color }} />
+                <div
+                  key={i}
+                  className="flex min-w-[96px] flex-1 flex-col gap-2 rounded-lg border bg-card px-2.5 py-2"
+                >
+                  <span className="font-mono text-[0.68rem] leading-tight text-foreground/90">{q}</span>
+                  <span className="h-1 w-3/5 rounded-sm opacity-65" style={{ background: row.color }} />
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
-      <div className="stack-caption">
+      <div className="mt-3 font-mono text-xs leading-normal text-muted-foreground">
         early blocks sort out grammar; middle blocks resolve meaning; later blocks reason. Real models stack
         dozens - GPT-3 has 96 of these.
       </div>

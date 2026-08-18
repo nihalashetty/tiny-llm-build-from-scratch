@@ -1,7 +1,12 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Clock } from 'lucide-react';
 import { chapterById, neighbors, totalChapters } from '../../content/curriculum';
 import { useProgress } from '../progress';
+import { buttonVariants } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 /**
  * Shared shell for a chapter page: breadcrumb, title block, the story content,
@@ -28,67 +33,96 @@ export function ChapterFrame({ id, children }: { id: string; children: ReactNode
   }, [id, markDone]);
 
   return (
-    <div className="reading-inner">
-      <div className="topbar">
+    <div className="mx-auto max-w-[1080px] px-5 pt-16 pb-28 sm:px-13 lg:pt-10">
+      <div className="mb-7 flex items-center justify-between gap-4">
         {/* One quiet line. The chapter title lives in the h1 below, so it is
             deliberately not repeated here - and neither is the group, which
             used to appear a third time as an "eyebrow" above the title. */}
-        <nav className="crumb" aria-label="Breadcrumb">
-          <span className="crumb-part">{ch.part.split(':')[0]}</span>
-          <span className="sep">/</span>
-          <span className="crumb-group">{ch.group}</span>
+        <nav
+          className="flex min-w-0 flex-wrap items-center gap-2 text-[0.78rem] text-muted-foreground"
+          aria-label="Breadcrumb"
+        >
+          <span>{ch.part.split(':')[0]}</span>
+          <span className="text-muted-foreground/50">/</span>
+          <span className="font-medium text-foreground/80">{ch.group}</span>
         </nav>
-        <div className="nav-arrows">
-          <Link
-            to={prev ? `/c/${prev.id}` : '#'}
-            className="icon-btn"
-            aria-disabled={!prev}
-            title={prev ? `Previous: ${prev.navTitle}` : 'Start of course'}
-          >
-            ←
-          </Link>
-          <Link
-            to={next ? `/c/${next.id}` : '#'}
-            className="icon-btn"
-            aria-disabled={!next}
-            title={next ? `Next: ${next.navTitle}` : 'End of course'}
-            onClick={() => markDone(id)}
-          >
-            →
-          </Link>
+        <div className="flex gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to={prev ? `/c/${prev.id}` : '#'}
+                aria-disabled={!prev}
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'icon' }),
+                  !prev && 'pointer-events-none opacity-40',
+                )}
+              >
+                <ArrowLeft />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>{prev ? `Previous: ${prev.navTitle}` : 'Start of course'}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to={next ? `/c/${next.id}` : '#'}
+                aria-disabled={!next}
+                onClick={() => markDone(id)}
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'icon' }),
+                  !next && 'pointer-events-none opacity-40',
+                )}
+              >
+                <ArrowRight />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>{next ? `Next: ${next.navTitle}` : 'End of course'}</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
-      <h1>{ch.title}</h1>
-      <div className="meta-row">
-        <span>⏱ {ch.minutes} min read</span>
-        <span className="dot">·</span>
+      <h1 className="mb-3.5 text-[2.5rem] leading-[1.1] font-semibold tracking-tight text-balance">
+        {ch.title}
+      </h1>
+      <div className="mb-9 flex flex-wrap items-center gap-2.5 text-[0.8rem] text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <Clock className="size-3.5" /> {ch.minutes} min read
+        </span>
+        <span className="text-muted-foreground/50">·</span>
         <span>
           Chapter {ch.index + 1} of {totalChapters}
         </span>
-        <span className="dot">·</span>
+        <span className="text-muted-foreground/50">·</span>
         <span>Beginner friendly</span>
       </div>
 
-      {children}
+      <div className="reading-body">{children}</div>
 
       <div ref={endRef} aria-hidden="true" />
 
-      <div className="nextprev">
+      <div className="mt-14 grid grid-cols-1 gap-3.5 border-t pt-7 sm:grid-cols-2">
         <Link
           to={prev ? `/c/${prev.id}` : '#'}
-          className={`prev${prev ? '' : ' disabled'}`}
+          className={prev ? '' : 'pointer-events-none opacity-45'}
         >
-          <div className="kicker">← PREVIOUS</div>
-          <div className="label">{prev ? prev.navTitle : 'Start of course'}</div>
+          <Card className="gap-1 px-4 py-3.5 transition-colors hover:border-ring">
+            <div className="font-mono text-[0.66rem] tracking-widest text-muted-foreground">
+              ← PREVIOUS
+            </div>
+            <div className="font-semibold">{prev ? prev.navTitle : 'Start of course'}</div>
+          </Card>
         </Link>
         <Link
           to={next ? `/c/${next.id}` : '#'}
-          className={`next${next ? '' : ' disabled'}`}
+          className={next ? '' : 'pointer-events-none opacity-45'}
           onClick={() => markDone(id)}
         >
-          <div className="kicker">NEXT →</div>
-          <div className="label">{next ? next.navTitle : "You've reached the end"}</div>
+          <Card className="items-end gap-1 px-4 py-3.5 text-right transition-colors hover:border-ring">
+            <div className="font-mono text-[0.66rem] tracking-widest text-muted-foreground">
+              NEXT →
+            </div>
+            <div className="font-semibold">{next ? next.navTitle : "You've reached the end"}</div>
+          </Card>
         </Link>
       </div>
     </div>

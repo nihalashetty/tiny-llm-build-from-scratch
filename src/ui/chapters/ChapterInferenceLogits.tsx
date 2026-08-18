@@ -6,6 +6,7 @@ import { Figure } from '../components/Figure';
 import { ProbBars } from '../viz/ProbBars';
 import { WarmupBar } from '../components/WarmupBar';
 import { useInferenceModel } from '../useInferenceModel';
+import { Input } from '@/components/ui/input';
 
 /**
  * The last step of a forward pass: the readout turns the final vector into one
@@ -28,10 +29,9 @@ function LogitsLab() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="field">
-        <label>Prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 320 }}
           value={text}
           onChange={(e) => setText(e.target.value)}

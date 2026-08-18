@@ -8,6 +8,8 @@ import { WarmupBar } from '../components/WarmupBar';
 import { useInferenceModel } from '../useInferenceModel';
 import { softmaxT, topP, sample } from '../../llm/sampling';
 import txSource from '../../llm/transformer.ts?raw';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const EPS = 1e-9;
 
@@ -61,22 +63,24 @@ function StreamingRunLab() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="field">
-        <label>Prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 260 }}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
-        <button className="btn btn-run" onClick={run} disabled={!ready || running}>
+        <Button size="sm" onClick={run} disabled={!ready || running}>
           {running ? 'Writing…' : 'Generate ▶'}
-        </button>
+        </Button>
         {running && (
-          <button className="btn btn-light" onClick={stop}>Stop</button>
+          <Button size="sm" variant="outline" onClick={stop}>Stop</Button>
         )}
       </div>
-      <div className="gen-output" style={{ marginTop: 10, minHeight: 60 }}>
+      <div
+        className="rounded-xl border bg-zinc-900 p-4 font-mono text-[0.85rem] leading-relaxed text-zinc-100 whitespace-pre-wrap break-words min-h-[54px]"
+        style={{ marginTop: 10, minHeight: 60 }}
+      >
         {ids.length === 0 ? (
           <span className="dim">
             {ready ? 'Press Generate ▶ and watch it write one token at a time.' : 'Warming up the model…'}
@@ -84,7 +88,7 @@ function StreamingRunLab() {
         ) : (
           <>
             {ids.map((id, i) => (
-              <span key={i} className={i < promptLenRef.current ? 'prompt' : undefined}>
+              <span key={i} className={i < promptLenRef.current ? 'font-bold text-amber-300' : undefined}>
                 {(i > 0 && model.vocab[id] !== '.' ? ' ' : '') + model.vocab[id]}
               </span>
             ))}
@@ -92,7 +96,7 @@ function StreamingRunLab() {
           </>
         )}
       </div>
-      <div className="lab-hint">
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
         Use kingdom words (“the king”, “the fox”, “the princess”). A single tiny head won’t
         write poetry, but every word you see was tokenized, embedded, swept through
         attention, scored, and sampled, live, in your browser.
@@ -114,13 +118,13 @@ const RECAP = [
 
 function Recap() {
   return (
-    <div className="recap">
+    <div className="flex flex-col">
       {RECAP.map(([g, t, d], i) => (
-        <div className="recap-row" key={i}>
-          <span className="recap-num">{i + 1}</span>
-          <span className="recap-glyph">{g}</span>
-          <span className="recap-title">{t}</span>
-          <span className="recap-desc">{d}</span>
+        <div className="grid grid-cols-[22px_26px_130px_1fr] items-center gap-2.5 border-b py-2 last:border-b-0" key={i}>
+          <span className="text-center font-mono text-[0.7rem] text-muted-foreground">{i + 1}</span>
+          <span className="text-center text-[17px]">{g}</span>
+          <span className="font-bold text-[0.84rem]">{t}</span>
+          <span className="text-[0.8rem] text-foreground/90">{d}</span>
         </div>
       ))}
     </div>

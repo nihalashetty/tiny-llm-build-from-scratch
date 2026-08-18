@@ -6,6 +6,8 @@ import { Figure } from '../components/Figure';
 import { SnippetRunner } from '../components/SnippetRunner';
 import { TinyTransformer } from '../../llm/transformer';
 import { corpusText } from '../../llm/corpus/little-kingdom';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 /**
  * Live tokenizer for inference: type text, watch it split into the model's
@@ -30,10 +32,9 @@ function TokenizeLab() {
 
   return (
     <div className="lab">
-      <div className="field">
-        <label>Your message</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-[0.78rem] text-muted-foreground">Your message</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 320 }}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -45,22 +46,32 @@ function TokenizeLab() {
         50,000–200,000 subword tokens.
       </div>
 
-      <div className="tokrow">
+      <div className="mb-3 flex flex-wrap gap-1.5">
         {pieces.map((p, i) => (
           <span
             key={i}
-            className={`tokchip${p.id === undefined ? ' unknown' : ''}`}
+            className={cn(
+              'inline-flex flex-col items-center rounded-lg border border-primary/40 bg-muted px-2.5 py-1 min-w-[34px]',
+              p.id === undefined && 'border-border bg-secondary',
+            )}
             title={p.id === undefined ? 'not in the vocabulary, dropped' : `token id ${p.id}`}
           >
-            <span className="tokchip-word">{p.tok}</span>
-            <span className="tokchip-id">{p.id === undefined ? '∅' : p.id}</span>
+            <span
+              className={cn(
+                'font-mono text-[0.78rem] font-bold text-foreground',
+                p.id === undefined && 'text-muted-foreground line-through',
+              )}
+            >
+              {p.tok}
+            </span>
+            <span className="font-mono text-[0.62rem] text-muted-foreground">{p.id === undefined ? '∅' : p.id}</span>
           </span>
         ))}
       </div>
 
-      <div className="idreadout">
-        <span className="idreadout-label">what the model actually receives →</span>
-        <code>[{idArray.join(', ')}]</code>
+      <div className="flex flex-wrap items-baseline gap-2 rounded-lg border bg-card px-3.5 py-2.5">
+        <span className="font-mono text-[0.7rem] text-muted-foreground">what the model actually receives →</span>
+        <code className="font-mono text-[0.8rem] text-foreground">[{idArray.join(', ')}]</code>
       </div>
     </div>
   );

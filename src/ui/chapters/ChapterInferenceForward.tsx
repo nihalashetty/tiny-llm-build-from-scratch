@@ -7,6 +7,7 @@ import { AttentionHeatmap } from '../viz/AttentionHeatmap';
 import { StackedBlocks } from '../viz/TransformerDiagrams';
 import { WarmupBar } from '../components/WarmupBar';
 import { useInferenceModel } from '../useInferenceModel';
+import { Input } from '@/components/ui/input';
 
 /**
  * The forward pass at read-time: feed a whole prompt in at once and watch the
@@ -21,10 +22,9 @@ function ForwardLab() {
   return (
     <div className="lab">
       <WarmupBar ready={ready} progress={progress} />
-      <div className="field">
-        <label>Prompt</label>
-        <input
-          className="tokenize-input"
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Prompt</label>
+        <Input
           style={{ marginBottom: 0, maxWidth: 320 }}
           value={text}
           onChange={(e) => setText(e.target.value)}

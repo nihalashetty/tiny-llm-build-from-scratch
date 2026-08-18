@@ -7,6 +7,7 @@ import { CodeViewer } from '../components/CodeViewer';
 import { ProbBars } from '../viz/ProbBars';
 import { softmaxT, topP, sample } from '../../llm/sampling';
 import samplingSource from '../../llm/sampling.ts?raw';
+import { Button } from '@/components/ui/button';
 
 const CANDIDATES: [string, number][] = [
   ['gold', 4.2],
@@ -42,10 +43,11 @@ function SamplingLab() {
 
   return (
     <div className="lab">
-      <div className="slider-row">
-        <label>temperature</label>
+      <div className="flex items-center gap-3 my-2">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">temperature</label>
         <input
           type="range"
+          className="flex-1 accent-primary"
           min={0.1}
           max={2}
           step={0.05}
@@ -55,12 +57,13 @@ function SamplingLab() {
             setCounts(null);
           }}
         />
-        <span className="val">{temp.toFixed(2)}</span>
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{temp.toFixed(2)}</span>
       </div>
-      <div className="slider-row">
-        <label>top-p (nucleus)</label>
+      <div className="flex items-center gap-3 my-2">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">top-p (nucleus)</label>
         <input
           type="range"
+          className="flex-1 accent-primary"
           min={0.1}
           max={1}
           step={0.05}
@@ -70,15 +73,15 @@ function SamplingLab() {
             setCounts(null);
           }}
         />
-        <span className="val">{p.toFixed(2)}</span>
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{p.toFixed(2)}</span>
       </div>
 
       <ProbBars items={items} />
 
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={roll}>
+        <Button size="sm" onClick={roll}>
           Sample 100× 🎲
-        </button>
+        </Button>
         {counts && <span className="dim">counts shown after each bar</span>}
       </div>
     </div>
@@ -104,9 +107,9 @@ function ContextWindow() {
               className="tok"
               style={{
                 opacity: inside ? 1 : 0.28,
-                background: inside ? 'var(--coral-tint)' : '#f1f3f6',
-                borderColor: inside ? 'var(--coral-tint-line)' : 'var(--line)',
-                color: inside ? 'var(--coral-deep)' : 'var(--muted)',
+                background: inside ? 'var(--muted)' : 'var(--secondary)',
+                borderColor: 'var(--border)',
+                color: inside ? 'var(--foreground)' : 'var(--muted-foreground)',
               }}
             >
               {tok}
@@ -114,16 +117,17 @@ function ContextWindow() {
           );
         })}
       </div>
-      <div className="slider-row">
-        <label>window position</label>
+      <div className="flex items-center gap-3 my-2">
+        <label className="min-w-[130px] font-mono text-xs text-foreground/90">window position</label>
         <input
           type="range"
+          className="flex-1 accent-primary"
           min={0}
           max={WINDOW_TOKENS.length - W}
           value={start}
           onChange={(e) => setStart(+e.target.value)}
         />
-        <span className="val">{start}</span>
+        <span className="min-w-[46px] text-right font-mono text-xs text-foreground">{start}</span>
       </div>
       <div className="dim" style={{ fontSize: 13 }}>
         The model only “sees” the {W} highlighted tokens. Slide the window: tokens

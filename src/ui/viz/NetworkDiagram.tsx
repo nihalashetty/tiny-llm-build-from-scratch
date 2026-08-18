@@ -81,7 +81,7 @@ export function NetworkDiagram({
                     x={colX(l)}
                     y={nodeY(count, i) + 4}
                     textAnchor="middle"
-                    fontFamily="'JetBrains Mono', monospace"
+                    fontFamily="'Geist Mono', monospace"
                     fontSize="12"
                     fill="#16181d"
                   >
@@ -94,15 +94,15 @@ export function NetworkDiagram({
         )}
 
         {/* layer captions */}
-        <text x={colX(0)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
+        <text x={colX(0)} y={H - 4} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="9.5" fill="#79808e">
           inputs
         </text>
         {layers.length === 3 && (
-          <text x={colX(1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
+          <text x={colX(1)} y={H - 4} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="9.5" fill="#79808e">
             hidden layer
           </text>
         )}
-        <text x={colX(layers.length - 1)} y={H - 4} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9.5" fill="#79808e">
+        <text x={colX(layers.length - 1)} y={H - 4} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="9.5" fill="#79808e">
           output
         </text>
       </svg>

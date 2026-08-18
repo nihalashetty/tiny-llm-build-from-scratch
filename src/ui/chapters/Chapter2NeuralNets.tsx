@@ -16,35 +16,39 @@ import { Perceptron, XOR_INPUTS } from '../../llm/perceptron';
 import { XorNet } from '../../llm/xor-net';
 import perceptronSource from '../../llm/perceptron.ts?raw';
 import xorSource from '../../llm/xor-net.ts?raw';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 
 function Controls({ t, stepN = 1 }: { t: TrainerState<unknown>; stepN?: number }) {
   return (
     <div className="lab-controls">
-      <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+      <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
         {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-      </button>
-      <button
-        className="btn btn-light"
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
         onClick={() => t.step(stepN)}
         disabled={t.running || t.done}
         title="Advance a little so you can read the weights change"
       >
         Step +{stepN}
-      </button>
-      <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+      </Button>
+      <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
         Pause
-      </button>
-      <button className="btn btn-light" onClick={t.reset}>
+      </Button>
+      <Button size="sm" variant="outline" onClick={t.reset}>
         Reset
-      </button>
+      </Button>
     </div>
   );
 }
 
 function BoundaryLegend() {
   return (
-    <div className="dim" style={{ fontSize: 13.5, lineHeight: 1.6 }}>
-      Every spot in the square is one input pair <b>(a, b)</b>. Its colour is the
+    <div className="text-[0.84rem] leading-relaxed text-muted-foreground">
+      Every spot in the square is one input pair <b className="font-semibold text-foreground">(a, b)</b>. Its colour is the
       network's output there -{' '}
       <span style={{ color: '#a63a25', fontWeight: 700 }}>coral ≈ 1</span>,{' '}
       <span style={{ color: '#3e6ff0', fontWeight: 700 }}>blue ≈ 0</span>. The four
@@ -85,53 +89,68 @@ function LogicTable({
   const activePreset = Object.keys(PRESETS).find((k) => PRESETS[k].join('') === targets.join(''));
   return (
     <div>
-      <div className="task-label">The task - choose the output you want for each input</div>
+      <div className="mb-1.5 font-mono text-[0.72rem] tracking-wide text-muted-foreground uppercase">
+        The task - choose the output you want for each input
+      </div>
       <div className="lab-controls" style={{ marginBottom: 8 }}>
         {Object.keys(PRESETS).map((name) => (
-          <button
+          <Button
             key={name}
-            className={`btn ${activePreset === name ? 'btn-run' : 'btn-light'}`}
+            size="sm"
+            variant={activePreset === name ? 'default' : 'outline'}
             onClick={() => onSet(PRESETS[name])}
           >
             {name}
-          </button>
+          </Button>
         ))}
         <span className="dim">or click a “want” cell to flip it</span>
       </div>
-      <table className="truth">
-        <thead>
-          <tr>
-            <th>a</th>
-            <th>b</th>
-            <th>want</th>
-            <th>guess</th>
-            <th>ok?</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="font-mono text-[0.82rem]">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-center">a</TableHead>
+            <TableHead className="text-center">b</TableHead>
+            <TableHead className="text-center">want</TableHead>
+            <TableHead className="text-center">guess</TableHead>
+            <TableHead className="text-center">ok?</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {XOR_INPUTS.map((x, i) => {
             const p = predict(x);
             const ok = Math.round(p) === targets[i];
             return (
-              <tr key={i}>
-                <td>{x[0]}</td>
-                <td>{x[1]}</td>
-                <td className="editable">
+              <TableRow key={i}>
+                <TableCell className="text-center">{x[0]}</TableCell>
+                <TableCell className="text-center">{x[1]}</TableCell>
+                <TableCell className="p-1 text-center">
                   <button
-                    className={`want-toggle${targets[i] ? ' one' : ''}`}
+                    className={cn(
+                      'min-w-[34px] rounded-md border px-2.5 py-0.5 font-mono text-sm',
+                      targets[i]
+                        ? 'border-primary bg-muted font-bold text-foreground'
+                        : 'text-muted-foreground hover:border-ring',
+                    )}
                     onClick={() => toggle(i)}
                     aria-label={`toggle expected output for input ${x[0]},${x[1]}`}
                   >
                     {targets[i]}
                   </button>
-                </td>
-                <td>{p.toFixed(2)}</td>
-                <td className={ok ? 'ok' : 'no'}>{ok ? '✓' : '×'}</td>
-              </tr>
+                </TableCell>
+                <TableCell className="text-center">{p.toFixed(2)}</TableCell>
+                <TableCell
+                  className={cn(
+                    'text-center font-bold',
+                    ok ? 'text-emerald-600' : 'text-destructive',
+                  )}
+                >
+                  {ok ? '✓' : '×'}
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -147,7 +166,7 @@ function useLogicTargets(initial: number[]) {
 const fmtArr = (arr: number[]) => '[' + arr.map((v) => v.toFixed(1)).join(', ') + ']';
 
 function PerceptronLab() {
-  const { targets, setTargets, ref: targetsRef } = useLogicTargets(PRESETS.XOR);
+  const { targets, setTargets, ref: targetsRef } = useLogicTargets(PRESETS.AND);
   // slow on purpose (few epochs per frame) so the weights move readably
   const t = useRafTrainer(
     () => new Perceptron(42),
@@ -168,24 +187,19 @@ function PerceptronLab() {
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
         <span>error <b>{t.loss === null ? '-' : t.loss.toFixed(4)}</b></span>
-        {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
-        {t.done && !learned && <span style={{ color: 'var(--coral-deep)', fontWeight: 700 }}>stuck ✗</span>}
+        {learned && <span className="font-bold text-emerald-600">learned ✓</span>}
+        {t.done && !learned && <span className="font-bold text-destructive">stuck ✗</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
-      <div className="lab-hint">
-        Press <b>Step +1</b> to watch the two weights change one nudge at a time, or{' '}
-        <b>Train</b> to run it. Try <b>AND</b>/<b>OR</b> (the line finds them) then{' '}
-        <b>XOR</b> - no single line can split it.
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
+        Press <b className="font-semibold text-foreground">Step +1</b> to watch the two weights change one nudge at a time, or{' '}
+        <b className="font-semibold text-foreground">Train</b> to run it. Try <b className="font-semibold text-foreground">AND</b>/<b className="font-semibold text-foreground">OR</b> (the line finds them) then{' '}
+        <b className="font-semibold text-foreground">XOR</b> - no single line can split it.
       </div>
 
-      <div className="diagram-row">
-        <NetworkDiagram
-          layers={[2, 1]}
-          weights={[[[m.w[0]], [m.w[1]]]]}
-          inputLabels={['a', 'b']}
-          outputLabel="out"
-          height={130}
-        />
+      {/* 2x2: weights + loss on top, then the two spatial views (network nodes +
+          boundary square) below - both visible at once. */}
+      <div className="my-1 grid grid-cols-1 items-center gap-x-4 gap-y-3 sm:grid-cols-2">
         <WeightsReadout
           title="weights (live)"
           final={settled}
@@ -195,11 +209,17 @@ function PerceptronLab() {
             { label: 'bias', value: m.b.toFixed(3) },
           ]}
         />
-      </div>
-
-      <div className="lab-two" style={{ gridTemplateColumns: 'minmax(0, 216px) 1fr', alignItems: 'center' }}>
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
-        <LossCurve history={t.lossHistory} max={0.3} width={400} height={230} />
+        <LossCurve history={t.lossHistory} max={0.3} width={400} height={200} />
+        <NetworkDiagram
+          layers={[2, 1]}
+          weights={[[[m.w[0]], [m.w[1]]]]}
+          inputLabels={['a', 'b']}
+          outputLabel="out"
+          height={130}
+        />
+        <div className="flex justify-center">
+          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
+        </div>
       </div>
       <BoundaryLegend />
     </div>
@@ -226,23 +246,18 @@ function XorLab() {
       <div className="lab-stats">
         <span>epoch <b>{t.epoch}</b></span>
         <span>error <b>{t.loss === null ? '-' : t.loss.toFixed(4)}</b></span>
-        {learned && <span style={{ color: 'var(--green)', fontWeight: 700 }}>learned ✓</span>}
+        {learned && <span className="font-bold text-emerald-600">learned ✓</span>}
       </div>
       <LogicTable targets={targets} onSet={setGoal} predict={(x) => m.predict(x)} />
-      <div className="lab-hint">
-        Same controls - <b>Step +10</b> or <b>Train</b>. Watch the hidden
+      <div className="rounded-lg border bg-muted/40 px-3.5 py-2.5 text-[0.84rem] leading-relaxed text-foreground/90">
+        Same controls - <b className="font-semibold text-foreground">Step +10</b> or <b className="font-semibold text-foreground">Train</b>. Watch the hidden
         weights (the wires) shuffle as the boundary bends. This same network learns{' '}
         <em>any</em> gate, XOR included.
       </div>
 
-      <div className="diagram-row">
-        <NetworkDiagram
-          layers={[2, 4, 1]}
-          weights={[m.w1, m.w2.map((w) => [w])]}
-          inputLabels={['a', 'b']}
-          outputLabel="out"
-          height={190}
-        />
+      {/* 2x2: weights + loss on top, then the two spatial views (network nodes +
+          boundary square) below - both visible at once. */}
+      <div className="my-1 grid grid-cols-1 items-center gap-x-4 gap-y-3 sm:grid-cols-2">
         <WeightsReadout
           title="weights (live)"
           final={learned}
@@ -254,11 +269,17 @@ function XorLab() {
             { label: 'b2', value: m.b2.toFixed(2) },
           ]}
         />
-      </div>
-
-      <div className="lab-two" style={{ gridTemplateColumns: 'minmax(0, 216px) 1fr', alignItems: 'center' }}>
-        <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
-        <LossCurve history={t.lossHistory} max={0.3} width={400} height={230} />
+        <LossCurve history={t.lossHistory} max={0.3} width={400} height={200} />
+        <NetworkDiagram
+          layers={[2, 4, 1]}
+          weights={[m.w1, m.w2.map((w) => [w])]}
+          inputLabels={['a', 'b']}
+          outputLabel="out"
+          height={190}
+        />
+        <div className="flex justify-center">
+          <DecisionBoundary predict={(x) => m.predict(x)} tick={t.tick} size={200} targets={targets} />
+        </div>
       </div>
       <BoundaryLegend />
     </div>
@@ -385,7 +406,51 @@ export function Chapter2NeuralNets() {
         simplest “tricky” pattern: output <strong>1</strong> only when the two inputs{' '}
         <em>differ</em>. A single neuron can only slice the space with one straight
         line - and no straight line separates XOR's two coral corners from its two
-        blue ones. Pick a goal below, press Train, and watch the error stall.
+        blue ones.
+      </Beat>
+
+      <Beat as="p">
+        The three “goals” you can hand the network are the classic two-input logic
+        gates. Each one takes two yes/no inputs (<strong>0</strong> or{' '}
+        <strong>1</strong>) and returns a single answer:
+      </Beat>
+
+      <Beat>
+        <ul className="my-6 flex list-none flex-col gap-2.5 p-0">
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex min-w-[52px] justify-center rounded-md bg-secondary px-2 py-1 font-mono text-xs font-bold text-secondary-foreground">
+              AND
+            </span>
+            <span className="text-[0.97rem] leading-relaxed text-foreground/90">
+              output <strong>1</strong> only when <em>both</em> inputs are 1.
+            </span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex min-w-[52px] justify-center rounded-md bg-secondary px-2 py-1 font-mono text-xs font-bold text-secondary-foreground">
+              OR
+            </span>
+            <span className="text-[0.97rem] leading-relaxed text-foreground/90">
+              output <strong>1</strong> when <em>either</em> input is 1.
+            </span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex min-w-[52px] justify-center rounded-md bg-secondary px-2 py-1 font-mono text-xs font-bold text-secondary-foreground">
+              XOR
+            </span>
+            <span className="text-[0.97rem] leading-relaxed text-foreground/90">
+              “exclusive or” - output <strong>1</strong> only when the two inputs{' '}
+              <em>differ</em> (one is 1, the other 0).
+            </span>
+          </li>
+        </ul>
+      </Beat>
+
+      <Beat as="p">
+        In the lab below you're the teacher: pick a goal (or click a “want” cell to
+        invent your own), press <strong>Train</strong>, and watch the single neuron
+        hunt for weights that reproduce it. It starts on <strong>AND</strong> - press
+        Train and it snaps into place, and <strong>OR</strong> works too. Then switch
+        to <strong>XOR</strong>: same neuron, same loop, and the error refuses to fall.
       </Beat>
 
       <Beat>

@@ -19,6 +19,8 @@ import { useRafTrainer } from '../useRafTrainer';
 import { TinyTransformer } from '../../llm/transformer';
 import { corpusText } from '../../llm/corpus/little-kingdom';
 import txSource from '../../llm/transformer.ts?raw';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 function TransformerLab() {
   const t = useRafTrainer(
@@ -34,15 +36,15 @@ function TransformerLab() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+        <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
           {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-        </button>
-        <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
           Pause
-        </button>
-        <button className="btn btn-light" onClick={t.reset}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.reset}>
           Reset
-        </button>
+        </Button>
         <span className="lab-stats">
           <span>
             step <b>{t.epoch}</b>
@@ -56,25 +58,24 @@ function TransformerLab() {
       <LossCurve history={t.lossHistory} max={5} />
 
       <div>
-        <div className="field">
-          <label>Prompt</label>
-          <input
-            className="tokenize-input"
-            style={{ marginBottom: 0, maxWidth: 260 }}
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="font-mono text-xs text-muted-foreground">Prompt</label>
+          <Input
+            className="max-w-[260px]"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
-          <button
-            className="btn btn-run"
+          <Button
+            size="sm"
             onClick={() => setOutput(m.generate(prompt, 40, 0.8, 0.9))}
           >
             Generate ▶
-          </button>
+          </Button>
         </div>
-        <div className="gen-output" style={{ marginTop: 10 }}>
+        <div className="mt-2.5 rounded-xl border bg-zinc-900 p-4 font-mono text-[0.8rem] leading-relaxed text-zinc-100 whitespace-pre-wrap break-words">
           {output ? (
             <>
-              <span className="prompt">{output.prompt}</span>
+              <span className="font-bold text-amber-300">{output.prompt}</span>
               {output.text.slice(output.prompt.length)}
             </>
           ) : (
@@ -104,26 +105,25 @@ function AttentionWidget() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+        <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
           {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-        </button>
-        <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
           Pause
-        </button>
-        <button className="btn btn-light" onClick={t.reset}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.reset}>
           Reset
-        </button>
+        </Button>
         <span className="lab-stats">
           <span>
             step <b>{t.epoch}</b>
           </span>
         </span>
       </div>
-      <div className="field">
-        <label>Text</label>
-        <input
-          className="tokenize-input"
-          style={{ marginBottom: 0, maxWidth: 260 }}
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="font-mono text-xs text-muted-foreground">Text</label>
+        <Input
+          className="max-w-[260px]"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -140,9 +140,9 @@ export function Chapter5Transformers() {
   return (
     <ChapterFrame id="transformers">
       <Beat>
-        <blockquote className="paper-hero">
-          <span className="paper-hero-title">Attention Is All You Need</span>
-          <span className="paper-hero-cite">Vaswani et al., 2017 - the paper that created the transformer</span>
+        <blockquote className="my-6 flex flex-col gap-2 rounded-r-xl border-l-4 border-primary bg-muted px-6 py-5">
+          <span className="text-2xl sm:text-[2.2rem] font-bold leading-tight tracking-tight text-foreground">“Attention Is All You Need”</span>
+          <span className="font-mono text-xs text-foreground/80">Vaswani et al., 2017 - the paper that created the transformer</span>
         </blockquote>
       </Beat>
 

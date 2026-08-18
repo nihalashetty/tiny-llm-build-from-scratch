@@ -4,6 +4,7 @@ import { Beat } from '../components/Beat';
 import { Callout } from '../components/Callout';
 import { Figure } from '../components/Figure';
 import { CitationCard } from '../components/CitationCard';
+import { cn } from '@/lib/utils';
 
 function BaseVsAssistant() {
   const [mode, setMode] = useState<'base' | 'assistant'>('base');
@@ -16,16 +17,28 @@ function BaseVsAssistant() {
     '2. Knead 10 min, rest 1 hr until doubled.\n3. Shape, then bake at 230°C for 30 min.';
   return (
     <div className="lab">
-      <div className="seg">
-        <button className={mode === 'base' ? 'on' : ''} onClick={() => setMode('base')}>
+      <div className="inline-flex gap-1.5 rounded-xl bg-muted p-1">
+        <button
+          className={cn(
+            'rounded-lg px-3.5 py-1.5 text-sm font-semibold',
+            mode === 'base' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground',
+          )}
+          onClick={() => setMode('base')}
+        >
           Base model
         </button>
-        <button className={mode === 'assistant' ? 'on' : ''} onClick={() => setMode('assistant')}>
+        <button
+          className={cn(
+            'rounded-lg px-3.5 py-1.5 text-sm font-semibold',
+            mode === 'assistant' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground',
+          )}
+          onClick={() => setMode('assistant')}
+        >
           After fine-tuning
         </button>
       </div>
-      <div className="gen-output">
-        <span className="prompt">{prompt}</span>
+      <div className="min-h-[54px] rounded-xl border bg-zinc-900 px-4 py-3.5 font-mono text-sm leading-[1.7] break-words whitespace-pre-wrap text-zinc-100">
+        <span className="font-bold text-amber-300">{prompt}</span>
         {'\n\n'}
         {mode === 'base' ? base : assistant}
       </div>
@@ -52,16 +65,19 @@ function RlhfRanker() {
   const [picked, setPicked] = useState<string | null>(null);
   return (
     <div className="lab">
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--muted)' }}>
+      <div className="font-mono text-[13px] text-muted-foreground">
         Prompt: “{pair.q}” - which answer is better?
       </div>
       {(['a', 'b'] as const).map((key) => (
         <div
           key={key}
-          className={`rank-card${picked === key ? ' picked' : ''}`}
+          className={cn(
+            'mb-2 cursor-pointer rounded-xl border bg-card px-3.5 py-3 text-[0.9rem] leading-normal transition-colors hover:border-ring',
+            picked === key && 'border-emerald-500 bg-emerald-50',
+          )}
           onClick={() => setPicked(key)}
         >
-          <span className="tag">Answer {key.toUpperCase()}</span>
+          <span className="mb-0.5 block font-mono text-[0.7rem] text-muted-foreground">Answer {key.toUpperCase()}</span>
           {pair[key]}
         </div>
       ))}
@@ -98,11 +114,11 @@ function PipelineDiagram() {
         return (
           <g key={i}>
             <rect x={x} y={30} width={bw} height={78} rx={14} fill="#fff" stroke={st.c} strokeWidth="1.5" />
-            <text x={x + bw / 2} y={58} textAnchor="middle" fontFamily="'Inter Tight', sans-serif" fontWeight="800" fontSize="16" fill={st.c}>
+            <text x={x + bw / 2} y={58} textAnchor="middle" fontFamily="'Geist', sans-serif" fontWeight="800" fontSize="16" fill={st.c}>
               {st.t}
             </text>
             <foreignObject x={x + 8} y={66} width={bw - 16} height={40}>
-              <div style={{ fontFamily: 'Inter, sans-serif', fontSize: 10.5, color: '#656c7a', lineHeight: 1.25, textAlign: 'center' }}>
+              <div style={{ fontFamily: 'Geist, sans-serif', fontSize: 10.5, color: '#656c7a', lineHeight: 1.25, textAlign: 'center' }}>
                 {st.s}
               </div>
             </foreignObject>

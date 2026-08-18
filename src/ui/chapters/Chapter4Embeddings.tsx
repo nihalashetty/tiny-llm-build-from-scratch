@@ -19,6 +19,7 @@ import { useRafTrainer } from '../useRafTrainer';
 import { Word2Vec } from '../../llm/word2vec';
 import { sentences } from '../../llm/corpus/little-kingdom';
 import w2vSource from '../../llm/word2vec.ts?raw';
+import { Button } from '@/components/ui/button';
 
 const LABELS = [
   'king', 'queen', 'prince', 'princess', 'man', 'woman', 'boy', 'girl',
@@ -65,15 +66,15 @@ function EmbeddingLab() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button className="btn btn-run" onClick={t.start} disabled={t.running || t.done}>
+        <Button size="sm" onClick={t.start} disabled={t.running || t.done}>
           {t.epoch > 0 ? 'Resume ▶' : 'Train ▶'}
-        </button>
-        <button className="btn btn-light" onClick={t.pause} disabled={!t.running}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.pause} disabled={!t.running}>
           Pause
-        </button>
-        <button className="btn btn-light" onClick={t.reset}>
+        </Button>
+        <Button size="sm" variant="outline" onClick={t.reset}>
           Reset
-        </button>
+        </Button>
         <span className="lab-stats">
           <span>
             epoch <b>{t.epoch}</b>
@@ -84,66 +85,107 @@ function EmbeddingLab() {
         </span>
       </div>
 
-      <div className="lab-two" style={{ gridTemplateColumns: '340px 1fr', gap: 22 }}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[340px_1fr] sm:items-start">
         <EmbeddingScatter points={m.positions2D()} labelWords={LABELS} highlight={highlight} arrows={arrows} />
 
-        <div className="explorer">
-          <div className="panel-block">
-            <div className="panel-title">Training loss</div>
-            <LossCurve history={t.lossHistory} max={2.5} />
+        {/* display:contents promotes these three cards into the grid so the whole
+            explorer reads as a 2x2: scatter + loss on top, neighbours + analogy below */}
+        <div className="contents">
+          {/* min-h matches the scatter square so the top row has no empty gap;
+              the loss chart is enlarged and vertically centred to fill it. */}
+          <div className="flex min-h-[357px] flex-col rounded-xl border bg-card p-4">
+            <div className="mb-2 text-[0.85rem] font-semibold text-foreground">Training loss</div>
+            <div className="flex flex-1 items-center justify-center">
+              <LossCurve history={t.lossHistory} max={2.5} height={230} />
+            </div>
           </div>
 
-          <div className="panel-block">
-            <div className="panel-title">
+          <div className="rounded-xl border bg-card p-4">
+            <div className="mb-2 text-[0.85rem] font-semibold text-foreground">
               Nearest neighbours <span className="dim">· by cosine similarity</span>
             </div>
-            <div className="field">
-              <label>Nearest to</label>
-              <select className="mini" value={near} onChange={(e) => setNear(e.target.value)}>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <label className="font-mono text-xs text-muted-foreground">Nearest to</label>
+              <select
+                className="h-9 rounded-md border bg-background px-2 text-sm"
+                value={near}
+                onChange={(e) => setNear(e.target.value)}
+              >
                 {opts.map((w) => (
                   <option key={w}>{w}</option>
                 ))}
               </select>
             </div>
             {trained ? (
-              <div className="neighbors" style={{ marginTop: 8 }}>
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {neighbors.map((n) => (
-                  <span className="neighbor" key={n.word}>
+                  <span
+                    className="rounded-full border bg-secondary px-2.5 py-1 font-mono text-xs"
+                    key={n.word}
+                  >
                     {n.word} <b>{n.score.toFixed(2)}</b>
                   </span>
                 ))}
               </div>
             ) : (
-              <div className="panel-empty">Press Train ▶ - until the vectors learn, neighbours are random.</div>
+              <div className="text-[0.84rem] text-muted-foreground">Press Train ▶ - until the vectors learn, neighbours are random.</div>
             )}
           </div>
 
-          <div className="panel-block">
-            <div className="panel-title">Word analogy</div>
-            <div className="field">
-              <select className="mini" value={a} onChange={(e) => setA(e.target.value)}>
-                {opts.map((w) => (
-                  <option key={w}>{w}</option>
-                ))}
-              </select>
-              <span>→</span>
-              <select className="mini" value={b} onChange={(e) => setB(e.target.value)}>
-                {opts.map((w) => (
-                  <option key={w}>{w}</option>
-                ))}
-              </select>
-              <span className="dim">, so</span>
-              <select className="mini" value={c} onChange={(e) => setC(e.target.value)}>
-                {opts.map((w) => (
-                  <option key={w}>{w}</option>
-                ))}
-              </select>
-              <span>→ ?</span>
+          <div className="rounded-xl border bg-card p-4">
+            <div className="mb-3 text-[0.85rem] font-semibold text-foreground">
+              Word analogy <span className="dim">· vector arithmetic</span>
             </div>
-            <div className="analogy-result" style={{ marginTop: 8 }}>
-              {b} − {a} + {c} = <span className="big">{trained ? result ?? '…' : '?'}</span>
+
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-1.5 text-sm">
+              <select
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={a}
+                onChange={(e) => setA(e.target.value)}
+              >
+                {opts.map((w) => (
+                  <option key={w}>{w}</option>
+                ))}
+              </select>
+              <span className="text-muted-foreground" aria-hidden="true">→</span>
+              <select
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={b}
+                onChange={(e) => setB(e.target.value)}
+              >
+                {opts.map((w) => (
+                  <option key={w}>{w}</option>
+                ))}
+              </select>
+
+              <div className="col-span-3 py-0.5 text-center font-mono text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+                so
+              </div>
+
+              <select
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={c}
+                onChange={(e) => setC(e.target.value)}
+              >
+                {opts.map((w) => (
+                  <option key={w}>{w}</option>
+                ))}
+              </select>
+              <span className="text-muted-foreground" aria-hidden="true">→</span>
+              <div className="flex h-9 items-center justify-center rounded-md border border-primary/30 bg-muted px-2 font-semibold text-primary">
+                {trained ? result ?? '…' : '?'}
+              </div>
             </div>
-            {!trained && <div className="panel-empty">Train first - this should resolve to “queen”.</div>}
+
+            <div className="mt-3 rounded-lg bg-muted px-3 py-2 text-center font-mono text-sm text-foreground">
+              {b} − {a} + {c} ={' '}
+              <span className="text-lg font-bold text-primary">{trained ? result ?? '…' : '?'}</span>
+            </div>
+            {!trained && (
+              <div className="mt-2 text-[0.84rem] text-muted-foreground">
+                Train first - this should resolve to “queen”.
+              </div>
+            )}
           </div>
         </div>
       </div>

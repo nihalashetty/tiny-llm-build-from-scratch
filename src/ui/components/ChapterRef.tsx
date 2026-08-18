@@ -14,7 +14,11 @@ export function ChapterRef({ id, short = false }: { id: string; short?: boolean 
   if (!ch) throw new Error(`Unknown chapter id: ${id}`);
   const n = chapterNumber(id);
   return (
-    <Link to={`/c/${id}`} className="chapter-ref" title={ch.title}>
+    <Link
+      to={`/c/${id}`}
+      title={ch.title}
+      className="font-medium whitespace-nowrap text-foreground underline decoration-muted-foreground/40 underline-offset-2 transition-colors hover:decoration-foreground"
+    >
       {short ? n : `Chapter ${n}`}
     </Link>
   );

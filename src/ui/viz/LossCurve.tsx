@@ -35,14 +35,14 @@ export function LossCurve({
         return (
           <g key={i}>
             <line x1={pad.l} y1={y} x2={pad.l + w} y2={y} stroke="#f0f2f5" />
-            <text x={pad.l - 6} y={y + 3} textAnchor="end" fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#79808e">
+            <text x={pad.l - 6} y={y + 3} textAnchor="end" fontFamily="'Geist Mono', monospace" fontSize="9" fill="#79808e">
               {t.toFixed(2)}
             </text>
           </g>
         );
       })}
       {n > 1 && <polyline points={pts.join(' ')} fill="none" stroke="#e0553a" strokeWidth="2" />}
-      <text x={pad.l} y={height - 6} fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#79808e">
+      <text x={pad.l} y={height - 6} fontFamily="'Geist Mono', monospace" fontSize="9" fill="#79808e">
         training time →
       </text>
     </svg>

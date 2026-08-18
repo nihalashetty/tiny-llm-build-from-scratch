@@ -47,7 +47,7 @@ export function AttentionHeatmap({
               x={cx}
               y={cy}
               textAnchor="start"
-              fontFamily="'JetBrains Mono', monospace"
+              fontFamily="'Geist Mono', monospace"
               fontSize={font}
               fill="#8a7d6b"
               transform={`rotate(-45 ${cx} ${cy})`}
@@ -63,7 +63,7 @@ export function AttentionHeatmap({
             x={mL - 7}
             y={mT + i * cell + cell / 2 + font / 3}
             textAnchor="end"
-            fontFamily="'JetBrains Mono', monospace"
+            fontFamily="'Geist Mono', monospace"
             fontSize={font}
             fill="#8a7d6b"
           >

@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { trainBpe, tokenize, type Merge } from '../../llm/bpe';
 import { corpusText } from '../../llm/corpus/little-kingdom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const SAMPLE_WORDS = ['queen', 'throne', 'morning', 'children'];
 
 function TokenRow({ label, toks, fresh }: { label: string; toks: string[]; fresh?: string }) {
   return (
-    <div className="word-row">
-      <span className="word-label">{label}</span>
+    <div className="my-2 flex items-center gap-3">
+      <span className="min-w-[84px] text-right font-mono text-xs text-muted-foreground">{label}</span>
       <span className="tokens">
         {toks.map((t, i) => (
-          <span key={i} className={`tok${fresh && t === fresh ? ' fresh' : ''}`}>
+          <span key={i} className={cn('tok', fresh && t === fresh && 'fresh')}>
             {t}
           </span>
         ))}
@@ -54,15 +57,16 @@ export function BpeMerges() {
   return (
     <div className="lab">
       <div className="lab-controls">
-        <button
-          className="btn btn-run"
+        <Button
+          size="sm"
           onClick={() => (step >= maxStep ? undefined : setPlaying((p) => !p))}
           disabled={step >= maxStep}
         >
           {playing ? 'Pause' : 'Auto-merge ▶'}
-        </button>
-        <button
-          className="btn btn-light"
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
           onClick={() => {
             setPlaying(false);
             setStep((s) => Math.max(0, s - 1));
@@ -70,9 +74,10 @@ export function BpeMerges() {
           disabled={step === 0}
         >
           ◀ Step
-        </button>
-        <button
-          className="btn btn-light"
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
           onClick={() => {
             setPlaying(false);
             setStep((s) => Math.min(maxStep, s + 1));
@@ -80,16 +85,17 @@ export function BpeMerges() {
           disabled={step >= maxStep}
         >
           Step ▶
-        </button>
-        <button
-          className="btn btn-light"
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
           onClick={() => {
             setPlaying(false);
             setStep(0);
           }}
         >
           Reset
-        </button>
+        </Button>
       </div>
 
       <div className="lab-stats">
@@ -102,33 +108,37 @@ export function BpeMerges() {
       </div>
 
       {current ? (
-        <div className="merge-eq">
+        <div className="my-1 flex flex-wrap items-center gap-2.5 font-mono text-base">
           glue&nbsp;
           <span className="tok">{current.pair[0]}</span>
           <span>+</span>
           <span className="tok">{current.pair[1]}</span>
-          <span className="arrow">→</span>
+          <span className="text-muted-foreground">→</span>
           <span className="tok fresh">{current.merged}</span>
-          <span className="count">most common pair - seen {current.count}× across the whole corpus</span>
+          <span className="text-xs text-muted-foreground">
+            most common pair - seen {current.count}× across the whole corpus
+          </span>
         </div>
       ) : (
-        <div className="merge-eq dim">Every word starts as individual characters. Press Auto-merge.</div>
+        <div className="my-1 flex flex-wrap items-center gap-2.5 font-mono text-base text-muted-foreground">
+          Every word starts as individual characters. Press Auto-merge.
+        </div>
       )}
 
-      <div className="vocab-strip">
-        <span className="vocab-strip-label">
+      <div className="my-3 max-h-[132px] overflow-y-auto rounded-xl border border-dashed p-3">
+        <span className="mb-2 block font-mono text-[0.72rem] text-muted-foreground">
           {current ? 'vocabulary' : 'starting vocabulary - every character in the text'}
         </span>
         <span className="tokens">
           {vocab.map((t) => (
-            <span key={t} className={`tok${current && t === current.merged ? ' fresh' : ''}`}>
+            <span key={t} className={cn('tok', current && t === current.merged && 'fresh')}>
               {t}
             </span>
           ))}
         </span>
       </div>
 
-      <div className="sample-note">
+      <div className="my-3 max-w-[62ch] font-mono text-xs text-muted-foreground">
         A few example words to watch (not the whole corpus - the counts above are
         tallied over every word in the text):
       </div>
@@ -150,8 +160,7 @@ export function TokenizeBox() {
 
   return (
     <div className="lab">
-      <input
-        className="tokenize-input"
+      <Input
         value={text}
         onChange={(e) => setText(e.target.value)}
         aria-label="Text to tokenize"
@@ -164,14 +173,14 @@ export function TokenizeBox() {
           </span>
         ))}
       </div>
-      <div className="token-count">
+      <div className="mt-2.5 flex gap-4.5 font-mono text-[0.8rem] text-muted-foreground">
         <span>
-          <b>{toks.length}</b> tokens
+          <b className="font-bold text-foreground">{toks.length}</b> tokens
         </span>
         <span>
-          <b>{chars}</b> letters
+          <b className="font-bold text-foreground">{chars}</b> letters
         </span>
-        <span className="dim">≈ {(chars / Math.max(1, toks.length)).toFixed(1)} letters / token</span>
+        <span>≈ {(chars / Math.max(1, toks.length)).toFixed(1)} letters / token</span>
       </div>
     </div>
   );

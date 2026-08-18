@@ -30,9 +30,9 @@ export function CorpusView() {
         </span>
       </div>
 
-      <div className="corpus-text">
+      <div className="max-h-[240px] overflow-y-auto rounded-xl border bg-muted/40 px-3.5 py-3 font-mono text-[0.8rem] leading-[1.85] text-foreground">
         {sentences.map((s, i) => (
-          <div key={i} className="corpus-line">
+          <div key={i} className="whitespace-pre-wrap">
             {s}
           </div>
         ))}

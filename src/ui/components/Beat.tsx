@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * A "story beat": fades/slides its content in the first time it scrolls into
  * view. This is what makes the page feel like a narrative unfolding rather than
- * a static document. Respects prefers-reduced-motion via CSS (see theme.css).
+ * a static document. Respects prefers-reduced-motion (global rule in index.css).
  */
 export function Beat({
   children,
@@ -38,7 +39,11 @@ export function Beat({
   return (
     <Tag
       ref={ref}
-      className={`beat${shown ? ' in' : ''}${className ? ' ' + className : ''}`}
+      className={cn(
+        'transition-all duration-500 ease-out',
+        shown ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
+        className,
+      )}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
     >
       {children}

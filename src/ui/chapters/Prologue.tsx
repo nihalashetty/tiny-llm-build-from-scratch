@@ -104,7 +104,7 @@ function BlackBox() {
 
       {/* input */}
       <rect x="8" y="86" width="176" height="48" rx="10" fill="#fbfbfc" stroke="#e2e5ea" />
-      <text x="96" y="115" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="14" fill="#3c414b">
+      <text x="96" y="115" textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="14" fill="#3c414b">
         the queen wears a…
       </text>
 
@@ -112,10 +112,10 @@ function BlackBox() {
 
       {/* the box */}
       <rect x="240" y="40" width="160" height="140" rx="18" fill="#15171c" />
-      <text x="320" y="128" textAnchor="middle" fontFamily="'Inter Tight', sans-serif" fontSize="72" fontWeight="800" fill="#e0553a">
+      <text x="320" y="128" textAnchor="middle" fontFamily="'Geist', sans-serif" fontSize="72" fontWeight="800" fill="#e0553a">
         ?
       </text>
-      <text x="320" y="164" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="11" fill="#8b929e">
+      <text x="320" y="164" textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="11" fill="#8b929e">
         the model
       </text>
 
@@ -123,7 +123,7 @@ function BlackBox() {
 
       {/* output */}
       <rect x="456" y="86" width="176" height="48" rx="10" fill="#fdeeea" stroke="#f6cec3" />
-      <text x="544" y="115" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="15" fill="#a63a25">
+      <text x="544" y="115" textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="15" fill="#a63a25">
         crown
       </text>
     </svg>

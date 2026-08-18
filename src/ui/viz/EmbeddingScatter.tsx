@@ -104,16 +104,16 @@ export function EmbeddingScatter({
   const zoomBtn = (factor: number) => zoomAt(size / 2, size / 2, factor);
 
   return (
-    <span className="canvas-frame scatter-frame" style={{ width: size }}>
-      <div className="scatter-zoom">
-        <button className="zoom-btn" onClick={() => zoomBtn(1.3)} aria-label="Zoom in" title="Zoom in">
+    <span className="canvas-frame relative" style={{ width: size }}>
+      <div className="absolute top-2 right-2 z-[2] flex flex-col gap-1">
+        <button className="flex size-[26px] items-center justify-center rounded-md border bg-background/90 font-mono text-[15px] leading-none hover:border-ring" onClick={() => zoomBtn(1.3)} aria-label="Zoom in" title="Zoom in">
           +
         </button>
-        <button className="zoom-btn" onClick={() => zoomBtn(1 / 1.3)} aria-label="Zoom out" title="Zoom out">
+        <button className="flex size-[26px] items-center justify-center rounded-md border bg-background/90 font-mono text-[15px] leading-none hover:border-ring" onClick={() => zoomBtn(1 / 1.3)} aria-label="Zoom out" title="Zoom out">
           −
         </button>
         <button
-          className="zoom-btn"
+          className="flex size-[26px] items-center justify-center rounded-md border bg-background/90 font-mono text-[15px] leading-none hover:border-ring"
           onClick={() => setView({ k: 1, tx: 0, ty: 0 })}
           aria-label="Reset zoom"
           title="Reset"
@@ -155,7 +155,7 @@ export function EmbeddingScatter({
                   <text
                     x={sx(p.x) + 7}
                     y={sy(p.y) + 3.5}
-                    fontFamily="'JetBrains Mono', monospace"
+                    fontFamily="'Geist Mono', monospace"
                     fontSize={hi ? 12 : 10.5}
                     fontWeight={hi ? 700 : 400}
                     fill={hi ?? '#3c414b'}
@@ -189,7 +189,9 @@ export function EmbeddingScatter({
           })}
         </g>
       </svg>
-      <div className="scatter-hint">scroll to zoom · drag to pan</div>
+      <div className="pointer-events-none absolute bottom-1.5 left-2.5 font-mono text-[0.66rem] text-muted-foreground">
+        scroll to zoom · drag to pan
+      </div>
     </span>
   );
 }

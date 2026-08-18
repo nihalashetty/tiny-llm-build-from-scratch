@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card } from '@/components/ui/card';
 
 /**
  * A framed visual with a caption. Unlike the starter design's dashed
@@ -13,9 +14,13 @@ export function Figure({
   children: ReactNode;
 }) {
   return (
-    <figure className="figure">
-      <div className="figure-frame">{children}</div>
-      {caption && <figcaption className="figure-cap">{caption}</figcaption>}
+    <figure className="my-9">
+      <Card className="gap-0 overflow-hidden p-5 sm:p-6">{children}</Card>
+      {caption && (
+        <figcaption className="mt-2.5 text-[0.8rem] leading-relaxed text-muted-foreground">
+          {caption}
+        </figcaption>
+      )}
     </figure>
   );
 }

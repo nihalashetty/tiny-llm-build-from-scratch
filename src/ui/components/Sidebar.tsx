@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { ChevronRight, Search, X } from 'lucide-react';
 import { chapters, partMeta, parts } from '../../content/curriculum';
 import { useProgress } from '../progress';
+import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 /**
  * The course index: brand, a live progress bar, a search box, then the two big
@@ -14,7 +20,7 @@ import { useProgress } from '../progress';
  *   2. Every chapter shows its number, so the sidebar doubles as a map of the
  *      running order rather than a flat list of names.
  */
-export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function Sidebar({ open, onNavigate }: { open?: boolean; onNavigate?: () => void }) {
   const { isDone, doneCount, total, pct } = useProgress();
   const [query, setQuery] = useState('');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -36,7 +42,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   // Keep the active row visible when you arrive by prev/next or a deep link.
   useEffect(() => {
-    const el = navRef.current?.querySelector('.nav-lesson.active');
+    const el = navRef.current?.querySelector('[aria-current="page"]');
     el?.scrollIntoView({ block: 'nearest' });
   }, [activeId, q]);
 
@@ -68,149 +74,206 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   );
 
   return (
-    <aside className="sidebar">
-      <NavLink to="/c/prologue" className="brand" onClick={onNavigate}>
-        <div className="brand-title">Tiny LLM Lab</div>
+    <aside
+      className={cn(
+        'flex h-screen w-[312px] shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground',
+        'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-40 max-lg:transition-transform max-lg:duration-300',
+        open ? 'max-lg:translate-x-0 max-lg:shadow-xl' : 'max-lg:-translate-x-full',
+      )}
+    >
+      <NavLink to="/c/prologue" className="flex items-center px-5 pt-5.5 pb-4" onClick={onNavigate}>
+        <div className="text-lg leading-tight font-bold tracking-tight">Tiny LLM Lab</div>
       </NavLink>
 
-      <div className="progress-card">
-        <div className="progress-head">
-          <b>Your progress</b>
-          <span>
+      <div className="mx-4 mb-3 rounded-lg border bg-background p-3.5">
+        <div className="mb-2.5 flex items-center justify-between text-[0.8rem]">
+          <b className="font-bold">Your progress</b>
+          <span className="font-mono text-xs text-muted-foreground">
             {doneCount} / {total}
           </span>
         </div>
-        <div
-          className="progress-track"
-          role="progressbar"
-          aria-valuenow={pct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
+        <Progress value={pct} className="h-2" />
       </div>
 
-      <div className="side-search">
-        <div className="side-search-field">
-          <span className="side-search-icon" aria-hidden="true">
-            ⌕
-          </span>
-          <input
+      <div className="px-4 pb-3">
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search chapters…"
             aria-label="Search chapters"
+            className="pl-8"
           />
           {query && (
             <button
-              className="side-search-clear"
+              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
               onClick={() => setQuery('')}
               aria-label="Clear search"
             >
-              ×
+              <X className="size-4" />
             </button>
           )}
         </div>
         {q && (
-          <div className="side-search-count">
+          <div className="px-0.5 pt-1.5 font-mono text-[0.66rem] text-muted-foreground">
             {hitCount} {hitCount === 1 ? 'chapter' : 'chapters'} match
           </div>
         )}
       </div>
 
-      <nav className="side-nav" aria-label="Course chapters" ref={navRef}>
-        {shownParts.map((p) => {
-          const partChapters = p.groups.flatMap((g) => g.chapters);
-          const partDone = partChapters.filter((c) => isDone(c.id)).length;
-          const partOpen = q ? true : !partCollapsed[p.title];
-          const meta = partMeta(p.title);
-          const partHasActive = active?.part === p.title;
-          return (
-            <div className={`nav-part${partHasActive ? ' current' : ''}`} key={p.title}>
-              <button
-                className="nav-part-head"
-                onClick={() => setPartCollapsed((s) => ({ ...s, [p.title]: partOpen }))}
-                aria-expanded={partOpen}
+      <ScrollArea className="min-h-0 flex-1">
+        <nav className="px-3 pt-0.5 pb-7" aria-label="Course chapters" ref={navRef}>
+          {shownParts.map((p, pi) => {
+            const partChapters = p.groups.flatMap((g) => g.chapters);
+            const partDone = partChapters.filter((c) => isDone(c.id)).length;
+            const partOpen = q ? true : !partCollapsed[p.title];
+            const meta = partMeta(p.title);
+            const partHasActive = active?.part === p.title;
+            return (
+              <div
+                className={cn('mb-2.5', pi > 0 && 'mt-3.5 border-t pt-4')}
+                key={p.title}
               >
-                <span className="nav-part-top">
-                  <span className="nav-part-chevron" aria-hidden="true">
-                    {partOpen ? '−' : '+'}
-                  </span>
-                  <span className="nav-part-badge">{meta.badge}</span>
-                  <span className="nav-part-meta">
-                    {partDone}/{partChapters.length}
-                  </span>
-                </span>
-                <span className="nav-part-name">{meta.name}</span>
-                {meta.tagline && <span className="nav-part-tagline">{meta.tagline}</span>}
-              </button>
-
-              {partOpen &&
-                p.groups.map((g) => {
-                  const open = q ? true : !collapsed[g.title];
-                  const groupDone = g.chapters.filter((c) => isDone(c.id)).length;
-                  const hasActive = g.chapters.some((c) => c.id === activeId);
-                  return (
-                    <div className="nav-group" key={g.title}>
-                      <button
-                        className={`nav-group-btn${hasActive ? ' has-active' : ''}`}
-                        onClick={() => setCollapsed((s) => ({ ...s, [g.title]: open }))}
-                        aria-expanded={open}
-                      >
-                        <span className="nav-group-label">
-                          <span className="nav-chevron">{open ? '▾' : '▸'}</span>
-                          <span className="nav-group-title">{g.title}</span>
-                        </span>
-                        <span className="nav-group-meta">
-                          {groupDone}/{g.chapters.length}
-                        </span>
-                      </button>
-
-                      {open && (
-                        <div className="nav-lessons">
-                          {g.chapters.map((c) => {
-                            const done = isDone(c.id);
-                            return (
-                              <NavLink
-                                key={c.id}
-                                to={`/c/${c.id}`}
-                                onClick={onNavigate}
-                                title={c.blurb}
-                                className={({ isActive }) =>
-                                  `nav-lesson${isActive ? ' active' : ''}${done ? ' done' : ''}`
-                                }
-                              >
-                                {({ isActive }) => (
-                                  <>
-                                    <span className="nav-lesson-num" aria-hidden="true">
-                                      {done && !isActive ? '✓' : c.index + 1}
-                                    </span>
-                                    <span className="nav-lesson-title">{c.navTitle}</span>
-                                    <span className="nav-lesson-mins">
-                                      {c.built ? `${c.minutes}m` : 'soon'}
-                                    </span>
-                                  </>
-                                )}
-                              </NavLink>
-                            );
-                          })}
-                        </div>
+                <button
+                  className="flex w-full flex-col gap-0.5 rounded-md px-2.5 py-2 text-left hover:bg-sidebar-accent"
+                  onClick={() => setPartCollapsed((s) => ({ ...s, [p.title]: partOpen }))}
+                  aria-expanded={partOpen}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        'inline-flex size-[17px] flex-none items-center justify-center rounded border bg-background font-mono text-[13px] leading-none font-bold text-muted-foreground',
+                        partHasActive && 'border-primary text-primary',
                       )}
-                    </div>
-                  );
-                })}
-            </div>
-          );
-        })}
+                      aria-hidden="true"
+                    >
+                      {partOpen ? '−' : '+'}
+                    </span>
+                    <span
+                      className={cn(
+                        'rounded border bg-secondary px-1.5 py-0.5 font-mono text-[0.6rem] font-bold tracking-wider text-muted-foreground uppercase',
+                        partHasActive && 'border-primary bg-primary text-primary-foreground',
+                      )}
+                    >
+                      {meta.badge}
+                    </span>
+                    <span className="ml-auto font-mono text-[0.6rem] text-muted-foreground">
+                      {partDone}/{partChapters.length}
+                    </span>
+                  </span>
+                  <span className="pl-6 text-[1rem] leading-tight font-bold tracking-tight">
+                    {meta.name}
+                  </span>
+                  {meta.tagline && (
+                    <span className="pl-6 text-[0.72rem] leading-snug text-muted-foreground">
+                      {meta.tagline}
+                    </span>
+                  )}
+                </button>
 
-        {q && hitCount === 0 && (
-          <div className="side-nav-empty">
-            No chapters match “{query}”.
-            <button onClick={() => setQuery('')}>Clear search</button>
-          </div>
-        )}
-      </nav>
+                {partOpen &&
+                  p.groups.map((g) => {
+                    const groupOpen = q ? true : !collapsed[g.title];
+                    const groupDone = g.chapters.filter((c) => isDone(c.id)).length;
+                    const hasActive = g.chapters.some((c) => c.id === activeId);
+                    return (
+                      <div className="mb-1" key={g.title}>
+                        <button
+                          className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left hover:bg-sidebar-accent"
+                          onClick={() => setCollapsed((s) => ({ ...s, [g.title]: groupOpen }))}
+                          aria-expanded={groupOpen}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            <ChevronRight
+                              className={cn(
+                                'size-3 text-muted-foreground transition-transform',
+                                groupOpen && 'rotate-90',
+                              )}
+                            />
+                            <span
+                              className={cn(
+                                'text-[0.8rem] font-semibold',
+                                hasActive && 'text-foreground',
+                              )}
+                            >
+                              {g.title}
+                            </span>
+                          </span>
+                          <span className="font-mono text-[0.62rem] text-muted-foreground">
+                            {groupDone}/{g.chapters.length}
+                          </span>
+                        </button>
+
+                        {groupOpen && (
+                          <div className="ml-[19px] flex flex-col gap-px border-l py-1">
+                            {g.chapters.map((c) => {
+                              const done = isDone(c.id);
+                              return (
+                                <NavLink
+                                  key={c.id}
+                                  to={`/c/${c.id}`}
+                                  onClick={onNavigate}
+                                  title={c.blurb}
+                                  className={({ isActive }) =>
+                                    cn(
+                                      '-ml-px flex items-center gap-2.5 rounded-r-md border-l-2 border-transparent py-1.5 pr-2.5 pl-2 text-[0.8rem] font-medium text-foreground/80 hover:bg-sidebar-accent hover:text-foreground',
+                                      done && !isActive && 'text-muted-foreground',
+                                      isActive && 'border-primary bg-muted font-semibold text-foreground',
+                                    )
+                                  }
+                                >
+                                  {({ isActive }) => (
+                                    <>
+                                      <span
+                                        className={cn(
+                                          'flex size-[19px] flex-none items-center justify-center rounded-full font-mono text-[10px]',
+                                          isActive
+                                            ? 'bg-primary font-bold text-primary-foreground'
+                                            : done
+                                              ? 'bg-secondary text-emerald-600'
+                                              : 'bg-secondary text-muted-foreground',
+                                        )}
+                                        aria-hidden="true"
+                                      >
+                                        {done && !isActive ? '✓' : c.index + 1}
+                                      </span>
+                                      <span className="flex-1 leading-tight">{c.navTitle}</span>
+                                      <span className="font-mono text-[10px] text-muted-foreground/70">
+                                        {c.built ? `${c.minutes}m` : 'soon'}
+                                      </span>
+                                    </>
+                                  )}
+                                </NavLink>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            );
+          })}
+
+          {q && hitCount === 0 && (
+            <div className="px-3 py-4 text-[0.8rem] leading-relaxed text-muted-foreground">
+              No chapters match “{query}”.
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 flex"
+                onClick={() => setQuery('')}
+              >
+                Clear search
+              </Button>
+            </div>
+          )}
+        </nav>
+      </ScrollArea>
     </aside>
   );
 }

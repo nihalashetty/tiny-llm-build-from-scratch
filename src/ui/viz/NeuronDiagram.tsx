@@ -20,7 +20,7 @@ export function NeuronDiagram() {
       ].map((n, i) => (
         <g key={i}>
           <circle cx={54} cy={n.y} r={22} fill="#fff" stroke="#3e6ff0" strokeWidth="1.5" />
-          <text x={54} y={n.y + 5} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="15" fill="#16181d">
+          <text x={54} y={n.y + 5} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="15" fill="#16181d">
             {n.label}
           </text>
         </g>
@@ -29,38 +29,38 @@ export function NeuronDiagram() {
       {/* edges + weight labels */}
       <line x1={76} y1={70} x2={214} y2={98} stroke="#b6bcc6" strokeWidth="2" markerEnd="url(#nd-arrow)" />
       <line x1={76} y1={140} x2={214} y2={112} stroke="#b6bcc6" strokeWidth="2" markerEnd="url(#nd-arrow)" />
-      <text x={140} y={72} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="12" fill="#a63a25">
+      <text x={140} y={72} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="12" fill="#a63a25">
         × w₁
       </text>
-      <text x={140} y={142} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="12" fill="#a63a25">
+      <text x={140} y={142} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="12" fill="#a63a25">
         × w₂
       </text>
 
       {/* the neuron body */}
       <rect x={222} y={72} width={96} height={66} rx={16} fill="#15171c" />
-      <text x={270} y={100} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="15" fill="#ffc98a">
+      <text x={270} y={100} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="15" fill="#ffc98a">
         Σ add
       </text>
-      <text x={270} y={122} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="13" fill="#a7c79a">
+      <text x={270} y={122} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="13" fill="#a7c79a">
         σ squash
       </text>
 
       {/* bias */}
-      <text x={270} y={162} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="12" fill="#656c7a">
+      <text x={270} y={162} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="12" fill="#656c7a">
         + bias
       </text>
 
       {/* output */}
       <line x1={318} y1={105} x2={410} y2={105} stroke="#b6bcc6" strokeWidth="2" markerEnd="url(#nd-arrow)" />
       <circle cx={440} cy={105} r={24} fill="#fdeeea" stroke="#e0553a" strokeWidth="1.5" />
-      <text x={440} y={101} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="14" fill="#a63a25">
+      <text x={440} y={101} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="14" fill="#a63a25">
         ŷ
       </text>
-      <text x={440} y={116} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="9" fill="#a63a25">
+      <text x={440} y={116} textAnchor="middle" fontFamily="'Geist Mono', monospace" fontSize="9" fill="#a63a25">
         0…1
       </text>
 
-      <text x={250} y={26} textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="13" fill="#656c7a">
+      <text x={250} y={26} textAnchor="middle" fontFamily="'Geist', sans-serif" fontSize="13" fill="#656c7a">
         output = σ( x₁·w₁ + x₂·w₂ + bias )
       </text>
     </svg>

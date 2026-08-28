@@ -10,6 +10,7 @@ import { ChapterEvaluation } from './ChapterEvaluation';
 import { ChapterScaling } from './ChapterScaling';
 import { Chapter7Assistant } from './Chapter7Assistant';
 import { Chapter8Epilogue } from './Chapter8Epilogue';
+import { ChapterNeuroevolutionCar } from './ChapterNeuroevolutionCar';
 import { ChapterInferenceOverview } from './ChapterInferenceOverview';
 import { ChapterInferenceTokenize } from './ChapterInferenceTokenize';
 import { ChapterInferenceChatFormat } from './ChapterInferenceChatFormat';
@@ -36,6 +37,7 @@ export const chapterComponents: Record<string, ComponentType> = {
   scaling: ChapterScaling,
   assistant: Chapter7Assistant,
   epilogue: Chapter8Epilogue,
+  'neuroevolution-car': ChapterNeuroevolutionCar,
   'inference-overview': ChapterInferenceOverview,
   'inference-tokenize': ChapterInferenceTokenize,
   'inference-chat-format': ChapterInferenceChatFormat,

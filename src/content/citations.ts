@@ -257,6 +257,29 @@ const list: Citation[] = [
     authors: 'Yann LeCun',
     url: 'https://openreview.net/pdf?id=BZ5a1r-kVsf',
   },
+
+  // --- Capstone: neuroevolution ---
+  {
+    id: 'holland-1975',
+    year: '1975',
+    title: 'Adaptation in Natural and Artificial Systems (genetic algorithms)',
+    authors: 'John Holland',
+    url: 'https://en.wikipedia.org/wiki/Genetic_algorithm',
+  },
+  {
+    id: 'sims-1994',
+    year: '1994',
+    title: 'Evolving Virtual Creatures',
+    authors: 'Karl Sims',
+    url: 'https://www.karlsims.com/evolved-virtual-creatures.html',
+  },
+  {
+    id: 'neat-2002',
+    year: '2002',
+    title: 'Evolving Neural Networks through Augmenting Topologies (NEAT)',
+    authors: 'Stanley & Miikkulainen',
+    url: 'https://en.wikipedia.org/wiki/Neuroevolution_of_augmenting_topologies',
+  },
 ];
 
 const byId: Record<string, Citation> = Object.fromEntries(list.map((c) => [c.id, c]));

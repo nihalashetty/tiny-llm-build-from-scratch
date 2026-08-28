@@ -185,6 +185,16 @@ const raw: Omit<Chapter, 'index'>[] = [
     blurb: 'Every piece you built, assembled into one machine - plus where it all goes next.',
     built: true,
   },
+  {
+    id: 'neuroevolution-car',
+    part: PART_TRAINING,
+    group: 'Bonus round',
+    title: 'Teaching a car to drive itself',
+    navTitle: 'Neuroevolution',
+    minutes: 10,
+    blurb: 'No teacher, no labels, no backprop - breed a population of neural nets until one learns to drive a track.',
+    built: true,
+  },
 
   // ─────────────────────────────  PART 2 · INFERENCE  ─────────────────────────────
   {
